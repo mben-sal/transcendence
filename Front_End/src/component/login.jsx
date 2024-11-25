@@ -1,7 +1,8 @@
 import logo42 from '../assets/42_.svg';  // Remove the space before .svg
 import './login.css';
 import { useState } from 'react';
-
+import { Link } from 'react-router-dom';
+import logoimage from '../assets/Right.svg';  // Remove the space before .svg
 
 export default function Login() {
 	const [formData, setFormData] = useState({  // Changed from FormData to formData (convention)
@@ -56,7 +57,9 @@ export default function Login() {
 	}
 
 	return(
-		<div className ="log">
+		<div className ="page">
+			<div className='login-wrapper'>
+
 			<h2>WELCOME BACK</h2>
 			<h6>Welcome back! Please enter your details</h6>
 			<form  onSubmit={handleSubmit}>
@@ -64,29 +67,29 @@ export default function Login() {
 				<input 
 					id='email'
 					name='email'
-					className={`email-input ${errors.email ? 'error' : ''}`}
+					className={`shared-input email-input ${errors.email ? 'error' : ''}`}
 					type="email" 
 					placeholder="Enter your email"
 					// value={formData.email}
 					onChange={(e) => handleChange(e)}
 					aria-invalid={errors.email ? 'true' : 'false'}
 					required
-
-				/>
+					
+					/>
 				{errors.email && <span className="error">{errors.email}</span>}
 				
 				<p>Password</p>
 					<input
 						id='password'
 						name='password'
-						className={`password-input ${errors.password ? 'error' : ''}`}
+						className={`shared-input password-input ${errors.password ? 'error' : ''}`}
 						type="password" 
 						placeholder="Enter your password"
 						value={formData.password}
 						onChange={handleChange}
 						aria-invalid={errors.password ? 'true' : 'false'}
 						required
-					/>
+						/>
 					{errors.password && <span className="error">{errors.password}</span>}
 
 				<div className="remember-forgot">
@@ -97,16 +100,13 @@ export default function Login() {
 							checked={FormData.rememberMe}
 							onChange={handleChange}
 							className='checkbox'
-						/>
+							/>
 						<span>Remember me</span>
 					</label>
 					
-					<a 
-						href="./forgot-password" 
-						className="forgot-password"
-					>
-						Forgot password
-					</a>
+					{/* <a href="./forgot-password" className="forgot-password"> */}
+					<Link to="/forgot-password">Forgot password?</Link>
+					{/* </a> */}
 				</div>
 				{errors.submit && <span className="error">{errors.submit}</span>}
 				<button type="submit" className="sign-in-btn">
@@ -133,7 +133,12 @@ export default function Login() {
 					 Sign up
 				</button>
 				</div>
-			</form>
+				</form>
+			</div>
+			<div className = "image">
+				<img src = {logoimage}></img>
+			</div>
 		</div>
+		
 	); 
 }

@@ -1,21 +1,22 @@
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
+
 import './App.css'
 import Login from './component/login'
-import logoimage from './assets/Right.svg'
+import { createBrowserRouter , RouterProvider} from 'react-router-dom'
+import ForgotPassword from './component/forgotPassword'
 
-function App() {
+const App = () => {
+	const routing  = createBrowserRouter ([
+		{path: '/', element: <Login />},
+		{path: '/login', element: <Login />},
+		{path: '/forgot-password', element: <ForgotPassword />},
+	])
   return (
     <>
-	<div className = "page">
-      <div className="login">
-		<Login />
-	</div>
-	<div className = "image">
-		<img src = {logoimage}></img>
-	  </div>
-	</div>
+	<RouterProvider router={routing}>
+		  <div className="login">
+			<Login />
+		</div>
+	</RouterProvider>
     </>
   )
 }
