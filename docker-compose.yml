@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:13
+    container_name: database
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ft_transcendence
+      POSTGRES_PASSWORD: ft_transcendence
+      POSTGRES_DB: backend_db
+    ports:
+      - "5433:5433"
+    networks:
+      - app-network
+    restart: always
+
+  backend:
+    build: ./Backend
+    container_name: backend
+    volumes:
+      - ./Backend/Django:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - app-network
+    restart: always
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    image: frontend
+    container_name: frontend
+    ports: 
+      - "5173:5173"
+    networks:
+      - app-network
+    volumes: 
+      - ./Frontend:/app
+    environment:
+      - VITE_API_KEY=http://backend:8000
+    restart: always
+    depends_on:
+      - backend
+  
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
+  
