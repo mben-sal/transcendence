@@ -18,7 +18,8 @@ services:
     build: ./Backend
     container_name: backend
     volumes:
-      - ./Backend/Django:/app
+      - ./Backend/Django:/app:delegated
+      - backend_modules:/app/node_modules
     ports:
       - "8000:8000"
     depends_on:
@@ -38,7 +39,10 @@ services:
     networks:
       - app-network
     volumes: 
-      - ./Frontend:/app
+      - type: bind
+        source: ./Frontend
+        target: /app
+      - /app/node_modules
     environment:
       - VITE_API_KEY=http://backend:8000
     restart: always
@@ -47,8 +51,9 @@ services:
   
 volumes:
   postgres_data:
+  backend_modules:
+  frontend_modules:
 
 networks:
   app-network:
     driver: bridge
-  

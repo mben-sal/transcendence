@@ -75,7 +75,7 @@ export default function Login() {
 
 			<h2>WELCOME BACK</h2>
 			<h6>Welcome back! Please enter your details</h6>
-			<form  onSubmit={handleSubmit}>
+			<form  onSubmit={handleSubmit} className="w-[30rem]">
 				<p>Email</p>
 				<input 
 					id='email'
