@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './login.css';
-import logoimage from '../assets/Right.svg';
+import logoimage from '../assets/src/Right.svg';
 import './two_factor.css';
 
 export default function Two_Factor() {

@@ -44,7 +44,9 @@ services:
         target: /app
       - /app/node_modules
     environment:
-      - VITE_API_KEY=http://backend:8000
+      - VITE_42_CLIENT_ID=${VITE_42_CLIENT_ID}
+      - VITE_42_REDIRECT_URI=${VITE_42_REDIRECT_URI}
+      - VITE_API_URL=${VITE_API_URL}
     restart: always
     depends_on:
       - backend

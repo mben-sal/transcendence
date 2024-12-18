@@ -1,39 +1,104 @@
 
 import './App.css'
 import Login from './component/login'
-import Two_Factor from './component/two_factor'
-import { createBrowserRouter , RouterProvider} from 'react-router-dom'
-import ForgotPassword from './component/forgotPassword'
-import axios from 'axios'
+// import Two_Factor from './component/two_factor'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useState } from 'react';
+import AuthLayout from './layout/AuthLayout';
+import DashboardLayout from './layout/DashboardLayout';
+import Home from './pages/Home';
+import Game from './pages/Game';
+import Chat from './pages/Chat';
+import Settings from './pages/Settings';
+import TwoFactor from './component/two_factor';
+import ForgotPassword from './component/forgotPassword';
+
 
 const App = () => {
+	const [isAuthenticated, setIsAuthenticated] = useState(true);
+	const [is2FAVerified, setIs2FAVerified] = useState(true);
+  
+	// Protected Route wrapper component
+	const ProtectedRoute = ({ children }) => {
+	  if (!isAuthenticated) {
+		return <Navigate to="/auth/login" replace />;
+	  }
+	  
+	  if (isAuthenticated && !is2FAVerified) {
+		return <Navigate to="/auth/two-factor" replace />;
+	  }
+  
+	  return children;
+	};
+  
+	return (
+		<div className='w-full'>
 
-	const url = import.meta.env.VITE_API_KEY;
-		console.log("Backend API URL:", url);
+	  <Router>
+		<Routes>
+		  {/* Auth Routes */}
+		  <Route element={<AuthLayout />}>
+			<Route path="/auth/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
+			<Route path="/auth/forgot-password" element={<ForgotPassword />} />
+			<Route 
+			  path="/auth/two-factor" 
+			  element={
+				  isAuthenticated ? 
+				  <TwoFactor setIs2FAVerified={setIs2FAVerified} /> : 
+				  <Navigate to="/auth/login" replace />
+				} 
+				/>
+		  </Route>
+  
+		  {/* Dashboard Routes */}
+		  <Route
+			element={
+				<ProtectedRoute>
+				<DashboardLayout />
+			  </ProtectedRoute>
+			}
+			>
+			<Route path="/" element={<Home />} />
+			<Route path="/game" element={<Game />} />
+			<Route path="/chat" element={<Chat />} />
+			<Route path="/settings" element={<Settings />} />
+		  </Route>
+  
+		  {/* Catch all route */}
+		  <Route path="*" element={<Navigate to="/" replace />} />
+		</Routes>
+	  </Router>
+			  </div>
+	);
+  };
 
-	axios.get(`${url}/api/some-endpoint`)
-    .then(response => {
-        console.log('Backend Response:', response.data);
-    })
-    .catch(error => {
-        console.error('Error calling the backend:', error);
-    });
-	const routing  = createBrowserRouter ([
-		{path: '/', element: <Two_Factor />},
-		{path: '/login', element: <Login />},
-		// {path: '/two_factor', element: <Two_Factor />},
-		{path: '/forgot-password', element: <ForgotPassword />},
-	])
-  return (
-    <>
-	<RouterProvider router={routing}>
-		  <div className="login">
-			{/* <Login /> */}
-			<Two_Factor />
-		</div>
-	</RouterProvider>
-    </>
-  )
-}
+// const App = () => {
+
+// 	const url = import.meta.env.VITE_API_KEY;
+// 		console.log("Backend API URL:", url);
+
+// 	axios.get(`${url}/api/some-endpoint`)
+//     .then(response => {
+//         console.log('Backend Response:', response.data);
+//     })
+//     .catch(error => {
+//         console.error('Error calling the backend:', error);
+//     });
+// 	const routing  = createBrowserRouter ([
+// 		{path: '/login', element: <Login />},
+// 		{path: '/', element: <AppLayout />},
+// 		// {path: '/two_factor', element: <Two_Factor />},
+// 		{path: '/forgot-password', element: <ForgotPassword />},
+// 	])
+//   return (
+//     <>
+// 	<RouterProvider router={routing}>
+// 		  <div className="login">
+// 			<Layout/>
+// 		</div>
+// 	</RouterProvider>
+//     </>
+//   )
+// }
 
 export default App
