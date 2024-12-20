@@ -3,7 +3,7 @@ import Sidebar from '../component/sidebar';
 
 const DashboardLayout = () => {
   return (
-    <div className="flex  bg-[#F3F3E0] w-full debug">
+    <div className="flex  bg-[#F3F3E0] w-full">
       <Sidebar />
       <main className=" p-6 w-full">
         <Outlet />

@@ -16,14 +16,14 @@ const Sidebar = () => {
 	];
 
 	return (
-		<div className="flex h-screen">
+		<div className="flex h-screen shadow-2xl">
 			<div className="w-[250px] bg-[#CBDCEB] flex flex-col">
 				{/* Logo Section */}
-				<div className="mb-8 flex justify-center p-6 border-b border-[#608BC1]/20">
+				<div className="mb-8 flex justify-center p-6 border-b border-[#608BC1]/50">
 					<img
 						src={logoImage}
 						alt="Pong Logo"
-						className="w-20 h-20"
+						className="w-19 h-19"
 					/>
 				</div>
 

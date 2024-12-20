@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: ft_transcendence
       POSTGRES_DB: backend_db
     ports:
-      - "5433:5433"
+      - "5433:5432"
     networks:
       - app-network
     restart: always
