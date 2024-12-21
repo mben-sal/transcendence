@@ -1,6 +1,7 @@
 import { Check } from 'lucide-react';
+import PropTypes from 'prop-types';
 
-export const PrivateCard = () => {
+export const PrivateCard = ({ onSelectPrivate }) => {
   // Sample data - replace with your actual data
   const privateChats = [
     {
@@ -34,7 +35,11 @@ export const PrivateCard = () => {
       <h2 className="text-2xl font-bold mb-4">People</h2>
       <div className="space-y-4">
         {privateChats.map((chat) => (
-          <div key={chat.id} className="flex items-center justify-between pb-4 border-b border-gray-100">
+			<div 
+			key={chat.id}
+			onClick={() => onSelectPrivate(chat)}
+			className="flex items-center justify-between pb-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
+			>
             <div className="flex items-center gap-4">
               <img
                 src={chat.avatar}
@@ -65,6 +70,10 @@ export const PrivateCard = () => {
       </div>
     </div>
   );
+};
+
+PrivateCard.propTypes = {
+  onSelectPrivate: PropTypes.func
 };
 
 export default PrivateCard;

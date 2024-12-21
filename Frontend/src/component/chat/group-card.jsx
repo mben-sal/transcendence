@@ -1,5 +1,7 @@
+// import React from 'react';
+import PropTypes from 'prop-types';
 
-export const GroupCard = () => {
+export const GroupCard = ({ onSelectGroup = () => {} }) => {
   // Sample data - you can replace this with your actual data
   const groups = [
     {
@@ -25,7 +27,11 @@ export const GroupCard = () => {
       <h2 className="text-2xl font-bold mb-4">Groups</h2>
       <div className="space-y-4">
         {groups.map((group) => (
-          <div key={group.id} className="flex items-center justify-between pb-4 border-b border-gray-100">
+          <div 
+            key={group.id} 
+            onClick={() => onSelectGroup(group)}
+            className="flex items-center justify-between pb-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
+          >
             <div className="flex items-center gap-4">
               <img
                 src={group.avatar}
@@ -50,6 +56,16 @@ export const GroupCard = () => {
       </div>
     </div>
   );
+};
+
+// Add PropTypes
+GroupCard.propTypes = {
+  onSelectGroup: PropTypes.func
+};
+
+// Add defaultProps
+GroupCard.defaultProps = {
+  onSelectGroup: () => {}
 };
 
 export default GroupCard;
