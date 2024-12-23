@@ -4,8 +4,10 @@ import PropTypes from 'prop-types';
 
 export const ChatConversation = ({ user = {}, onClose = () => {}, onBlock = () => {} }) => {
   const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState([]);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
+  const messagesEndRef = useRef(null);
   
   // Handle clicking outside to close menu
   useEffect(() => {
@@ -19,46 +21,38 @@ export const ChatConversation = ({ user = {}, onClose = () => {}, onBlock = () =
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Sample conversation data - replace with your actual data
-  const messages = [
-    {
-      id: 1,
-      text: "Hey There!",
-      sender: "other",
-      timestamp: "Today, 8:30am"
-    },
-    {
-      id: 2,
-      text: "How are you?",
-      sender: "other",
-      timestamp: "Today, 8:31am"
-    },
-    {
-      id: 3,
-      text: "Hello!",
-      sender: "me",
-      timestamp: "Today, 8:34am"
-    },
-    {
-      id: 4,
-      text: "I am fine !!",
-      sender: "me",
-      timestamp: "Today, 8:34am"
-    },
-    {
-      id: 5,
-      text: "ok !!",
-      sender: "other",
-      timestamp: "Today, 8:35am"
-    }
-  ];
+  // Auto scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSend = (e) => {
     e.preventDefault();
     if (message.trim()) {
-      // Handle sending message
-      console.log('Sending message:', message);
+      const newMessage = {
+        id: Date.now(),
+        text: message.trim(),
+        sender: 'me',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      
+      setMessages(prev => [...prev, newMessage]);
       setMessage('');
+
+      // Simulate response (remove this in production and replace with actual API call)
+      setTimeout(() => {
+        const response = {
+          id: Date.now() + 1,
+          text: `You said: "${message.trim()}"`,
+          sender: 'other',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages(prev => [...prev, response]);
+      }, 1000);
     }
   };
 
@@ -96,7 +90,7 @@ export const ChatConversation = ({ user = {}, onClose = () => {}, onBlock = () =
         <div className="relative" ref={menuRef}>
           <button 
             onClick={() => setShowMenu(!showMenu)}
-            className="p-2 bg-slate-300 hover:bg-gray-100 rounded-full transition-colors"
+            className=" bg-slate-300 p-2 hover:bg-white rounded-full transition-colors"
             type="button"
             aria-label="More options"
           >
@@ -104,7 +98,7 @@ export const ChatConversation = ({ user = {}, onClose = () => {}, onBlock = () =
           </button>
           
           {showMenu && (
-            <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg py-1 z-10 border border-gray-100">
+            <div className=" absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg py-1 z-10 border border-gray-100">
               <button
                 onClick={() => handleMenuAction('quit')}
                 className="w-full px-4 py-2.5 text-left text-gray-700 hover:bg-gray-50 transition-colors"
@@ -143,6 +137,7 @@ export const ChatConversation = ({ user = {}, onClose = () => {}, onBlock = () =
             </div>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Message Input */}
@@ -157,7 +152,11 @@ export const ChatConversation = ({ user = {}, onClose = () => {}, onBlock = () =
           />
           <button
             type="submit"
-            className="p-1.5 bg-[#0084FF] text-wi hover:text-blue-600 disabled:text-gray-400"
+            className={`p-1.5 rounded-full ${
+              message.trim() 
+                ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                : 'bg-gray-100 text-gray-400'
+            } transition-colors`}
             disabled={!message.trim()}
           >
             <Send className="w-5 h-5" />
