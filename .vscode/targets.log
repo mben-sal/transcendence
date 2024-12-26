@@ -1,6 +1,4 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
-make: *** No rule to make target 'all'.  Stop.
-
 # GNU Make 4.3
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
@@ -8,7 +6,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed Dec 18 22:56:26 2024
+# Make data base, printed on Thu Dec 26 16:04:14 2024
 
 # Variables
 
@@ -19,13 +17,9 @@ MEMORY_PRESSURE_WRITE = c29tZSAyMDAwMDAgMjAwMDAwMAA=
 # environment
 LC_ALL = C
 # environment
-NO_AT_BRIDGE = 1
-# environment
 GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
 FONTCONFIG_PATH = /etc/fonts
-# environment
-GJS_DEBUG_OUTPUT = stderr
 # environment
 SNAP_LAUNCHER_ARCH_TRIPLET = x86_64-linux-gnu
 # environment
@@ -77,7 +71,7 @@ VSCODE_CODE_CACHE_PATH = /home/mben-sal/.config/Code/CachedData/138f619c86f11999
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.M827Y2
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.LNDGZ2
 # default
 .LOADED := 
 # default
@@ -85,13 +79,15 @@ XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.M827Y2
 # environment
 MEMORY_PRESSURE_WATCH = /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@wayland.service/memory.pressure
 # environment
-GNOME_TERMINAL_SERVICE = :1.3446
+GNOME_TERMINAL_SERVICE = :1.266
 # makefile
 MAKEFLAGS = pqrR
 # makefile
 CURDIR := /home/mben-sal/Desktop/my_tran
 # environment
 APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+# environment
+VSCODE_L10N_BUNDLE_LOCATION = 
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
@@ -115,17 +111,15 @@ MAKEFILE_LIST := Makefile
 # environment
 ZSH = /home/mben-sal/.oh-my-zsh
 # environment
-VSCODE_PID = 4861
+VSCODE_PID = 21771
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-BAMF_DESKTOP_FILE_HINT = /var/lib/snapd/desktop/applications/code_code.desktop
-# environment
 XDG_DATA_HOME = /home/mben-sal/snap/code/177/.local/share
 # environment
-SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3293,unix/ben-sal:/tmp/.ICE-unix/3293
+SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3248,unix/ben-sal:/tmp/.ICE-unix/3248
 # automatic
 *F = $(notdir $*)
 # environment
@@ -149,11 +143,9 @@ MAKECMDGOALS := all
 # environment
 XMODIFIERS = @im=ibus
 # environment
-GJS_DEBUG_TOPICS = JS ERROR;JS LOG
-# environment
 SHLVL = 1
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/c0ce700c_e9a0_4e5a_845e_c28edbb0aef9
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/b83df559_047f_4b39_b4b1_5047d8fa6213
 # environment
 MAKELEVEL := 0
 # default
@@ -174,8 +166,6 @@ SNAP_USER_COMMON = /home/mben-sal/snap/code/common
 LC_TIME = ar_MA.UTF-8
 # environment
 SNAP = /snap/code/177
-# environment
-INVOCATION_ID = 4f13a93f0f5445cea4e9f91490a29e32
 # environment
 SNAP_REVISION = 177
 # environment
@@ -213,13 +203,11 @@ XDG_DATA_DIRS_VSCODE_SNAP_ORIG = /home/mben-sal/.local/share/flatpak/exports/sha
 # environment
 LOGNAME = mben-sal
 # environment
-GIO_LAUNCHED_DESKTOP_FILE = /var/lib/snapd/desktop/applications/code_code.desktop
-# environment
 SNAP_ARCH = amd64
 # makefile
 .DEFAULT_GOAL := up
 # environment
-SYSTEMD_EXEC_PID = 3326
+SYSTEMD_EXEC_PID = 3285
 # environment
 DISPLAY = :0
 # environment
@@ -233,11 +221,7 @@ SNAP_DATA = /var/snap/code/177
 # environment
 SNAP_CONTEXT = _RX1P6PMhKvnn8hCs3zDVtacoUuUpfEyTUGtMnbybWLrVZvqrJ7_
 # environment
-MANAGERPID = 3072
-# environment
 LC_MEASUREMENT = ar_MA.UTF-8
-# environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 4815
 # environment
 PAGER = less
 # environment
@@ -254,8 +238,6 @@ GDK_PIXBUF_MODULE_FILE = /home/mben-sal/snap/code/common/.cache/gdk-pixbuf-loade
 GIO_MODULE_DIR = /home/mben-sal/snap/code/common/.cache/gio-modules
 # environment
 NVM_CD_FLAGS = -q
-# environment
-JOURNAL_STREAM = 8:25853
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -293,7 +275,6 @@ VTE_VERSION = 7600
 # environment
 SNAP_COMMON = /var/snap/code/common
 # default
- 
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
 # environment
 QTWEBENGINE_DICTIONARIES_PATH = /usr/share/hunspell-bdic/
@@ -307,10 +288,13 @@ VSCODE_ESM_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 GDMSESSION = ubuntu
 # environment
 LC_IDENTIFICATION = ar_MA.UTF-8
+ 
+make: *** No rule to make target 'all'.  Stop.
+
 # environment
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
 # variable set hash-table stats:
-# Load=148/1024=14%, Rehash=0, Collisions=12/178=7%
+# Load=140/1024=14%, Rehash=0, Collisions=13/170=8%
 
 # Pattern-specific Variable Values
 
@@ -383,6 +367,6 @@ down:
 # strcache performance: lookups = 25 / hit rate = 32%
 # hash-table stats:
 # Load=17/8192=0%, Rehash=0, Collisions=0/25=0%
-# Finished Make data base on Wed Dec 18 22:56:26 2024
+# Finished Make data base on Thu Dec 26 16:04:14 2024
 
  

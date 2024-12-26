@@ -5,8 +5,9 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logoimage from '../assets/src/Right.svg';
 import { AUTH_CONFIG } from '../config';
+import PropTypes from 'prop-types';
 
-export default function Login() {
+export default function Login({ setIsAuthenticated }) {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
@@ -45,34 +46,26 @@ export default function Login() {
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (validateForm()) {
-            setIsLoading(true);
-            try {
-                const response = await axios.post(
-                    `${AUTH_CONFIG.API_URL}/api/users/login`,
-                    { email: formData.email, password: formData.password },
-                    { 
-                        withCredentials: true,
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    }
-                );
-
-                if (response.data.status === 'success') {
-                    console.log('Login successful');
-                    navigate('/two-factor');
-                }
-            } catch (error) {
-                const errorMessage = error.response?.data?.message || 'Authentication failed. Please try again.';
-                setErrors({ submit: errorMessage });
-            } finally {
-                setIsLoading(false);
+    // Dans Login.jsx
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+        try {
+            const response = await axios.post(`${AUTH_CONFIG.VITE_API_URL}/api/users/login`, {
+                email: formData.email,
+                password: formData.password
+            });
+            
+            if (response.data.status === 'success') {
+                localStorage.setItem('token', response.data.token);
+                setIsAuthenticated(true);
+                navigate('/auth/two-factor');
             }
+        } catch (error) {
+            setErrors({ submit: error.response?.data?.message || 'Authentication failed' });
         }
-    };
+    }
+};
 
     const handle42Login = (type = 'signin') => {
         if (!AUTH_CONFIG.CLIENT_ID || !AUTH_CONFIG.REDIRECT_URI) {
@@ -141,8 +134,8 @@ export default function Login() {
                             />
                             <span>Remember me</span>
                         </label>
-                        <Link to="/forgot-password">Forgot password?</Link>
-                    </div>
+						<Link to="/auth/forgot-password">Forgot password?</Link>
+						</div>
 
                     {errors.submit && <span className="error">{errors.submit}</span>}
                     
@@ -188,3 +181,7 @@ export default function Login() {
         </div>
     );
 }
+
+Login.propTypes = {  
+    setIsAuthenticated: PropTypes.func.isRequired
+};

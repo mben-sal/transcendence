@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { Send, MoreVertical } from 'lucide-react';
 import PropTypes from 'prop-types';
+// import { chatService } from '../../services/api_chat';
 
-export const ChatConversation = ({ user = {}, onClose = () => {}, onBlock = () => {} }) => {
-  const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([]);
+export const ChatConversation = ({ user, messages = [], onSendMessage, onClose, onBlock = () => {}}) => {
+	const [message, setMessage] = useState('');
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -30,29 +30,11 @@ export const ChatConversation = ({ user = {}, onClose = () => {}, onBlock = () =
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
     if (message.trim()) {
-      const newMessage = {
-        id: Date.now(),
-        text: message.trim(),
-        sender: 'me',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      
-      setMessages(prev => [...prev, newMessage]);
+      await onSendMessage(message.trim());
       setMessage('');
-
-      // Simulate response (remove this in production and replace with actual API call)
-      setTimeout(() => {
-        const response = {
-          id: Date.now() + 1,
-          text: `You said: "${message.trim()}"`,
-          sender: 'other',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        };
-        setMessages(prev => [...prev, response]);
-      }, 1000);
     }
   };
 
@@ -118,25 +100,14 @@ export const ChatConversation = ({ user = {}, onClose = () => {}, onBlock = () =
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-[70%] rounded-2xl p-3 ${
-                msg.sender === 'me'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 text-gray-900'
-              }`}
-            >
-              <p>{msg.text}</p>
-              <span className="text-xs opacity-70 mt-1 block">
-                {msg.timestamp}
-              </span>
-            </div>
-          </div>
-        ))}
+	  {messages.map((msg) => (
+    <div key={msg.id} className={`flex ${msg.sender === user.id ? 'justify-start' : 'justify-end'}`}>
+      <div className={`max-w-[70%] rounded-2xl p-3 ${msg.sender === user.id ? 'bg-gray-100' : 'bg-blue-500 text-white'}`}>
+        <p>{msg.content}</p>
+        <span className="text-xs opacity-70">{new Date(msg.created_at).toLocaleTimeString()}</span>
+      </div>
+    </div>
+  ))}
         <div ref={messagesEndRef} />
       </div>
 
@@ -169,22 +140,22 @@ export const ChatConversation = ({ user = {}, onClose = () => {}, onBlock = () =
 
 // PropTypes for type checking
 ChatConversation.propTypes = {
-  user: PropTypes.shape({
-    name: PropTypes.string,
-    avatar: PropTypes.string
-  }),
-  onClose: PropTypes.func,
-  onBlock: PropTypes.func
-};
-
-// Default props
-ChatConversation.defaultProps = {
-  user: {
-    name: 'User',
-    avatar: '/api/placeholder/48/48'
-  },
-  onClose: () => {},
-  onBlock: () => {}
-};
+	user: PropTypes.shape({
+	  id: PropTypes.number,
+	  name: PropTypes.string,
+	  avatar: PropTypes.string
+	}),
+	messages: PropTypes.arrayOf(
+	  PropTypes.shape({
+		id: PropTypes.number,
+		content: PropTypes.string,
+		sender: PropTypes.number,
+		created_at: PropTypes.string
+	  })
+	),
+	onSendMessage: PropTypes.func,
+	onClose: PropTypes.func,
+	onBlock: PropTypes.func
+  };
 
 export default ChatConversation;

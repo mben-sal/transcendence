@@ -1,32 +1,13 @@
 // import React from 'react';
 import PropTypes from 'prop-types';
 
-export const GroupCard = ({ onSelectGroup = () => {} }) => {
-  // Sample data - you can replace this with your actual data
-  const groups = [
-    {
-      id: 1,
-      name: "Friends Forever",
-      lastMessage: "Hahahahah",
-      timestamp: "Today, 9:52pm",
-      unreadCount: 4,
-      avatar: "/api/placeholder/48/48"
-    },
-    {
-      id: 2,
-      name: "Chat Room",
-      lastMessage: "It's not going to happen",
-      timestamp: "Yesterday, 12:31pm",
-      unreadCount: 0,
-      avatar: "/api/placeholder/48/48"
-    }
-  ];
+export const GroupCard = ({ conversations = [], onSelectGroup }) => {
 
   return (
     <div className="bg-white rounded-3xl shadow-md p-6">
       <h2 className="text-2xl font-bold mb-4">Groups</h2>
       <div className="space-y-4">
-        {groups.map((group) => (
+        {conversations.map((group) => (
           <div 
             key={group.id} 
             onClick={() => onSelectGroup(group)}
@@ -40,11 +21,11 @@ export const GroupCard = ({ onSelectGroup = () => {} }) => {
               />
               <div>
                 <h3 className="font-semibold text-gray-900">{group.name}</h3>
-                <p className="text-gray-500 text-sm">{group.lastMessage}</p>
+                <p className="text-gray-500 text-sm">{group.messages?.[0]?.content || 'No message'}</p>
               </div>
             </div>
             <div className="flex flex-col items-end gap-2">
-              <span className="text-gray-400 text-sm">{group.timestamp}</span>
+              <span className="text-gray-400 text-sm">{group.messages?.[0]?.created_at}</span>
               {group.unreadCount > 0 && (
                 <span className="bg-orange-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
                   {group.unreadCount}
@@ -58,14 +39,16 @@ export const GroupCard = ({ onSelectGroup = () => {} }) => {
   );
 };
 
-// Add PropTypes
 GroupCard.propTypes = {
-  onSelectGroup: PropTypes.func
-};
-
-// Add defaultProps
-GroupCard.defaultProps = {
-  onSelectGroup: () => {}
-};
+	conversations: PropTypes.arrayOf(
+	  PropTypes.shape({
+		id: PropTypes.number,
+		name: PropTypes.string,
+		messages: PropTypes.array,
+		unread_count: PropTypes.number
+	  })
+	),
+	onSelectGroup: PropTypes.func
+  };
 
 export default GroupCard;

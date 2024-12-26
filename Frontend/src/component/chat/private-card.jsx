@@ -1,40 +1,13 @@
 import { Check } from 'lucide-react';
 import PropTypes from 'prop-types';
 
-export const PrivateCard = ({ onSelectPrivate }) => {
-  // Sample data - replace with your actual data
-  const privateChats = [
-    {
-      id: 1,
-      name: "John benbat",
-      lastMessage: "ok !!",
-      timestamp: "Today, 9:52pm",
-      isRead: true,
-      avatar: "/api/placeholder/48/48"
-    },
-    {
-      id: 2,
-      name: "Bilal Gates",
-      lastMessage: "play with me now",
-      timestamp: "Today, 12:11pm",
-      unreadCount: 1,
-      avatar: "/api/placeholder/48/48"
-    },
-    {
-      id: 3,
-      name: "David rash",
-      lastMessage: "perfect",
-      timestamp: "Yesterday, 12:31pm",
-      unreadCount: 1,
-      avatar: "/api/placeholder/48/48"
-    }
-  ];
+export const PrivateCard = ({ conversations = [], onSelectPrivate}) => {
 
   return (
     <div className="bg-white rounded-3xl shadow-md p-6">
       <h2 className="text-2xl font-bold mb-4">People</h2>
       <div className="space-y-4">
-        {privateChats.map((chat) => (
+        {conversations.map((chat) => (
 			<div 
 			key={chat.id}
 			onClick={() => onSelectPrivate(chat)}
@@ -48,11 +21,11 @@ export const PrivateCard = ({ onSelectPrivate }) => {
               />
               <div>
                 <h3 className="font-semibold text-gray-900">{chat.name}</h3>
-                <p className="text-gray-500 text-sm">{chat.lastMessage}</p>
+                <p className="text-gray-500 text-sm">{chat.messages?.[0]?.content || 'No message'}</p>
               </div>
             </div>
             <div className="flex flex-col items-end gap-2">
-              <span className="text-gray-400 text-sm">{chat.timestamp}</span>
+              <span className="text-gray-400 text-sm">{chat.messages?.[0]?.created_at}</span>
               {chat.isRead && (
                 <div className="flex">
                   <Check className="w-4 h-4 text-blue-500" />
@@ -72,8 +45,17 @@ export const PrivateCard = ({ onSelectPrivate }) => {
   );
 };
 
+
 PrivateCard.propTypes = {
-  onSelectPrivate: PropTypes.func
-};
+	conversations: PropTypes.arrayOf(
+	  PropTypes.shape({
+		id: PropTypes.number,
+		name: PropTypes.string,
+		messages: PropTypes.array,
+		unread_count: PropTypes.number
+	  })
+	),
+	onSelectPrivate: PropTypes.func
+  };
 
 export default PrivateCard;

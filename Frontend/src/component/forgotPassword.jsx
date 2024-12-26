@@ -8,11 +8,11 @@ export default function ForgotPassword() {
     e.preventDefault();
     // Add your logic to handle the forgot password functionality here
     console.log('Forgot password button clicked');
-    navigate('/reset-password'); // Navigate to the password reset page
+    navigate('/auth/reset-password'); // Navigate to the password reset page
   };
 
   const handleBackToLogin = () => {
-    navigate('/login'); // Redirige vers la page de connexion
+    navigate('/auth/login'); // Redirige vers la page de connexion
   };
 
 
