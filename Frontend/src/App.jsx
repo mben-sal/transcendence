@@ -20,11 +20,12 @@ const App = () => {
  const [is2FAVerified, setIs2FAVerified] = useState(true);
 
  const handleLogout = () => {
-   localStorage.removeItem('token');
-   setIsAuthenticated(false);
-   setIs2FAVerified(false);
+   localStorage.removeItem('token'); // Suppression du token
+   setIsAuthenticated(false); // Mise à jour de l'état
+   setIs2FAVerified(false); // Réinitialisation de la vérification 2FA
  };
 
+// 2. Composant de protection des routes
  const ProtectedRoute = ({ children }) => {
    if (!isAuthenticated) {
      return <Navigate to="/auth/login" replace />;
