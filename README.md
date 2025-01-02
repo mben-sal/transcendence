@@ -78,6 +78,8 @@ $ Points clés :
 1. ProtectedRoute vérifie l'authentification avant d'afficher le contenu
 2. Routes imbriquées utilisent element={<Layout/>} pour le template
 3. setIsAuthenticated et setIs2FAVerified sont passés aux composants enfants pour mettre à jour l'état
+
+
 /-------------------------------------------------------/
 
 file login.jsx (hooks , axios )
