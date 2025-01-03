@@ -215,13 +215,55 @@ const fetchData = async () => {
 fetchData();
 ```
 
+=> Navlink :
+
+```
+<NavLink 
+  to="/route"
+  className={({ isActive }) => 
+    isActive ? 'active-class' : 'inactive-class'
+  }
+>
+```
+
+1. isActive : Détecte automatiquement si la route actuelle correspond au to
+2. Permet le styling conditionnel basé sur l'état actif
+3. Support des sous-routes avec end prop
 
 
+=>  Les Props (propriétés) dans React sont des arguments passés aux composants. Voici l'essentiel :
+
+```
+const Sidebar = () => {
+  const navLinks = [...]; // Props définies localement
+  return (
+    // Props passées aux NavLink
+    <NavLink 
+      key={link.to}
+      to={link.to}
+      className={({ isActive }) => `...`}
+    >
+```
+
+Caractéristiques principales :
 
 
+- Lecture seule (immutables)
+- Passées de parent à enfant
+- Peuvent être de tout type (string, number, function, object)
 
+```
+// Parent
+<MenuItem icon="home.svg" label="Home" />
 
-
+// Enfant
+const MenuItem = ({ icon, label }) => (
+  <div>
+    <img src={icon} alt={label} />
+    <span>{label}</span>
+  </div>
+);
+```
 
 
 
