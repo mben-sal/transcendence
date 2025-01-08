@@ -39,7 +39,7 @@ const App = () => {
  };
 
  return (
-   <div className='w-full'>
+   <div className='w-full h-dvh overflow-hidden'>
      <Router>
        <Routes>
          <Route element={<AuthLayout />}>

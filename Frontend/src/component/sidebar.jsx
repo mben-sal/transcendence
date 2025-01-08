@@ -6,6 +6,7 @@ import chat from '../assets/src/chat.svg'
 import settings from '../assets/src/setting.svg'
 import logout from '../assets/src/logout.svg'
 import { NavLink } from 'react-router-dom';
+import Player from '../assets/src/player_.svg';
 
 const Sidebar = () => {
 	const navLinks = [
@@ -50,7 +51,7 @@ const Sidebar = () => {
 				<div className="mt-auto p-4 border-t border-[#608BC1]/50">
 					<div className="flex items-center gap-3 px-4 py-2">
 						<div className="w-10 h-10 rounded-full overflow-hidden bg-[#FFE5B4]">
-							<img src="/api/placeholder/40/40" alt="profile" className="w-full h-full object-cover" />
+							<img src={Player} alt="profile" className="w-full h-full object-cover" />
 						</div>
 						<span className="text-[#133E87]">John Doe</span>
 					</div>
