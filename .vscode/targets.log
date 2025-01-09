@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+
 # GNU Make 4.3
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed Jan  8 18:17:42 2025
+# Make data base, printed on Thu Jan  9 15:35:46 2025
 
 # Variables
 
@@ -43,7 +45,7 @@ QT_ACCESSIBILITY = 1
 # environment
 SNAP_INSTANCE_NAME = code
 # environment
-GDK_PIXBUF_MODULEDIR = /snap/code/177/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders
+GDK_PIXBUF_MODULEDIR = /snap/code/179/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
@@ -55,7 +57,7 @@ PWD = /home/mben-sal/Desktop/my_tran
 # environment
 LSCOLORS = Gxfxcxdxbxegedabagacad
 # environment
-XDG_DATA_DIRS = /home/mben-sal/snap/code/177/.local/share:/home/mben-sal/snap/code/177:/snap/code/177/usr/share:/home/mben-sal/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop
+XDG_DATA_DIRS = /home/mben-sal/snap/code/179/.local/share:/home/mben-sal/snap/code/179:/snap/code/179/usr/share:/home/mben-sal/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop
 # environment
 SNAP_EUID = 1000
 # environment
@@ -67,11 +69,11 @@ OLDPWD = /home/mben-sal
 # environment
 NVM_INC = /home/mben-sal/.nvm/versions/node/v18.20.4/include/node
 # environment
-VSCODE_CODE_CACHE_PATH = /home/mben-sal/.config/Code/CachedData/138f619c86f1199955d53b4166bef66ef252935c
+VSCODE_CODE_CACHE_PATH = /home/mben-sal/.config/Code/CachedData/fabdb6a30b49f79a7aba0f2ad9df9b399473380f
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.HI32Z2
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.WA2ZZ2
 # default
 .LOADED := 
 # default
@@ -79,7 +81,7 @@ XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.HI32Z2
 # environment
 MEMORY_PRESSURE_WATCH = /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@wayland.service/memory.pressure
 # environment
-GNOME_TERMINAL_SERVICE = :1.146
+GNOME_TERMINAL_SERVICE = :1.361
 # makefile
 MAKEFLAGS = pqrR
 # makefile
@@ -111,15 +113,15 @@ MAKEFILE_LIST := Makefile
 # environment
 ZSH = /home/mben-sal/.oh-my-zsh
 # environment
-VSCODE_PID = 8154
+VSCODE_PID = 40044
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-XDG_DATA_HOME = /home/mben-sal/snap/code/177/.local/share
+XDG_DATA_HOME = /home/mben-sal/snap/code/179/.local/share
 # environment
-SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3193,unix/ben-sal:/tmp/.ICE-unix/3193
+SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3518,unix/ben-sal:/tmp/.ICE-unix/3518
 # automatic
 *F = $(notdir $*)
 # environment
@@ -129,11 +131,11 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 # automatic
 <D = $(patsubst %/,%,$(dir $<))
 # environment
-VSCODE_NLS_CONFIG = {"userLocale":"en-us","osLocale":"en-us","resolvedLanguage":"en","defaultMessagesFile":"/snap/code/177/usr/share/code/resources/app/out/nls.messages.json","locale":"en-us","availableLanguages":{}}
+VSCODE_NLS_CONFIG = {"userLocale":"en-us","osLocale":"en-us","resolvedLanguage":"en","defaultMessagesFile":"/snap/code/179/usr/share/code/resources/app/out/nls.messages.json","locale":"en-us","availableLanguages":{}}
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
-GTK_PATH = /snap/code/177/usr/lib/x86_64-linux-gnu/gtk-3.0
+GTK_PATH = /snap/code/179/usr/lib/x86_64-linux-gnu/gtk-3.0
 # environment
 GNOME_DESKTOP_SESSION_ID = this-is-deprecated
 # makefile
@@ -145,7 +147,7 @@ XMODIFIERS = @im=ibus
 # environment
 SHLVL = 1
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/470e1ad8_dbb8_46af_9b93_5233e9342626
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/681224e9_e79b_4751_97ba_617ada3a124c
 # environment
 MAKELEVEL := 0
 # default
@@ -165,9 +167,9 @@ SNAP_USER_COMMON = /home/mben-sal/snap/code/common
 # environment
 LC_TIME = ar_MA.UTF-8
 # environment
-SNAP = /snap/code/177
+SNAP = /snap/code/179
 # environment
-SNAP_REVISION = 177
+SNAP_REVISION = 179
 # environment
 SNAP_REAL_HOME = /home/mben-sal
 # environment
@@ -195,7 +197,7 @@ DESKTOP_SESSION = ubuntu
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
-LOCPATH = /snap/code/177/usr/lib/locale
+LOCPATH = /snap/code/179/usr/lib/locale
 # 'override' directive
 GNUMAKEFLAGS := 
 # environment
@@ -207,7 +209,7 @@ SNAP_ARCH = amd64
 # makefile
 .DEFAULT_GOAL := up
 # environment
-SYSTEMD_EXEC_PID = 3226
+SYSTEMD_EXEC_PID = 3553
 # environment
 DISPLAY = :0
 # environment
@@ -217,7 +219,7 @@ GTK_MODULES = gail:atk-bridge
 # default
 MAKE_VERSION := 4.3
 # environment
-SNAP_DATA = /var/snap/code/177
+SNAP_DATA = /var/snap/code/179
 # environment
 SNAP_CONTEXT = _RX1P6PMhKvnn8hCs3zDVtacoUuUpfEyTUGtMnbybWLrVZvqrJ7_
 # environment
@@ -253,20 +255,17 @@ VSCODE_IPC_HOOK = /run/user/1000/vscode-773d2f78-1.96-main.sock
 # environment
 TERM = xterm-256color
 # environment
-GTK_EXE_PREFIX = /snap/code/177/usr
- 
-make: *** No rule to make target 'all'.  Stop.
-
+GTK_EXE_PREFIX = /snap/code/179/usr
 # environment
 SNAP_NAME = code
 # environment
-GSETTINGS_SCHEMA_DIR = /home/mben-sal/snap/code/177/.local/share/glib-2.0/schemas
+GSETTINGS_SCHEMA_DIR = /home/mben-sal/snap/code/179/.local/share/glib-2.0/schemas
 # default
 .RECIPEPREFIX := 
 # automatic
 <F = $(notdir $<)
 # environment
-SNAP_VERSION = 138f619c
+SNAP_VERSION = fabdb6a3
 # default
 SUFFIXES := 
 # environment
@@ -282,7 +281,7 @@ SNAP_COMMON = /var/snap/code/common
 # environment
 QTWEBENGINE_DICTIONARIES_PATH = /usr/share/hunspell-bdic/
 # environment
-SNAP_USER_DATA = /home/mben-sal/snap/code/177
+SNAP_USER_DATA = /home/mben-sal/snap/code/179
 # environment
 XDG_MENU_PREFIX = gnome-
 # environment
@@ -314,6 +313,7 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Not a target:
 Makefile:
+ 
 #  Implicit rule search has been done.
 #  Last modified 2024-12-16 23:11:14.052286583
 #  File has been updated.
@@ -367,6 +367,6 @@ down:
 # strcache performance: lookups = 25 / hit rate = 32%
 # hash-table stats:
 # Load=17/8192=0%, Rehash=0, Collisions=0/25=0%
-# Finished Make data base on Wed Jan  8 18:17:42 2025
+# Finished Make data base on Thu Jan  9 15:35:46 2025
 
  
