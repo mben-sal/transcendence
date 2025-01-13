@@ -49,12 +49,19 @@ const Sidebar = () => {
 
             {/* User Profile */}
             <div className="mt-auto p-4 border-t border-[#608BC1]/50">
-                <div className="flex items-center gap-3 px-4 py-2">
+                <NavLink
+                    to="/profile"
+                    onClick={() => setIsOpen(false)}
+                    className={({ isActive }) => `flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 
+                        ${isActive 
+                        ? 'bg-[#608BC1] text-white' 
+                        : 'text-[#133E87] hover:bg-[#608BC1]/10'}`}
+                >
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-[#FFE5B4]">
                         <img src={Player} alt="profile" className="w-full h-full object-cover" />
                     </div>
-                    <span className="text-[#133E87]">John Doe</span>
-                </div>
+                    <span>John Doe</span>
+                </NavLink>
                 <button
                     className="w-full mt-2 flex items-center gap-4 px-4 py-3 text-[#133E87] 
                     bg-slate-400 hover:bg-[#608BC1] hover:text-white

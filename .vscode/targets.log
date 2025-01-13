@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Thu Jan  9 15:35:46 2025
+# Make data base, printed on Mon Jan 13 15:16:59 2025
 
 # Variables
 
@@ -73,7 +73,7 @@ VSCODE_CODE_CACHE_PATH = /home/mben-sal/.config/Code/CachedData/fabdb6a30b49f79a
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.WA2ZZ2
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.GB14Z2
 # default
 .LOADED := 
 # default
@@ -81,7 +81,7 @@ XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.WA2ZZ2
 # environment
 MEMORY_PRESSURE_WATCH = /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@wayland.service/memory.pressure
 # environment
-GNOME_TERMINAL_SERVICE = :1.361
+GNOME_TERMINAL_SERVICE = :1.124
 # makefile
 MAKEFLAGS = pqrR
 # makefile
@@ -113,7 +113,7 @@ MAKEFILE_LIST := Makefile
 # environment
 ZSH = /home/mben-sal/.oh-my-zsh
 # environment
-VSCODE_PID = 40044
+VSCODE_PID = 5826
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -121,7 +121,7 @@ XDG_SESSION_TYPE = wayland
 # environment
 XDG_DATA_HOME = /home/mben-sal/snap/code/179/.local/share
 # environment
-SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3518,unix/ben-sal:/tmp/.ICE-unix/3518
+SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3155,unix/ben-sal:/tmp/.ICE-unix/3155
 # automatic
 *F = $(notdir $*)
 # environment
@@ -147,7 +147,7 @@ XMODIFIERS = @im=ibus
 # environment
 SHLVL = 1
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/681224e9_e79b_4751_97ba_617ada3a124c
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/92b955c8_c40e_4eb2_b749_3163677ffc52
 # environment
 MAKELEVEL := 0
 # default
@@ -209,7 +209,7 @@ SNAP_ARCH = amd64
 # makefile
 .DEFAULT_GOAL := up
 # environment
-SYSTEMD_EXEC_PID = 3553
+SYSTEMD_EXEC_PID = 3196
 # environment
 DISPLAY = :0
 # environment
@@ -276,6 +276,7 @@ ELECTRON_NO_ATTACH_CONSOLE = 1
 VTE_VERSION = 7600
 # environment
 SNAP_COMMON = /var/snap/code/common
+ 
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
 # environment
@@ -313,7 +314,6 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Not a target:
 Makefile:
- 
 #  Implicit rule search has been done.
 #  Last modified 2024-12-16 23:11:14.052286583
 #  File has been updated.
@@ -367,6 +367,6 @@ down:
 # strcache performance: lookups = 25 / hit rate = 32%
 # hash-table stats:
 # Load=17/8192=0%, Rehash=0, Collisions=0/25=0%
-# Finished Make data base on Thu Jan  9 15:35:46 2025
+# Finished Make data base on Mon Jan 13 15:16:59 2025
 
  
