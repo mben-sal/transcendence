@@ -1,16 +1,9 @@
-import { useState, useEffect } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import player_ from '../assets/src/player_.svg';
 
 const Game = () => {
   const navigate = useNavigate();
-  const [friends, setFriends] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchFriends();
-  }, []);
 
   const gameOptions = [
     { 
@@ -49,23 +42,11 @@ const Game = () => {
     }
   ];
 
-  const fetchFriends = async () => {
-    try {
-      const response = await axios.get('http://localhost:3001/api/friends');
-      setFriends(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching friends:', error);
-      setLoading(false);
-    }
-  };
-
-  const handleGameStart = async (path, opponent = null) => {
+  const handleGameStart = async (path) => {
     try {
       const gameData = {
         gameType: path.split('/')[2],
-        opponent: opponent,
-        userId: localStorage.getItem('userId') // Assurez-vous d'avoir stocké l'ID de l'utilisateur
+        userId: localStorage.getItem('userId')
       };
 
       const response = await axios.post('http://localhost:3001/api/games/create', gameData);
@@ -75,10 +56,6 @@ const Game = () => {
     } catch (error) {
       console.error('Error starting game:', error);
     }
-  };
-
-  const handleFriendClick = (friendId) => {
-    handleGameStart('/game/friend', friendId);
   };
 
   return (
@@ -101,37 +78,6 @@ const Game = () => {
               </button>
             ))}
           </div>
-        </div>
-
-        <div className=" rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-semibold mb-6 text-gray-800">Friends</h2>
-          {loading ? (
-            <div className="text-center py-4">Loading...</div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {friends.map((friend) => (
-                <button
-                  key={friend.id}
-                  onClick={() => handleFriendClick(friend.id)}
-                  className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 
-                           transition-all duration-200"
-                >
-                  <div className="relative">
-                    <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden">
-                      <img
-                        src={friend.image || player_}
-                        alt={friend.name}
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    </div>
-                    <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full 
-                                 border-2 border-white ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
-                  </div>
-                  <span className="text-gray-500">{friend.name}</span>
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </div>
