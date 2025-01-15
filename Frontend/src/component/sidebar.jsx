@@ -2,12 +2,13 @@ import logoImage from '../assets/src/logo.svg'
 import home from '../assets/src/home.svg'
 import game from '../assets/src/game.svg'
 import chat from '../assets/src/chat.svg'
-import settings from '../assets/src/setting.svg'
+// import settings from '../assets/src/setting.svg'
 import logout from '../assets/src/logout.svg'
 import { NavLink } from 'react-router-dom';
 import Player from '../assets/src/player_.svg';
 import { Divide as Hamburger } from 'hamburger-react'
 import { useState } from 'react';
+import Notification from '../component/profile/Notification';
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -16,7 +17,7 @@ const Sidebar = () => {
         { to: "/", icon: home, label: "Home" },
         { to: "/game", icon: game, label: "Game" },
         { to: "/chat", icon: chat, label: "Chat" },
-        { to: "/settings", icon: settings, label: "Settings" },
+        // { to: "/settings", icon: settings, label: "Settings" },
     ];
 
     const SidebarContent = () => (
@@ -61,6 +62,7 @@ const Sidebar = () => {
                         <img src={Player} alt="profile" className="w-full h-full object-cover" />
                     </div>
                     <span>John Doe</span>
+					<Notification />
                 </NavLink>
                 <button
                     className="w-full mt-2 flex items-center gap-4 px-4 py-3 text-[#133E87] 
