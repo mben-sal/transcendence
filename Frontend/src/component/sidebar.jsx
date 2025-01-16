@@ -2,7 +2,7 @@ import logoImage from '../assets/src/logo.svg'
 import home from '../assets/src/home.svg'
 import game from '../assets/src/game.svg'
 import chat from '../assets/src/chat.svg'
-// import settings from '../assets/src/setting.svg'
+import settings from '../assets/src/setting.svg'
 import logout from '../assets/src/logout.svg'
 import { NavLink } from 'react-router-dom';
 import Player from '../assets/src/player_.svg';
@@ -17,7 +17,7 @@ const Sidebar = () => {
         { to: "/", icon: home, label: "Home" },
         { to: "/game", icon: game, label: "Game" },
         { to: "/chat", icon: chat, label: "Chat" },
-        // { to: "/settings", icon: settings, label: "Settings" },
+        { to: "/settings", icon: settings, label: "Settings" },
     ];
 
     const SidebarContent = () => (
@@ -50,20 +50,23 @@ const Sidebar = () => {
 
             {/* User Profile */}
             <div className="mt-auto p-4 border-t border-[#608BC1]/50">
-                <NavLink
+                <div className='flex items-center gap-2'>
+				<NavLink
                     to="/profile"
                     onClick={() => setIsOpen(false)}
-                    className={({ isActive }) => `flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 
+                    className={({ isActive }) => `flex items-center gap-1 pl-2 py-2 pr-1 rounded-lg transition-colors duration-200 w-full
                         ${isActive 
                         ? 'bg-[#608BC1] text-white' 
                         : 'text-[#133E87] hover:bg-[#608BC1]/10'}`}
-                >
+						>
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-[#FFE5B4]">
                         <img src={Player} alt="profile" className="w-full h-full object-cover" />
                     </div>
-                    <span>John Doe</span>
-					<Notification />
+                    <span className=' truncate w-[8.5rem]' title='Manar Ben Salah'>Manar Ben Salah Mohamed Saouab</span>
+					{/* <Notification /> */}
                 </NavLink>
+				<Notification />
+				</div>
                 <button
                     className="w-full mt-2 flex items-center gap-4 px-4 py-3 text-[#133E87] 
                     bg-slate-400 hover:bg-[#608BC1] hover:text-white

@@ -41,7 +41,7 @@ const Friends = () => {
             <input
               type="text"
               placeholder="Rechercher un ami..."
-              className="w-full px-4 py-2 rounded-lg bg-[#133E87] border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 "
+              className="w-full px-4 py-2 rounded-lg bg-slate-300 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-[#133E87]"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />

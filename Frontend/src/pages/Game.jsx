@@ -59,7 +59,6 @@ const Game = () => {
   };
 
   return (
-    <div className="min-h-screen p-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="rounded-lg shadow-lg">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-8">
@@ -79,7 +78,6 @@ const Game = () => {
             ))}
           </div>
         </div>
-      </div>
     </div>
   );
 };

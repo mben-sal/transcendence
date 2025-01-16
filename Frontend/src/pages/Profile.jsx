@@ -75,7 +75,7 @@ const UserProfile = () => {
   };
 
   return (
-    <div className="min-h-screen p-4" onClick={handleCloseMenus}>
+    <div className="" onClick={handleCloseMenus}>
       <div className="max-w-6xl mx-auto bg-[#CBDCEB] rounded-3xl overflow-hidden shadow-xl">
         {/* Header Section with Cover Image */}
         <div className="relative h-48">

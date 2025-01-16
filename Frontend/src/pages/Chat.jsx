@@ -67,7 +67,6 @@ const Chat = () => {
   const handleSearch = (term) => setSearchTerm(term);
 
   return (
-    <div className="p-4">
       <div className="flex gap-4 h-[calc(100vh-2rem)]">
         <div className="flex flex-col gap-4 w-96">
           <div className="flex items-center gap-4">
@@ -77,7 +76,7 @@ const Chat = () => {
             </span>
           </div>
           <SearchInput onSearch={handleSearch} />
-          <div className="flex-1 overflow-y-auto space-y-4">
+          <div className="flex-1 space-y-4">
             {loading ? (
               <div className="flex justify-center items-center h-full">
                 <span className="text-gray-500">Loading...</span>
@@ -112,7 +111,6 @@ const Chat = () => {
           )}
         </div>
       </div>
-    </div>
   );
 };
 

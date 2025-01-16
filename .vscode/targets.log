@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed Jan 15 15:25:35 2025
+# Make data base, printed on Thu Jan 16 12:40:53 2025
 
 # Variables
 
@@ -23,6 +23,8 @@ GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
 FONTCONFIG_PATH = /etc/fonts
 # environment
+GJS_DEBUG_OUTPUT = stderr
+# environment
 SNAP_LAUNCHER_ARCH_TRIPLET = x86_64-linux-gnu
 # environment
 LC_NAME = ar_MA.UTF-8
@@ -31,7 +33,7 @@ LC_NUMERIC = ar_MA.UTF-8
 # environment
 VSCODE_CRASH_REPORTER_PROCESS_TYPE = extensionHost
 # environment
-VSCODE_CWD = /home/mben-sal/Desktop/my_tran
+VSCODE_CWD = /home/mben-sal
 # environment
 NVM_DIR = /home/mben-sal/.nvm
 # environment
@@ -73,15 +75,13 @@ VSCODE_CODE_CACHE_PATH = /home/mben-sal/.config/Code/CachedData/fabdb6a30b49f79a
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.RGZN02
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.1XFI02
 # default
 .LOADED := 
 # default
 .INCLUDE_DIRS = /usr/local/include /usr/include /usr/include
 # environment
 MEMORY_PRESSURE_WATCH = /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@wayland.service/memory.pressure
-# environment
-GNOME_TERMINAL_SERVICE = :1.132
 # makefile
 MAKEFLAGS = pqrR
 # makefile
@@ -113,15 +113,17 @@ MAKEFILE_LIST := Makefile
 # environment
 ZSH = /home/mben-sal/.oh-my-zsh
 # environment
-VSCODE_PID = 6251
+VSCODE_PID = 5100
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
+BAMF_DESKTOP_FILE_HINT = /var/lib/snapd/desktop/applications/code_code.desktop
+# environment
 XDG_DATA_HOME = /home/mben-sal/snap/code/179/.local/share
 # environment
-SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3279,unix/ben-sal:/tmp/.ICE-unix/3279
+SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3191,unix/ben-sal:/tmp/.ICE-unix/3191
 # automatic
 *F = $(notdir $*)
 # environment
@@ -145,9 +147,9 @@ MAKECMDGOALS := all
 # environment
 XMODIFIERS = @im=ibus
 # environment
-SHLVL = 1
+GJS_DEBUG_TOPICS = JS ERROR;JS LOG
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/dd21d2d7_11b9_4a0e_9cf6_fed7ce8f4bc8
+SHLVL = 0
 # environment
 MAKELEVEL := 0
 # default
@@ -169,6 +171,8 @@ LC_TIME = ar_MA.UTF-8
 # environment
 SNAP = /snap/code/179
 # environment
+INVOCATION_ID = d0840e9b298f4828aaf15370ea971372
+# environment
 SNAP_REVISION = 179
 # environment
 SNAP_REAL_HOME = /home/mben-sal
@@ -186,8 +190,6 @@ LC_TELEPHONE = ar_MA.UTF-8
 GTK_IM_MODULE_FILE = /home/mben-sal/snap/code/common/.cache/immodules/immodules.cache
 # environment
 XDG_CURRENT_DESKTOP = Unity
-# environment
-LS_COLORS = rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:
 # automatic
 +F = $(notdir $+)
 # environment
@@ -205,11 +207,13 @@ XDG_DATA_DIRS_VSCODE_SNAP_ORIG = /home/mben-sal/.local/share/flatpak/exports/sha
 # environment
 LOGNAME = mben-sal
 # environment
+GIO_LAUNCHED_DESKTOP_FILE = /var/lib/snapd/desktop/applications/code_code.desktop
+# environment
 SNAP_ARCH = amd64
 # makefile
 .DEFAULT_GOAL := up
 # environment
-SYSTEMD_EXEC_PID = 3314
+SYSTEMD_EXEC_PID = 3230
 # environment
 DISPLAY = :0
 # environment
@@ -223,9 +227,15 @@ SNAP_DATA = /var/snap/code/179
 # environment
 SNAP_CONTEXT = _RX1P6PMhKvnn8hCs3zDVtacoUuUpfEyTUGtMnbybWLrVZvqrJ7_
 # environment
+MANAGERPID = 2966
+# environment
 LC_MEASUREMENT = ar_MA.UTF-8
 # environment
+GIO_LAUNCHED_DESKTOP_FILE_PID = 5046
+# environment
 PAGER = less
+# environment
+_ = /snap/code/179/usr/share/code/code
 # environment
 LC_PAPER = ar_MA.UTF-8
 # environment
@@ -233,13 +243,13 @@ XDG_RUNTIME_DIR = /run/user/1000
 # environment
 SNAP_UID = 1000
 # environment
-COLORTERM = truecolor
-# environment
 GDK_PIXBUF_MODULE_FILE = /home/mben-sal/snap/code/common/.cache/gdk-pixbuf-loaders.cache
 # environment
 GIO_MODULE_DIR = /home/mben-sal/snap/code/common/.cache/gio-modules
 # environment
 NVM_CD_FLAGS = -q
+# environment
+JOURNAL_STREAM = 8:20268
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -252,8 +262,6 @@ QT_IM_MODULE = ibus
 ELECTRON_RUN_AS_NODE = 1
 # environment
 VSCODE_IPC_HOOK = /run/user/1000/vscode-773d2f78-1.96-main.sock
-# environment
-TERM = xterm-256color
 # environment
 GTK_EXE_PREFIX = /snap/code/179/usr
 # environment
@@ -273,8 +281,6 @@ VSCODE_CLI = 1
 # environment
 ELECTRON_NO_ATTACH_CONSOLE = 1
 # environment
-VTE_VERSION = 7600
-# environment
 SNAP_COMMON = /var/snap/code/common
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
@@ -292,8 +298,9 @@ GDMSESSION = ubuntu
 LC_IDENTIFICATION = ar_MA.UTF-8
 # environment
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
+ 
 # variable set hash-table stats:
-# Load=140/1024=14%, Rehash=0, Collisions=13/170=8%
+# Load=143/1024=14%, Rehash=0, Collisions=6/173=3%
 
 # Pattern-specific Variable Values
 
@@ -353,7 +360,6 @@ down:
 	docker compose -f down
 
 # files hash-table stats:
- 
 # Load=7/1024=1%, Rehash=0, Collisions=0/18=0%
 # VPATH Search Paths
 
@@ -367,6 +373,6 @@ down:
 # strcache performance: lookups = 28 / hit rate = 28%
 # hash-table stats:
 # Load=20/8192=0%, Rehash=0, Collisions=0/28=0%
-# Finished Make data base on Wed Jan 15 15:25:35 2025
+# Finished Make data base on Thu Jan 16 12:40:53 2025
 
  

@@ -42,7 +42,7 @@ const NotificationComponent = () => {
       {/* Bouton de notification */}
       <button 
         onClick={handleNotificationClick}
-        className="relative p-2 rounded-full hover:bg-gray-100 focus:outline-none"
+        className="bg-[#CBDCEB] relative p-0 rounded-full hover:text-[#133E87] border-none focus:outline-none"
       >
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (
@@ -59,7 +59,7 @@ const NotificationComponent = () => {
             <DialogTitle>Notifications</DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4 max-h-96 overflow-y-auto">
+          <div className=" space-y-4 max-h-96 overflow-y-auto">
             {notifications.map((notification) => (
               <div 
                 key={notification.id}
