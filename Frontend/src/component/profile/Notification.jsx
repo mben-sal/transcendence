@@ -27,7 +27,25 @@ const NotificationComponent = () => {
       title: "Mise à jour",
       message: "Nouvelle version de l'application disponible",
       time: "Il y a 2 heures"
-    }
+    },
+	{
+		id: 3,
+		title: "Mise à jour",
+		message: "Nouvelle version de l'application disponible",
+		time: "Il y a 2 heures"
+	},
+	{
+		id: 3,
+		title: "Mise à jour",
+		message: "Nouvelle version de l'application disponible",
+		time: "Il y a 2 heures"
+	},
+	{
+		id: 3,
+		title: "Mise à jour",
+		message: "Nouvelle version de l'application disponible",
+		time: "Il y a 2 heures"
+	}
   ]);
 
   const [unreadCount, setUnreadCount] = useState(notifications.length);
@@ -59,7 +77,7 @@ const NotificationComponent = () => {
             <DialogTitle>Notifications</DialogTitle>
           </DialogHeader>
           
-          <div className=" space-y-4 max-h-96 overflow-y-auto">
+          <div className="space-y-4 max-h-96 overflow-y-auto">
             {notifications.map((notification) => (
               <div 
                 key={notification.id}
