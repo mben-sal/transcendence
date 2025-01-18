@@ -5,14 +5,19 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: ft_transcendence
-      POSTGRES_PASSWORD: ft_transcendence
-      POSTGRES_DB: backend_db
+      - POSTGRES_USER=ft_transcendence
+      - POSTGRES_PASSWORD=ft_transcendence
+      - POSTGRES_DB=backend_db
     ports:
-      - "5433:5432"
+      - "5432:5432"
     networks:
       - app-network
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ft_transcendence -d backend_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   adminer:
     image: adminer
@@ -22,20 +27,28 @@ services:
     networks:
       - app-network
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: always
 
-
   backend:
-    build: ./Backend
+    build: 
+      context: ./Backend
+      dockerfile: Dockerfile
     container_name: backend
     volumes:
-      - ./Backend/Django:/app:delegated
-      - backend_modules:/app/node_modules
+      - ./Backend/backend:/app/backend
+    environment:
+      - POSTGRES_NAME=backend_db
+      - POSTGRES_USER=ft_transcendence
+      - POSTGRES_PASSWORD=ft_transcendence
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app-network
     restart: always
@@ -44,17 +57,14 @@ services:
     build:
       context: ./Frontend
       dockerfile: Dockerfile
-    image: frontend
     container_name: frontend
     ports: 
       - "5173:5173"
     networks:
       - app-network
     volumes: 
-      - type: bind
-        source: ./Frontend
-        target: /app
-      - /app/node_modules
+      - ./Frontend:/app
+      - frontend_modules:/app/node_modules
     environment:
       - VITE_42_CLIENT_ID=${VITE_42_CLIENT_ID}
       - VITE_42_REDIRECT_URI=${VITE_42_REDIRECT_URI}
@@ -62,10 +72,9 @@ services:
     restart: always
     depends_on:
       - backend
-  
+
 volumes:
   postgres_data:
-  backend_modules:
   frontend_modules:
 
 networks:

@@ -1,17 +1,14 @@
-FROM python:3.10-slim
+FROM python:3.12
 
-WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-COPY requirement.txt .
+WORKDIR /app/backend
 
-RUN apt update -y
-RUN pip install --upgrade pip
+COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirement.txt
-RUN pip install djangorestframework
-RUN pip install django-cors-headers
+RUN pip install --no-cache-dir -r requirements.txt
 
+COPY backend/ .
 
-COPY ./Django/ .
-
-CMD [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
+CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
