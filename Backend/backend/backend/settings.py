@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+	'authen',
 	'rest_framework',
 	'drf_yasg',
 ]
@@ -76,9 +77,13 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+   'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'backend_db',
+        'USER': 'ft_transcendence',
+        'PASSWORD': 'ft_transcendence',
+        'HOST': 'db',  # Le nom du service dans docker-compose
+        'PORT': '5432',
     }
 }
 
@@ -123,3 +128,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configuration OAuth 42
+FT_CLIENT_ID = 'votre_client_id_42'
+FT_CLIENT_SECRET = 'votre_client_secret_42'
+FT_REDIRECT_URI = 'http://localhost:8000/api/auth/42/callback/'  # Ajustez selon votre configuration

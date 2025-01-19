@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sun Jan 19 00:14:51 2025
+# Make data base, printed on Sun Jan 19 16:28:16 2025
 
 # Variables
 
@@ -61,7 +61,7 @@ XDG_DATA_DIRS = /home/mben-sal/snap/code/179/.local/share:/home/mben-sal/snap/co
 # environment
 SNAP_EUID = 1000
 # environment
-OLDPWD = /home/mben-sal/Desktop
+OLDPWD = /home/mben-sal
 # automatic
 ^D = $(patsubst %/,%,$(dir $^))
 # automatic
@@ -73,7 +73,7 @@ VSCODE_CODE_CACHE_PATH = /home/mben-sal/.config/Code/CachedData/fabdb6a30b49f79a
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.6N8H02
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.KHTN02
 # default
 .LOADED := 
 # default
@@ -81,7 +81,7 @@ XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.6N8H02
 # environment
 MEMORY_PRESSURE_WATCH = /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@wayland.service/memory.pressure
 # environment
-GNOME_TERMINAL_SERVICE = :1.1961
+GNOME_TERMINAL_SERVICE = :1.105
 # makefile
 MAKEFLAGS = pqrR
 # makefile
@@ -113,7 +113,7 @@ MAKEFILE_LIST := Makefile
 # environment
 ZSH = /home/mben-sal/.oh-my-zsh
 # environment
-VSCODE_PID = 811523
+VSCODE_PID = 5285
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -121,7 +121,7 @@ XDG_SESSION_TYPE = wayland
 # environment
 XDG_DATA_HOME = /home/mben-sal/snap/code/179/.local/share
 # environment
-SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3289,unix/ben-sal:/tmp/.ICE-unix/3289
+SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3241,unix/ben-sal:/tmp/.ICE-unix/3241
 # automatic
 *F = $(notdir $*)
 # environment
@@ -147,7 +147,7 @@ XMODIFIERS = @im=ibus
 # environment
 SHLVL = 1
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/3f10b5c6_ecc3_486a_8832_4f01731ec653
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/694eb8fb_d5c6_48b3_81e8_99b5098534b7
 # environment
 MAKELEVEL := 0
 # default
@@ -209,7 +209,7 @@ SNAP_ARCH = amd64
 # makefile
 .DEFAULT_GOAL := up
 # environment
-SYSTEMD_EXEC_PID = 3329
+SYSTEMD_EXEC_PID = 3277
 # environment
 DISPLAY = :0
 # environment
@@ -287,13 +287,13 @@ XDG_MENU_PREFIX = gnome-
 # environment
 VSCODE_ESM_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
- 
 GDMSESSION = ubuntu
 # environment
 LC_IDENTIFICATION = ar_MA.UTF-8
 # environment
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
 # variable set hash-table stats:
+ 
 # Load=140/1024=14%, Rehash=0, Collisions=13/170=8%
 
 # Pattern-specific Variable Values
@@ -302,9 +302,9 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Directories
 
-# . (device 66309, inode 189648): 12 files, no impossibilities.
+# . (device 66309, inode 189648): 10 files, no impossibilities.
 
-# 12 files, no impossibilities in 1 directories.
+# 10 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -361,12 +361,12 @@ down:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 20 / storage = 186 B / avg = 9 B
-# current buf: size = 8162 B / used = 186 B / count = 20 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 18 / storage = 152 B / avg = 8 B
+# current buf: size = 8162 B / used = 152 B / count = 18 / avg = 8 B
 
-# strcache performance: lookups = 28 / hit rate = 28%
+# strcache performance: lookups = 26 / hit rate = 30%
 # hash-table stats:
-# Load=20/8192=0%, Rehash=0, Collisions=0/28=0%
-# Finished Make data base on Sun Jan 19 00:14:51 2025
+# Load=18/8192=0%, Rehash=0, Collisions=0/26=0%
+# Finished Make data base on Sun Jan 19 16:28:16 2025
 
  
