@@ -40,6 +40,8 @@ INSTALLED_APPS = [
 	'authen',
 	'rest_framework',
 	'drf_yasg',
+	'corsheaders',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -50,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -133,3 +136,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 FT_CLIENT_ID = 'votre_client_id_42'
 FT_CLIENT_SECRET = 'votre_client_secret_42'
 FT_REDIRECT_URI = 'http://localhost:8000/api/auth/42/callback/'  # Ajustez selon votre configuration
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Votre frontend Vite
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
