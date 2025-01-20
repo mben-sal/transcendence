@@ -86,34 +86,6 @@ class FortyTwoLoginView(APIView):
 class FortyTwoCallbackView(APIView):
     permission_classes = [AllowAny]
 
-    @swagger_auto_schema(
-        manual_parameters=[
-            openapi.Parameter(
-                'code',
-                openapi.IN_QUERY,
-                description="Authorization code from 42",
-                type=openapi.TYPE_STRING,
-                required=True
-            )
-        ],
-        responses={
-            200: openapi.Response(
-                description="Success",
-                examples={
-                    "application/json": {
-                        "status": "success",
-                        "token": "jwt.token.here",
-                        "user": {
-                            "id": 1,
-                            "username": "42user",
-                            "email": "42user@example.com"
-                        }
-                    }
-                }
-            ),
-            400: "Invalid code or authorization failed"
-        }
-    )
     def get(self, request):
         code = request.GET.get('code')
         if not code:
@@ -123,48 +95,62 @@ class FortyTwoCallbackView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Exchange code for access token
+            # Log pour debug
+            print("Code reçu:", code)
+            print("Client ID utilisé:", settings.FT_CLIENT_ID)
+            print("Redirect URI utilisé:", settings.FT_REDIRECT_URI)
+
             token_response = requests.post(
-                "https://api.intra.42.fr/oauth/token",
+                'https://api.intra.42.fr/oauth/token',
                 data={
                     'grant_type': 'authorization_code',
                     'client_id': settings.FT_CLIENT_ID,
                     'client_secret': settings.FT_CLIENT_SECRET,
                     'code': code,
                     'redirect_uri': settings.FT_REDIRECT_URI
+                },
+                headers={
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 }
             )
-            token_data = token_response.json()
-            
-            if 'error' in token_data:
+
+            print("Response complète:", token_response.text)
+            print("Status code:", token_response.status_code)
+
+            if token_response.status_code != 200:
                 return Response({
                     'status': 'error',
-                    'message': token_data.get('error_description', 'Failed to obtain access token')
+                    'message': f'Token exchange failed: {token_response.text}'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            access_token = token_data.get('access_token')
-            
-            # Get user info from 42 API
+            token_data = token_response.json()
             user_response = requests.get(
                 'https://api.intra.42.fr/v2/me',
-                headers={'Authorization': f'Bearer {access_token}'}
+                headers={
+                    'Authorization': f"Bearer {token_data['access_token']}"
+                }
             )
-            user_data = user_response.json()
 
-            if 'error' in user_data:
+            if user_response.status_code != 200:
                 return Response({
                     'status': 'error',
-                    'message': 'Failed to get user information'
+                    'message': f'Failed to fetch user data: {user_response.text}'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Create or get user
-            user, _ = User.objects.get_or_create(
-                username=user_data['login'],
-                defaults={'email': user_data.get('email', '')}
-            )
+            user_data = user_response.json()
+            
+            # Créer ou récupérer l'utilisateur
+            try:
+                user = User.objects.get(username=user_data['login'])
+            except User.DoesNotExist:
+                user = User.objects.create(
+                    username=user_data['login'],
+                    email=user_data.get('email', '')
+                )
 
-            # Create or update user profile
-            profile, _ = UserProfile.objects.get_or_create(
+            # Mettre à jour ou créer le profil
+            UserProfile.objects.update_or_create(
                 user=user,
                 defaults={
                     'intra_id': str(user_data['id']),
@@ -173,29 +159,21 @@ class FortyTwoCallbackView(APIView):
                 }
             )
 
-            # Generate JWT tokens
+            # Générer les tokens
             refresh = RefreshToken.for_user(user)
-            
-            response_data = {
-                'status': 'success',
-                'token': str(refresh.access_token),
-                'refresh_token': str(refresh),
-                'user': UserSerializer(user).data
+            tokens = {
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
             }
 
-            # Redirect to frontend with tokens as URL parameters
-            frontend_url = settings.FRONTEND_URL  # Add this to your settings.py
-            redirect_url = f"{frontend_url}?token={response_data['token']}&refresh_token={response_data['refresh_token']}"
-            return redirect(redirect_url)
+            # Rediriger vers le frontend
+            return redirect(
+                f"{settings.FRONTEND_URL}/auth/two-factor?token={tokens['access']}&refresh_token={tokens['refresh']}"
+            )
 
-        except requests.RequestException as e:
-            return Response({
-                'status': 'error',
-                'message': f'Network error: {str(e)}'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
         except Exception as e:
+            print("Error during authentication:", str(e))  # Log pour debug
             return Response({
                 'status': 'error',
-                'message': f'Unexpected error: {str(e)}'
+                'message': str(e)
             }, status=status.HTTP_400_BAD_REQUEST)

@@ -47,44 +47,34 @@ export default function Login({ setIsAuthenticated }) {
     };
 
     // Dans Login.jsx
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (validateForm()) {
-        try {
-            const response = await axios.post(`${AUTH_CONFIG.VITE_API_URL}/api/users/login`, {
-                email: formData.email,
-                password: formData.password
-            });
-            
-            if (response.data.status === 'success') {
-                localStorage.setItem('token', response.data.token);
-                setIsAuthenticated(true);
-                navigate('/auth/two-factor');
-            }
-        } catch (error) {
-            setErrors({ submit: error.response?.data?.message || 'Authentication failed' });
-        }
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		try {
+			const response = await authService.login(formData.email, formData.password);
+			// Redirection après connexion réussie
+			navigate('/dashboard');
+		} catch (error) {
+			setErrors({ submit: error.message });
+		}
+	};
+const handle42Login = (type = 'signin') => {
+    if (!AUTH_CONFIG.CLIENT_ID || !AUTH_CONFIG.REDIRECT_URI) {
+        setErrors({ submit: 'OAuth configuration is missing. Please contact support.' });
+        return;
     }
-};
 
-    const handle42Login = (type = 'signin') => {
-        if (!AUTH_CONFIG.CLIENT_ID || !AUTH_CONFIG.REDIRECT_URI) {
-            setErrors({ submit: 'OAuth configuration is missing. Please contact support.' });
-            return;
-        }
-
-        const state = type === 'signup' ? 'signup' : 'signin';
-        const url = new URL('https://api.intra.42.fr/oauth/authorize');
-        const params = {
-            client_id: AUTH_CONFIG.CLIENT_ID,
-            redirect_uri: AUTH_CONFIG.REDIRECT_URI,
-            response_type: 'code',
-            state
-        };
-        
-        url.search = new URLSearchParams(params).toString();
-        window.location.href = url.toString();
+    const state = type === 'signup' ? 'signup' : 'signin';
+    const url = new URL('https://api.intra.42.fr/oauth/authorize');
+    const params = {
+        client_id: AUTH_CONFIG.CLIENT_ID,
+        redirect_uri: AUTH_CONFIG.REDIRECT_URI,
+        response_type: 'code',
+        state
     };
+    
+    url.search = new URLSearchParams(params).toString();
+    window.location.href = url.toString();
+};
 
     return (
         <div className="page">

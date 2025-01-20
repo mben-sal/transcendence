@@ -11,11 +11,11 @@ const getEnvVariable = (key) => {
     return '';
 };
 
+// config.js
 export const AUTH_CONFIG = {
-    CLIENT_ID: getEnvVariable('42_CLIENT_ID'),
-    REDIRECT_URI: getEnvVariable('42_REDIRECT_URI'),
-    VITE_API_URL: getEnvVariable('API_URL') || 'http://localhost:8000'
+    CLIENT_ID: import.meta.env.VITE_42_CLIENT_ID?.replace(/-/g, ''), // Enlève les tirets si présents
+    REDIRECT_URI: import.meta.env.VITE_42_REDIRECT_URI,
+    VITE_API_URL: import.meta.env.VITE_API_URL
 };
-
 
 export const API_URL = 'http://localhost:8000/api';

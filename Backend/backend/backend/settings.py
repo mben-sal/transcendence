@@ -127,15 +127,17 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+FRONTEND_URL = 'http://localhost:5173'  # URL de votre frontend Vite
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Configuration OAuth 42
-FT_CLIENT_ID = 'votre_client_id_42'
-FT_CLIENT_SECRET = 'votre_client_secret_42'
-FT_REDIRECT_URI = 'http://localhost:8000/api/auth/42/callback/'  # Ajustez selon votre configuration
+
+FT_CLIENT_ID = "u-s4t2ud-94d407cc1ccf2b07e047cc4d0f0972dfd35ab8fcdc6abb55b5f39fdf5f04177f"
+FT_CLIENT_SECRET = "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"
+FT_REDIRECT_URI = "http://localhost:8000/api/auth/42/callback/"
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Votre frontend Vite

@@ -11,11 +11,12 @@ import Settings from './pages/Settings';
 import TwoFactor from './component/two_factor';
 import ForgotPassword from './component/forgotPassword';
 import Profile from './pages/Profile';
+import OAuthCallback from './layout/OAuthCallback';
 
 const App = () => {
  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-//    return !!localStorage.getItem('token');
-   return true;
+   return !!localStorage.getItem('token');
+//    return true;
  });
  //modifier for active normal user
  const [is2FAVerified, setIs2FAVerified] = useState(true);
@@ -38,14 +39,14 @@ const App = () => {
 
    return children;
  };
-
  return (
    <div className='w-full h-dvh overflow-hidden'>
      <Router>
        <Routes>
          <Route element={<AuthLayout />}>
            <Route path="/auth/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
-		   <Route path="/auth/forgot-password" element={<ForgotPassword />} />           <Route 
+		   <Route path="/auth/forgot-password" element={<ForgotPassword />} /> 
+		    <Route 
              path="/auth/two-factor" 
              element={
                isAuthenticated ? 
@@ -53,6 +54,7 @@ const App = () => {
                <Navigate to="/auth/login" replace />
              } 
            />
+		   <Route path="/auth/42/callback" element={<OAuthCallback setIsAuthenticated={setIsAuthenticated} />} />
          </Route>
 
          <Route
