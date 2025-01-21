@@ -46,7 +46,6 @@ export default function Login({ setIsAuthenticated }) {
         }
     };
 
-    // Dans Login.jsx
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		try {
@@ -57,26 +56,27 @@ export default function Login({ setIsAuthenticated }) {
 			setErrors({ submit: error.message });
 		}
 	};
-const handle42Login = (type = 'signin') => {
-    if (!AUTH_CONFIG.CLIENT_ID || !AUTH_CONFIG.REDIRECT_URI) {
-        setErrors({ submit: 'OAuth configuration is missing. Please contact support.' });
-        return;
-    }
+	const handle42Login = (type = 'signin') => {
+		if (!AUTH_CONFIG.CLIENT_ID || !AUTH_CONFIG.REDIRECT_URI) {
+			setErrors({ submit: 'OAuth configuration is missing.' });
+			return;
+		}
+	
+		const params = new URLSearchParams({
+			client_id: AUTH_CONFIG.CLIENT_ID,
+			redirect_uri: AUTH_CONFIG.REDIRECT_URI,
+			response_type: 'code',
+			scope: 'public',
+			state: type
+		});
+	
+		console.log('Redirect URI:', AUTH_CONFIG.REDIRECT_URI); // Pour déboguer
+		const authUrl = `https://api.intra.42.fr/oauth/authorize?${params.toString()}`;
+		window.location.href = authUrl;
+	};
 
-    const state = type === 'signup' ? 'signup' : 'signin';
-    const url = new URL('https://api.intra.42.fr/oauth/authorize');
-    const params = {
-        client_id: AUTH_CONFIG.CLIENT_ID,
-        redirect_uri: AUTH_CONFIG.REDIRECT_URI,
-        response_type: 'code',
-        state
-    };
-    
-    url.search = new URLSearchParams(params).toString();
-    window.location.href = url.toString();
-};
 
-    return (
+return (
         <div className="page">
             <div className='login-wrapper'>
                 <h2>WELCOME BACK</h2>

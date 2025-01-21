@@ -54,7 +54,7 @@ const App = () => {
                <Navigate to="/auth/login" replace />
              } 
            />
-		   <Route path="/auth/42/callback" element={<OAuthCallback setIsAuthenticated={setIsAuthenticated} />} />
+		   <Route path="/auth/callback" element={<OAuthCallback setIsAuthenticated={setIsAuthenticated} />} />
          </Route>
 
          <Route

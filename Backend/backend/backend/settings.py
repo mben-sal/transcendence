@@ -85,7 +85,7 @@ DATABASES = {
         'NAME': 'backend_db',
         'USER': 'ft_transcendence',
         'PASSWORD': 'ft_transcendence',
-        'HOST': 'db',  # Le nom du service dans docker-compose
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
@@ -134,10 +134,13 @@ FRONTEND_URL = 'http://localhost:5173'  # URL de votre frontend Vite
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+FT_CLIENT_ID = 'u-s4t2ud-f6b5224609bea14ccd78911f1dbaad1708f2a5856009b937005dba1fcedc66f5'
+FT_CLIENT_SECRET = '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'
+FT_REDIRECT_URI = 'http://localhost:8000/callback/'  # URL simplifiée
 
-FT_CLIENT_ID = "u-s4t2ud-94d407cc1ccf2b07e047cc4d0f0972dfd35ab8fcdc6abb55b5f39fdf5f04177f"
-FT_CLIENT_SECRET = "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"
-FT_REDIRECT_URI = "http://localhost:8000/api/auth/42/callback/"
+FT_API_URL = 'https://api.intra.42.fr'
+FT_AUTHORIZATION_BASE_URL = f'{FT_API_URL}/oauth/authorize'
+FT_TOKEN_URL = f'{FT_API_URL}/oauth/token'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Votre frontend Vite

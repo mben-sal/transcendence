@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sun Jan 19 16:28:16 2025
+# Make data base, printed on Tue Jan 21 15:38:38 2025
 
 # Variables
 
@@ -73,7 +73,7 @@ VSCODE_CODE_CACHE_PATH = /home/mben-sal/.config/Code/CachedData/fabdb6a30b49f79a
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.KHTN02
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.A8FA02
 # default
 .LOADED := 
 # default
@@ -81,7 +81,7 @@ XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.KHTN02
 # environment
 MEMORY_PRESSURE_WATCH = /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@wayland.service/memory.pressure
 # environment
-GNOME_TERMINAL_SERVICE = :1.105
+GNOME_TERMINAL_SERVICE = :1.414
 # makefile
 MAKEFLAGS = pqrR
 # makefile
@@ -113,7 +113,7 @@ MAKEFILE_LIST := Makefile
 # environment
 ZSH = /home/mben-sal/.oh-my-zsh
 # environment
-VSCODE_PID = 5285
+VSCODE_PID = 115310
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -121,7 +121,7 @@ XDG_SESSION_TYPE = wayland
 # environment
 XDG_DATA_HOME = /home/mben-sal/snap/code/179/.local/share
 # environment
-SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3241,unix/ben-sal:/tmp/.ICE-unix/3241
+SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3273,unix/ben-sal:/tmp/.ICE-unix/3273
 # automatic
 *F = $(notdir $*)
 # environment
@@ -147,7 +147,7 @@ XMODIFIERS = @im=ibus
 # environment
 SHLVL = 1
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/694eb8fb_d5c6_48b3_81e8_99b5098534b7
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/e257bdbd_92e7_419c_baaf_2a9ec33e2d1f
 # environment
 MAKELEVEL := 0
 # default
@@ -209,7 +209,7 @@ SNAP_ARCH = amd64
 # makefile
 .DEFAULT_GOAL := up
 # environment
-SYSTEMD_EXEC_PID = 3277
+SYSTEMD_EXEC_PID = 3308
 # environment
 DISPLAY = :0
 # environment
@@ -293,7 +293,6 @@ LC_IDENTIFICATION = ar_MA.UTF-8
 # environment
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
 # variable set hash-table stats:
- 
 # Load=140/1024=14%, Rehash=0, Collisions=13/170=8%
 
 # Pattern-specific Variable Values
@@ -345,6 +344,7 @@ all:
 #  Implicit rule search has been done.
 #  File does not exist.
 #  File has not been updated.
+ 
 
 down:
 #  Implicit rule search has not been done.
@@ -367,6 +367,6 @@ down:
 # strcache performance: lookups = 26 / hit rate = 30%
 # hash-table stats:
 # Load=18/8192=0%, Rehash=0, Collisions=0/26=0%
-# Finished Make data base on Sun Jan 19 16:28:16 2025
+# Finished Make data base on Tue Jan 21 15:38:38 2025
 
  

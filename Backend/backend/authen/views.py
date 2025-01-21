@@ -12,7 +12,7 @@ from .serializers import UserSerializer, LoginSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from urllib.parse import urlencode
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -67,19 +67,16 @@ class LoginView(APIView):
 class FortyTwoLoginView(APIView):
     permission_classes = [AllowAny]
 
-    @swagger_auto_schema(
-        operation_description="Initiate OAuth2 login flow with 42",
-        responses={302: "Redirect to 42 authentication page"}
-    )
     def get(self, request):
-        auth_url = "https://api.intra.42.fr/oauth/authorize"
-        params = {
+        # Construct authorization URL with properly encoded parameters
+        auth_params = {
             'client_id': settings.FT_CLIENT_ID,
             'redirect_uri': settings.FT_REDIRECT_URI,
             'response_type': 'code',
             'scope': 'public'
         }
-        auth_url = f"{auth_url}?{'&'.join(f'{k}={v}' for k, v in params.items())}"
+        
+        auth_url = f"https://api.intra.42.fr/oauth/authorize?{urlencode(auth_params)}"
         return redirect(auth_url)
 
 
@@ -87,93 +84,72 @@ class FortyTwoCallbackView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
+        print("=== Starting FortyTwoCallbackView ===")
         code = request.GET.get('code')
-        if not code:
-            return Response({
-                'status': 'error',
-                'message': 'No authorization code provided'
-            }, status=status.HTTP_400_BAD_REQUEST)
+        print(f"Received code: {code}")
 
         try:
-            # Log pour debug
-            print("Code reçu:", code)
-            print("Client ID utilisé:", settings.FT_CLIENT_ID)
-            print("Redirect URI utilisé:", settings.FT_REDIRECT_URI)
-
+            # Token exchange with 42 API
+            print("Attempting token exchange...")
             token_response = requests.post(
-                'https://api.intra.42.fr/oauth/token',
+                settings.FT_TOKEN_URL,
                 data={
                     'grant_type': 'authorization_code',
                     'client_id': settings.FT_CLIENT_ID,
                     'client_secret': settings.FT_CLIENT_SECRET,
                     'code': code,
                     'redirect_uri': settings.FT_REDIRECT_URI
-                },
-                headers={
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/x-www-form-urlencoded'
                 }
             )
-
-            print("Response complète:", token_response.text)
-            print("Status code:", token_response.status_code)
-
-            if token_response.status_code != 200:
-                return Response({
-                    'status': 'error',
-                    'message': f'Token exchange failed: {token_response.text}'
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            token_data = token_response.json()
-            user_response = requests.get(
-                'https://api.intra.42.fr/v2/me',
-                headers={
-                    'Authorization': f"Bearer {token_data['access_token']}"
-                }
-            )
-
-            if user_response.status_code != 200:
-                return Response({
-                    'status': 'error',
-                    'message': f'Failed to fetch user data: {user_response.text}'
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            user_data = user_response.json()
+            print(f"Token response status: {token_response.status_code}")
+            print(f"Token response content: {token_response.text}")
             
-            # Créer ou récupérer l'utilisateur
-            try:
-                user = User.objects.get(username=user_data['login'])
-            except User.DoesNotExist:
-                user = User.objects.create(
-                    username=user_data['login'],
-                    email=user_data.get('email', '')
-                )
+            token_data = token_response.json()
+            print("Token exchange successful")
 
-            # Mettre à jour ou créer le profil
-            UserProfile.objects.update_or_create(
-                user=user,
-                defaults={
-                    'intra_id': str(user_data['id']),
-                    'avatar': user_data.get('image_url', ''),
-                    'display_name': user_data['login']
-                }
+            # Get user info
+            print("Getting user info...")
+            user_response = requests.get(
+                f'{settings.FT_API_URL}/v2/me',
+                headers={'Authorization': f'Bearer {token_data["access_token"]}'}
             )
+            print(f"User info response status: {user_response.status_code}")
+            user_data = user_response.json()
+            print(f"Got user data for: {user_data.get('login')}")
 
-            # Générer les tokens
+            # Create or update user
+            user, created = User.objects.get_or_create(
+                username=user_data['login'],
+                defaults={'email': user_data.get('email', '')}
+            )
+            print(f"User {'created' if created else 'retrieved'}: {user.username}")
+
+            # Generate tokens
             refresh = RefreshToken.for_user(user)
-            tokens = {
-                'access': str(refresh.access_token),
-                'refresh': str(refresh),
-            }
-
-            # Rediriger vers le frontend
-            return redirect(
-                f"{settings.FRONTEND_URL}/auth/two-factor?token={tokens['access']}&refresh_token={tokens['refresh']}"
+            
+            # Construct redirect URL
+            redirect_url = (
+                f"{settings.FRONTEND_URL}/auth/callback"
+                f"?access_token={str(refresh.access_token)}"
+                f"&refresh_token={str(refresh)}"
             )
+            print(f"Redirecting to: {redirect_url}")
+            
+            return redirect(redirect_url)
 
-        except Exception as e:
-            print("Error during authentication:", str(e))  # Log pour debug
+        except requests.exceptions.RequestException as e:
+            print(f"API Request error: {str(e)}")
             return Response({
                 'status': 'error',
-                'message': str(e)
+                'message': f"API Request error: {str(e)}"
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as e:
+            print(f"Unexpected error: {str(e)}")
+            print(f"Error type: {type(e)}")
+            import traceback
+            traceback.print_exc()
+            return Response({
+                'status': 'error',
+                'message': f"Unexpected error: {str(e)}"
             }, status=status.HTTP_400_BAD_REQUEST)
