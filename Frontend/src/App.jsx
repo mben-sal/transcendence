@@ -1,9 +1,9 @@
 import './App.css'
-import Login from './component/login'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useState } from 'react';
+import { UserProvider } from './contexts/UserContext';
 import AuthLayout from './layout/AuthLayout';
 import DashboardLayout from './layout/DashboardLayout'; 
+import Login from './component/login';
 import Home from './pages/Home';
 import Game from './pages/Game';
 import Chat from './pages/Chat';
@@ -12,70 +12,57 @@ import TwoFactor from './component/two_factor';
 import ForgotPassword from './component/forgotPassword';
 import Profile from './pages/Profile';
 import OAuthCallback from './layout/OAuthCallback';
+import { useUser } from './contexts/UserContext';
+
+// Composant protégé séparé pour éviter les problèmes de contexte
+const ProtectedRoutes = () => {
+	const { isAuthenticated, loading } = useUser();
+  
+	if (loading) {
+	  return (
+		<div className="flex items-center justify-center min-h-screen bg-gray-100">
+		  <div className="text-center p-8 bg-white rounded-lg shadow-md">
+			<h2 className="text-2xl font-bold mb-4">Chargement...</h2>
+			<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+		  </div>
+		</div>
+	  );
+	}
+  
+	if (!isAuthenticated) {
+	  return <Navigate to="/auth/login" replace />;
+	}
+  
+	return <DashboardLayout />;
+  };
 
 const App = () => {
- const [isAuthenticated, setIsAuthenticated] = useState(() => {
-   return !!localStorage.getItem('token');
-//    return true;
- });
- //modifier for active normal user
- const [is2FAVerified, setIs2FAVerified] = useState(true);
+  return (
+    <UserProvider>
+      <div className='w-full h-dvh overflow-hidden'>
+        <Router>
+          <Routes>
+            <Route element={<AuthLayout />}>
+              <Route path="/auth/login" element={<Login />} />
+              <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+              {/* <Route path="/auth/two-factor" element={<TwoFactor />} /> */}
+			  <Route path="/auth/callback" element={<OAuthCallback />} />
+			</Route>
 
- const handleLogout = () => {
-   localStorage.removeItem('token'); // Suppression du token
-   setIsAuthenticated(false); // Mise à jour de l'état
-   setIs2FAVerified(false); // Réinitialisation de la vérification 2FA
- };
+            <Route element={<ProtectedRoutes />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/game" element={<Game />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/profile" element={<Profile />} />
+            </Route>
 
-// 2. Composant de protection des routes
- const ProtectedRoute = ({ children }) => {
-   if (!isAuthenticated) {
-     return <Navigate to="/auth/login" replace />;
-   }
-   
-   if (isAuthenticated && !is2FAVerified) {
-     return <Navigate to="/auth/two-factor" replace />;
-   }
-
-   return children;
- };
- return (
-   <div className='w-full h-dvh overflow-hidden'>
-     <Router>
-       <Routes>
-         <Route element={<AuthLayout />}>
-           <Route path="/auth/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
-		   <Route path="/auth/forgot-password" element={<ForgotPassword />} /> 
-		    <Route 
-             path="/auth/two-factor" 
-             element={
-               isAuthenticated ? 
-               <TwoFactor setIs2FAVerified={setIs2FAVerified} /> : 
-               <Navigate to="/auth/login" replace />
-             } 
-           />
-		   <Route path="/auth/callback" element={<OAuthCallback setIsAuthenticated={setIsAuthenticated} />} />
-         </Route>
-
-         <Route
-           element={
-             <ProtectedRoute>
-               <DashboardLayout onLogout={handleLogout} />
-             </ProtectedRoute>
-           }
-         >
-           <Route path="/" element={<Home />} />
-           <Route path="/game" element={<Game />} />
-           <Route path="/chat" element={<Chat />} />
-           <Route path="/settings" element={<Settings />} />
-		   <Route path="/profile" element={<Profile />} />
-         </Route>
-
-         <Route path="*" element={<Navigate to="/" replace />} />
-       </Routes>
-     </Router>
-   </div>
- );
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </div>
+    </UserProvider>
+  );
 };
 
-export default App
+export default App;

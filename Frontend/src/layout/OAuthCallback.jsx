@@ -1,35 +1,57 @@
+// src/layout/OAuthCallback.jsx
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useUser } from '../contexts/UserContext';
 
-function OAuthCallback({ setIsAuthenticated }) {  // Ajout de la prop setIsAuthenticated
+function OAuthCallback() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { setIsAuthenticated, fetchUserProfile } = useUser();
 
     useEffect(() => {
-        console.log("AuthCallback mounted");
-        const accessToken = searchParams.get('access_token');
-        const refreshToken = searchParams.get('refresh_token');
+        const handleAuth = async () => {
+            console.log("AuthCallback mounted");
+            const accessToken = searchParams.get('access_token');
+            const refreshToken = searchParams.get('refresh_token');
 
-        console.log("Tokens received:", { accessToken, refreshToken });
+            console.log("Tokens received:", { accessToken, refreshToken });
 
-        if (accessToken && refreshToken) {
-            console.log("Storing tokens and redirecting...");
-            localStorage.setItem('access_token', accessToken);
-            localStorage.setItem('refresh_token', refreshToken);
-            localStorage.setItem('token', accessToken); // Ajout pour la compatibilité avec App.jsx
-            setIsAuthenticated(true); // Mise à jour de l'état d'authentification
-            navigate('/'); // Redirection vers la page principale définie dans vos routes
-        } else {
-            console.log("No tokens found, redirecting to login");
-            navigate('/auth/login'); // Correction du chemin de redirection
-        }
-    }, [searchParams, navigate, setIsAuthenticated]);
+            if (accessToken && refreshToken) {
+                console.log("Storing tokens and fetching profile...");
+                localStorage.setItem('access_token', accessToken);
+                localStorage.setItem('refresh_token', refreshToken);
+                localStorage.setItem('token', accessToken);
+                
+                setIsAuthenticated(true);
+                
+                try {
+                    // Récupérer le profil utilisateur
+                    const userProfile = await fetchUserProfile();
+                    if (userProfile) {
+                        console.log("Profile fetched successfully:", userProfile);
+                        navigate('/');
+                    } else {
+                        throw new Error("Failed to fetch user profile");
+                    }
+                } catch (error) {
+                    console.error("Error fetching profile:", error);
+                    navigate('/auth/login');
+                }
+            } else {
+                console.log("No tokens found, redirecting to login");
+                navigate('/auth/login');
+            }
+        };
+
+        handleAuth();
+    }, [searchParams, navigate, setIsAuthenticated, fetchUserProfile]);
 
     return (
-        <div className="flex justify-center items-center h-screen">
-            <div className="text-center">
-                <h2 className="text-xl mb-4">Authentication en cours...</h2>
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+            <div className="bg-white p-8 rounded-lg shadow-md text-center">
+                <h2 className="text-2xl font-bold mb-4 text-gray-800">Authentification en cours...</h2>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Veuillez patienter pendant que nous configurons votre compte.</p>
             </div>
         </div>
     );
