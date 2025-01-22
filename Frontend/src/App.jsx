@@ -78,34 +78,4 @@ const App = () => {
  );
 };
 
-
-// const App = () => {
-
-// 	const url = import.meta.env.VITE_API_KEY;
-// 		console.log("Backend API URL:", url);
-
-// 	axios.get(`${url}/api/some-endpoint`)
-//     .then(response => {
-//         console.log('Backend Response:', response.data);
-//     })
-//     .catch(error => {
-//         console.error('Error calling the backend:', error);
-//     });
-// 	const routing  = createBrowserRouter ([
-// 		{path: '/login', element: <Login />},
-// 		{path: '/', element: <AppLayout />},
-// 		// {path: '/two_factor', element: <Two_Factor />},
-// 		{path: '/forgot-password', element: <ForgotPassword />},
-// 	])
-//   return (
-//     <>
-// 	<RouterProvider router={routing}>
-// 		  <div className="login">
-// 			<Layout/>
-// 		</div>
-// 	</RouterProvider>
-//     </>
-//   )
-// }
-
 export default App

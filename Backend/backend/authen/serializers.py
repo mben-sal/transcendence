@@ -21,7 +21,21 @@ class LoginSerializer(serializers.Serializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    email = serializers.EmailField(source='user.email', read_only=True)
     
     class Meta:
         model = UserProfile
-        fields = ('intra_id', 'avatar', 'display_name', 'wins', 'losses', 'user')
+        fields = (
+            'id',
+            'user',
+            'email',
+            'intra_id',
+            'avatar',
+            'display_name',
+            'wins',
+            'losses',
+            'status',
+            'two_factor_enabled',
+            'created_at',
+            'updated_at'
+        )

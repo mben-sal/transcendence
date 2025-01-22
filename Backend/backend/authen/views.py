@@ -5,10 +5,10 @@ from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 import requests
 from .models import UserProfile
-from .serializers import UserSerializer, LoginSerializer
+from .serializers import UserSerializer, LoginSerializer, UserProfileSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -63,22 +63,21 @@ class LoginView(APIView):
             }, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class FortyTwoLoginView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        # Construct authorization URL with properly encoded parameters
+        state = request.GET.get('state', 'signin')  # Pour différencier signin/signup
         auth_params = {
             'client_id': settings.FT_CLIENT_ID,
             'redirect_uri': settings.FT_REDIRECT_URI,
             'response_type': 'code',
-            'scope': 'public'
+            'scope': 'public',
+            'state': state
         }
         
         auth_url = f"https://api.intra.42.fr/oauth/authorize?{urlencode(auth_params)}"
         return redirect(auth_url)
-
 
 class FortyTwoCallbackView(APIView):
     permission_classes = [AllowAny]
@@ -86,11 +85,11 @@ class FortyTwoCallbackView(APIView):
     def get(self, request):
         print("=== Starting FortyTwoCallbackView ===")
         code = request.GET.get('code')
-        print(f"Received code: {code}")
+        state = request.GET.get('state', 'signin')
+        print(f"Received code: {code}, state: {state}")
 
         try:
             # Token exchange with 42 API
-            print("Attempting token exchange...")
             token_response = requests.post(
                 settings.FT_TOKEN_URL,
                 data={
@@ -101,39 +100,48 @@ class FortyTwoCallbackView(APIView):
                     'redirect_uri': settings.FT_REDIRECT_URI
                 }
             )
-            print(f"Token response status: {token_response.status_code}")
-            print(f"Token response content: {token_response.text}")
-            
             token_data = token_response.json()
-            print("Token exchange successful")
 
-            # Get user info
-            print("Getting user info...")
+            # Get user info from 42 API
             user_response = requests.get(
                 f'{settings.FT_API_URL}/v2/me',
                 headers={'Authorization': f'Bearer {token_data["access_token"]}'}
             )
-            print(f"User info response status: {user_response.status_code}")
             user_data = user_response.json()
-            print(f"Got user data for: {user_data.get('login')}")
 
-            # Create or update user
+            # Create or update user and profile
             user, created = User.objects.get_or_create(
                 username=user_data['login'],
                 defaults={'email': user_data.get('email', '')}
             )
-            print(f"User {'created' if created else 'retrieved'}: {user.username}")
 
-            # Generate tokens
+            # Create or update the profile
+            profile, _ = UserProfile.objects.get_or_create(
+                user=user,
+                defaults={
+                    'intra_id': user_data['login'],
+                    'avatar': user_data.get('image', {}).get('link', ''),
+                    'display_name': user_data.get('displayname', user_data['login']),
+                    'status': 'online'
+                }
+            )
+
+            # Update profile fields if not created
+            if not _:
+                profile.avatar = user_data.get('image', {}).get('link', profile.avatar)
+                profile.status = 'online'
+                profile.save()
+
+            # Generate JWT tokens
             refresh = RefreshToken.for_user(user)
             
-            # Construct redirect URL
+            # Construct redirect URL with tokens
             redirect_url = (
                 f"{settings.FRONTEND_URL}/auth/callback"
                 f"?access_token={str(refresh.access_token)}"
                 f"&refresh_token={str(refresh)}"
+                f"&is_new_user={str(created).lower()}"
             )
-            print(f"Redirecting to: {redirect_url}")
             
             return redirect(redirect_url)
 
@@ -152,4 +160,56 @@ class FortyTwoCallbackView(APIView):
             return Response({
                 'status': 'error',
                 'message': f"Unexpected error: {str(e)}"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """Get the profile of the authenticated user"""
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+            serializer = UserProfileSerializer(profile)
+            return Response(serializer.data)
+        except UserProfile.DoesNotExist:
+            return Response({
+                'error': 'Profile not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+    def patch(self, request):
+        """Update the user profile"""
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+            serializer = UserProfileSerializer(
+                profile,
+                data=request.data,
+                partial=True
+            )
+            if serializer.is_valid():
+                # Update email if provided
+                if 'email' in request.data:
+                    request.user.email = request.data['email']
+                    request.user.save()
+                
+                # Update profile
+                updated_profile = serializer.save()
+                return Response(UserProfileSerializer(updated_profile).data)
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except UserProfile.DoesNotExist:
+            return Response({
+                'error': 'Profile not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request):
+        """Delete user account and profile"""
+        try:
+            user = request.user
+            user.delete()  # This will also delete the associated profile due to CASCADE
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({
+                'error': str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
