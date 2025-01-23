@@ -1,96 +1,93 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import player_ from '../assets/src/player_.svg';
 import { Settings, MoreVertical, MessageCircle, UserPlus, UserMinus, Lock } from "lucide-react";
 import Friends from '../component/profile/Friends';
 import UserInfo from '../component/profile/UserInfo';
 import Achievements from '../component/profile/Achievements';
+import { useUser } from '../contexts/UserContext';
 
 const UserProfile = () => {
-  const [profileImage, setProfileImage] = useState(player_);
-  const [coverImage, setCoverImage] = useState(null);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [isBlocked, setIsBlocked] = useState(false);
+ const { user } = useUser();
+ const [profileImage, setProfileImage] = useState(user?.avatar || player_);
+ const [coverImage, setCoverImage] = useState(null); 
+ const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+ const [isMoreOpen, setIsMoreOpen] = useState(false);
+ const [isFollowing, setIsFollowing] = useState(false);
+ const [isBlocked, setIsBlocked] = useState(false);
 
-  const user = {
-    name: "John Doe",
-    username: "@johndoe",
-    level: 42,
-    rank: "Gold Master",
-    followers: 1234,
-    following: 891,
-    posts: 156,
-    achievements: [
-      { id: 1, name: "First Win", icon: "🏆" },
-      { id: 2, name: "Speed Demon", icon: "⚡" },
-      { id: 3, name: "Pro Player", icon: "👑" }
-    ]
-  };
+ useEffect(() => {
+   if (user?.avatar) {
+     setProfileImage(user.avatar);
+   }
+ }, [user]);
 
-  const handleProfileImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+ const handleProfileImageChange = async (event) => {
+   const file = event.target.files[0];
+   if (file) {
+     const reader = new FileReader();
+     reader.onloadend = () => {
+       setProfileImage(reader.result);
+     };
+     reader.readAsDataURL(file);
+     
+     // Upload image API call here if needed
+   }
+ };
 
-  const handleGameInvite = async () => {
-	try {
-	  await fetch('http://localhost:3001/api/game/invite', {
-		method: 'POST',
-		headers: {
-		  'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-		  receiverId: user.id
-		}),
-	  });
-	  setIsMoreOpen(false);
-	  alert('Invitation de jeu envoyée !');
-	} catch (error) {
-	  console.error('Erreur lors de l\'envoi de l\'invitation:', error);
-	  alert('Erreur lors de l\'envoi de l\'invitation');
-	}
-  };
+ const handleGameInvite = async () => {
+   try {
+     await fetch('http://localhost:3001/api/game/invite', {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/json',
+         'Authorization': `Bearer ${localStorage.getItem('token')}`
+       },
+       body: JSON.stringify({
+         receiverId: user?.id
+       }),
+     });
+     setIsMoreOpen(false);
+     alert('Game invitation sent!');
+   } catch (error) {
+     console.error('Error sending invitation:', error);
+     alert('Error sending invitation');
+   }
+ };
 
-  const handleCoverImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+ const handleCoverImageChange = async (event) => {
+   const file = event.target.files[0];
+   if (file) {
+     const reader = new FileReader();
+     reader.onloadend = () => {
+       setCoverImage(reader.result);
+     };
+     reader.readAsDataURL(file);
+   }
+ };
 
-  const handleCloseMenus = () => {
-    setIsSettingsOpen(false);
-    setIsMoreOpen(false);
-  };
+ if (!user) {
+   return <div>Loading...</div>;
+ }
 
-  return (
-    <div className="" onClick={handleCloseMenus}>
-      <div className="max-w-6xl mx-auto bg-[#CBDCEB] rounded-3xl overflow-hidden shadow-xl">
-        {/* Header Section with Cover Image */}
-        <div className="relative h-48">
-          <div className={`w-full h-full ${coverImage ? '' : 'bg-gradient-to-r from-blue-500 to-purple-600'}`}>
-            {coverImage && (
-              <img
-                src={coverImage}
-                alt="Cover"
-                className="w-full h-full object-cover"
-              />
-            )}
-          </div>
-          
-          {/* Settings and More Options */}
-          <div className="absolute top-4 right-4 flex space-x-4">
+ return (
+   <div onClick={() => {
+     setIsSettingsOpen(false);
+     setIsMoreOpen(false);
+   }}>
+     <div className="max-w-6xl mx-auto bg-[#CBDCEB] rounded-3xl overflow-hidden shadow-xl">
+       <div className="relative h-48">
+         <div className={`w-full h-full ${coverImage ? '' : 'bg-gradient-to-r from-blue-500 to-purple-600'}`}>
+           {coverImage && (
+             <img
+               src={coverImage}
+               alt="Cover"
+               className="w-full h-full object-cover"
+             />
+           )}
+         </div>
+         
+         {/* Settings Menu */}
+         <div className="absolute top-4 right-4 flex space-x-4">
             {/* Settings Menu */}
             <div className="relative">
               <button 
@@ -131,8 +128,8 @@ const UserProfile = () => {
               )}
             </div>
 
-            {/* More Options Menu */}
-            <div className="relative">
+           {/* More Options */}
+           <div className="relative">
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
@@ -182,43 +179,30 @@ const UserProfile = () => {
                 </div>
               )}
             </div>
-          </div>
+         </div>
 
-          {/* Profile Image Section */}
-          <div className="absolute -bottom-16 left-6">
-            <div className="relative">
-              <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-gray-800 bg-gray-700">
-                <img
-                  src={profileImage}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <label className="absolute bottom-2 right-2 cursor-pointer">
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleProfileImageChange}
-                />
-              </label>
-            </div>
-          </div>
-        </div>
+         {/* Profile Image */}
+         <div className="absolute -bottom-16 left-6">
+           <div className="relative">
+             <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-white">
+               <img
+                 src={profileImage}
+                 alt="Profile"
+                 className="w-full h-full object-cover"
+               />
+             </div>
+           </div>
+         </div>
+       </div>
 
-        {/* User Info Section */}
-        <div className="pt-20 px-6">
-          <UserInfo user={user} />
-
-          {/* Achievements Grid */}
-         <Achievements achievements={user.achievements} />
-
-          {/* Friends Component */}
-          <Friends />
-        </div>
-      </div>
-    </div>
-  );
+       <div className="pt-20 px-6 pb-6">
+         <UserInfo />
+         <Achievements />
+         <Friends />
+       </div>
+     </div>
+   </div>
+ );
 };
 
 export default UserProfile;

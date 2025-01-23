@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed Jan 22 12:32:24 2025
+# Make data base, printed on Thu Jan 23 12:38:26 2025
 
 # Variables
 
@@ -29,7 +29,7 @@ LC_NUMERIC = ar_MA.UTF-8
 # environment
 VSCODE_CRASH_REPORTER_PROCESS_TYPE = extensionHost
 # environment
-VSCODE_CWD = /home/mben-sal/Desktop/My_tran
+VSCODE_CWD = /home/mben-sal/Desktop/My_Tran
 # environment
 NVM_DIR = /home/mben-sal/.nvm
 # environment
@@ -49,7 +49,7 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
 .VARIABLES := 
 # environment
-PWD = /home/mben-sal/Desktop/My_tran
+PWD = /home/mben-sal/Desktop/My_Tran
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # environment
@@ -59,7 +59,7 @@ XDG_DATA_DIRS = /home/mben-sal/snap/code/179/.local/share:/home/mben-sal/snap/co
 # environment
 SNAP_EUID = 1000
 # environment
-OLDPWD = /home/mben-sal
+OLDPWD = /home/mben-sal/Desktop
 # automatic
 ^D = $(patsubst %/,%,$(dir $^))
 # automatic
@@ -71,7 +71,7 @@ VSCODE_CODE_CACHE_PATH = /home/mben-sal/.config/Code/CachedData/fabdb6a30b49f79a
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.N0Y502
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.9IQ002
 # default
 .LOADED := 
 # default
@@ -79,13 +79,15 @@ XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.N0Y502
 # environment
 MEMORY_PRESSURE_WATCH = /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@wayland.service/memory.pressure
 # environment
-GNOME_TERMINAL_SERVICE = :1.105
+GNOME_TERMINAL_SERVICE = :1.150
 # makefile
 MAKEFLAGS = pqrR
 # makefile
-CURDIR := /home/mben-sal/Desktop/My_tran
+CURDIR := /home/mben-sal/Desktop/My_Tran
 # environment
 APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+# environment
+VSCODE_L10N_BUNDLE_LOCATION = 
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
@@ -109,7 +111,7 @@ MAKEFILE_LIST := Makefile
 # environment
 ZSH = /home/mben-sal/.oh-my-zsh
 # environment
-VSCODE_PID = 5339
+VSCODE_PID = 7601
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -117,7 +119,7 @@ XDG_SESSION_TYPE = wayland
 # environment
 XDG_DATA_HOME = /home/mben-sal/snap/code/179/.local/share
 # environment
-SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3279,unix/ben-sal:/tmp/.ICE-unix/3279
+SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3301,unix/ben-sal:/tmp/.ICE-unix/3301
 # automatic
 *F = $(notdir $*)
 # environment
@@ -143,7 +145,7 @@ XMODIFIERS = @im=ibus
 # environment
 SHLVL = 1
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/9d6d8e5f_5f5a_4dfb_9418_50a631f71eae
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/686eac65_3e26_4847_a06d_441a670ef9d1
 # environment
 MAKELEVEL := 0
 # default
@@ -205,7 +207,7 @@ SNAP_ARCH = amd64
 # makefile
 .DEFAULT_GOAL := up
 # environment
-SYSTEMD_EXEC_PID = 3321
+SYSTEMD_EXEC_PID = 3340
 # environment
 DISPLAY = :0
 # environment
@@ -274,9 +276,6 @@ VTE_VERSION = 7600
 SNAP_COMMON = /var/snap/code/common
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
- 
-make: *** No rule to make target 'all'.  Stop.
-
 # environment
 QTWEBENGINE_DICTIONARIES_PATH = /usr/share/hunspell-bdic/
 # environment
@@ -292,7 +291,7 @@ LC_IDENTIFICATION = ar_MA.UTF-8
 # environment
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
 # variable set hash-table stats:
-# Load=139/1024=14%, Rehash=0, Collisions=12/169=7%
+# Load=140/1024=14%, Rehash=0, Collisions=13/170=8%
 
 # Pattern-specific Variable Values
 
@@ -300,7 +299,7 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Directories
 
-# . (device 66309, inode 189648): 10 files, no impossibilities.
+# . (device 66309, inode 5080815): 10 files, no impossibilities.
 
 # 10 files, no impossibilities in 1 directories.
 
@@ -313,7 +312,7 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2025-01-18 14:50:25.896388986
+#  Last modified 2025-01-23 12:38:09.614990342
 #  File has been updated.
 #  Successfully updated.
 
@@ -365,6 +364,8 @@ down:
 # strcache performance: lookups = 26 / hit rate = 30%
 # hash-table stats:
 # Load=18/8192=0%, Rehash=0, Collisions=0/26=0%
-# Finished Make data base on Wed Jan 22 12:32:24 2025
+# Finished Make data base on Thu Jan 23 12:38:26 2025
 
  
+make: *** No rule to make target 'all'.  Stop.
+
