@@ -176,32 +176,27 @@ class UserProfileView(APIView):
                 'error': 'Profile not found'
             }, status=status.HTTP_404_NOT_FOUND)
 
-    def patch(self, request):
-        """Update the user profile"""
+    def put(self, request):
         try:
             profile = UserProfile.objects.get(user=request.user)
+            print("Received data:", request.data)  # Debug log
+
             serializer = UserProfileSerializer(
                 profile,
-                data=request.data,
-                partial=True
+                data=request.data
             )
             if serializer.is_valid():
-                # Update email if provided
-                if 'email' in request.data:
-                    request.user.email = request.data['email']
-                    request.user.save()
-                
-                # Update profile
                 updated_profile = serializer.save()
+                print("Updated profile:", UserProfileSerializer(updated_profile).data)  # Debug log
                 return Response(UserProfileSerializer(updated_profile).data)
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
-            )
+                
+            print("Validation errors:", serializer.errors)  # Debug log
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except UserProfile.DoesNotExist:
-            return Response({
-                'error': 'Profile not found'
-            }, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print("Update error:", str(e))  # Debug log
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
         """Delete user account and profile"""

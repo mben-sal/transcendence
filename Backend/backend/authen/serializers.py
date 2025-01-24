@@ -21,21 +21,24 @@ class LoginSerializer(serializers.Serializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    first_name = serializers.CharField(source='user.first_name')
+    last_name = serializers.CharField(source='user.last_name')
     email = serializers.EmailField(source='user.email', read_only=True)
-    
+
     class Meta:
         model = UserProfile
-        fields = (
-            'id',
-            'user',
-            'email',
-            'intra_id',
-            'avatar',
-            'display_name',
-            'wins',
-            'losses',
-            'status',
-            'two_factor_enabled',
-            'created_at',
-            'updated_at'
-        )
+        fields = ('id', 'user', 'first_name', 'last_name', 'email', 'intra_id', 'avatar', 
+                 'display_name', 'status', 'two_factor_enabled', 'wins', 'losses')
+
+    def update(self, instance, validated_data):
+        if 'user' in validated_data:
+            user_data = validated_data.pop('user')
+            user = instance.user
+            for attr, value in user_data.items():
+                setattr(user, attr, value)
+            user.save()
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance

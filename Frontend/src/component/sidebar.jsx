@@ -70,7 +70,7 @@ const Sidebar = () => {
                                 className="w-full h-full object-cover" 
                             />
                         </div>
-                        <span className='truncate w-[8.5rem]' title={user?.display_name}>
+                        <span className='truncate w-[8.5rem]' title={user?.display_name || 'Loading...'}>
                             {user?.display_name || 'Loading...'}
                         </span>
                     </NavLink>

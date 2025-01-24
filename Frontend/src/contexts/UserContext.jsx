@@ -1,4 +1,3 @@
-// src/contexts/UserContext.jsx
 import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
@@ -12,28 +11,21 @@ export const UserProvider = ({ children }) => {
     });
 
     const fetchUserProfile = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setLoading(false);
-            return null;
-        }
-
+        setLoading(true);
         try {
+            const token = localStorage.getItem('token');
             const response = await axios.get('http://localhost:8000/api/users/profile/', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { Authorization: `Bearer ${token}` }
             });
+            console.log('Profile data received:', response.data);
             setUser(response.data);
-            setIsAuthenticated(true);
             setLoading(false);
-            return response.data;  // Retourne les données du profil
+            return response.data;
         } catch (error) {
-            console.error('Error fetching user profile:', error);
+            console.error('Error fetching profile:', error);
             if (error.response?.status === 401) {
                 localStorage.removeItem('token');
-                localStorage.removeItem('refresh_token');
-                setIsAuthenticated(false);
+                setUser(null);
             }
             setLoading(false);
             return null;
@@ -47,7 +39,6 @@ export const UserProvider = ({ children }) => {
         setUser(null);
     };
 
-    // Charger le profil au montage si un token existe
     useEffect(() => {
         if (isAuthenticated) {
             fetchUserProfile();
