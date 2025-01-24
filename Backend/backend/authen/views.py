@@ -166,7 +166,6 @@ class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
-        """Get the profile of the authenticated user"""
         try:
             profile = UserProfile.objects.get(user=request.user)
             serializer = UserProfileSerializer(profile)
@@ -178,33 +177,24 @@ class UserProfileView(APIView):
 
     def put(self, request):
         try:
-            profile = UserProfile.objects.get(user=request.user)
-            print("Received data:", request.data)  # Debug log
-
-            serializer = UserProfileSerializer(
-                profile,
-                data=request.data
-            )
+            profile = UserProfile.objects.get(user=request.user) 
+            serializer = UserProfileSerializer(profile, data=request.data, partial=True)
             if serializer.is_valid():
                 updated_profile = serializer.save()
-                print("Updated profile:", UserProfileSerializer(updated_profile).data)  # Debug log
                 return Response(UserProfileSerializer(updated_profile).data)
-                
-            print("Validation errors:", serializer.errors)  # Debug log
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except UserProfile.DoesNotExist:
-            return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            print("Update error:", str(e))  # Debug log
+            print("Update error:", str(e))
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
-        """Delete user account and profile"""
         try:
             user = request.user
-            user.delete()  # This will also delete the associated profile due to CASCADE
+            user.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response({
                 'error': str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
+
+

@@ -20,25 +20,24 @@ class LoginSerializer(serializers.Serializer):
     )
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-    first_name = serializers.CharField(source='user.first_name')
-    last_name = serializers.CharField(source='user.last_name')
+    first_name = serializers.CharField(source='user.first_name', required=False)
+    last_name = serializers.CharField(source='user.last_name', required=False)
     email = serializers.EmailField(source='user.email', read_only=True)
 
     class Meta:
         model = UserProfile
-        fields = ('id', 'user', 'first_name', 'last_name', 'email', 'intra_id', 'avatar', 
+        fields = ('id', 'first_name', 'last_name', 'email', 'intra_id', 'avatar', 
                  'display_name', 'status', 'two_factor_enabled', 'wins', 'losses')
 
     def update(self, instance, validated_data):
-        if 'user' in validated_data:
-            user_data = validated_data.pop('user')
-            user = instance.user
+        user_data = validated_data.get('user', {})
+        if user_data:
             for attr, value in user_data.items():
-                setattr(user, attr, value)
-            user.save()
+                setattr(instance.user, attr, value)
+            instance.user.save()
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        if 'two_factor_enabled' in validated_data:
+            instance.two_factor_enabled = validated_data['two_factor_enabled']
         instance.save()
+
         return instance

@@ -22,41 +22,32 @@ const ProfileSettings = () => {
   }, [user]);
 
   const handleSave = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      const data = {
-        first_name: firstName,
-        last_name: lastName,
-        two_factor_enabled: twoFactorEnabled,
-        display_name: user.display_name,
-        email: user.email,
-        avatar: user.avatar
-      };
-
-      if (password) {
-        data.password = password;
-      }
-
-      const response = await axios.put('http://localhost:8000/api/users/profile/', data, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.status === 200) {
-        await fetchUserProfile();
-        console.log('Profile update response:', response.data);
-        setPassword('');
-        alert('Profile updated successfully!');
-      }
-    } catch (error) {
-      console.error('Error details:', error.response?.data);
-      alert(error.response?.data?.message || 'Failed to update profile');
-    } finally {
-      setLoading(false);
-    }
+	setLoading(true);
+	try {
+	  const token = localStorage.getItem('token');
+	  const data = {
+		first_name: firstName,
+		last_name: lastName,
+		two_factor_enabled: twoFactorEnabled
+	  };
+  
+	  const response = await axios.put('http://localhost:8000/api/users/profile/', data, {
+		headers: { 
+		  Authorization: `Bearer ${token}`,
+		  'Content-Type': 'application/json'
+		}
+	  });
+  
+	  if (response.status === 200) {
+		await fetchUserProfile();
+		alert('Profile updated successfully!');
+	  }
+	} catch (error) {
+	  console.error('Error:', error);
+	  alert(error.response?.data?.error || 'Failed to update profile');
+	} finally {
+	  setLoading(false);
+	}
   };
 
   const handleDeleteAccount = async () => {
@@ -94,7 +85,7 @@ const ProfileSettings = () => {
         
         <div className="flex items-center gap-8 mb-6">
           <img src={user.avatar || profil} alt="Profile" className="w-12 h-12 rounded-full object-cover" />
-          <span className="text-white text-lg">{user.display_name}</span>
+          <span className="text-white text-lg">{user.first_name} {user.last_name}</span>
         </div>
         
         <div className="h-px bg-blue-100 mb-6" />

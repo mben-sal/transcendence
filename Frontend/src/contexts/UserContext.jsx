@@ -17,8 +17,14 @@ export const UserProvider = ({ children }) => {
             const response = await axios.get('http://localhost:8000/api/users/profile/', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            console.log('Profile data received:', response.data);
-            setUser(response.data);
+            
+            // Force refresh of user data
+            setUser(null);
+            setTimeout(() => {
+                setUser(response.data);
+                console.log('Updated user data:', response.data);
+            }, 0);
+            
             setLoading(false);
             return response.data;
         } catch (error) {
