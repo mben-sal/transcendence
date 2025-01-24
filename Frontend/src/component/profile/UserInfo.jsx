@@ -8,7 +8,7 @@ const UserInfo = () => {
   return (
     <div className="flex flex-col md:flex-row md:justify-between md:items-center">
       <div>
-        <h1 className="text-2xl font-bold text-[#133E87]">{user.display_name}</h1>
+        <h1 className="text-2xl font-bold text-[#133E87]">{user.first_name} {user.last_name}</h1>
         <p className="text-blue-400">{user.intra_id || user.email}</p>
       </div>
       <div className="mt-4 md:mt-0">

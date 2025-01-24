@@ -19,7 +19,7 @@ const Hello = () => {
 	  <h3 className="text-2xl font-bold text-blue-900 mb-4">
 		Hello{' '}
 		<span className="inline-block bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent animate-[slideDown_1s_ease-out_1]">
-		  {user.display_name}
+		  {user.first_name}
 		</span>
 		<span className="ml-2 animate-bounce inline-block">👋</span>
 	  </h3>
