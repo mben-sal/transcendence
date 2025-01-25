@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+
 # GNU Make 4.3
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Thu Jan 23 12:38:26 2025
+# Make data base, printed on Sat Jan 25 15:16:34 2025
 
 # Variables
 
@@ -43,7 +45,7 @@ QT_ACCESSIBILITY = 1
 # environment
 SNAP_INSTANCE_NAME = code
 # environment
-GDK_PIXBUF_MODULEDIR = /snap/code/179/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders
+GDK_PIXBUF_MODULEDIR = /snap/code/181/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
@@ -55,11 +57,11 @@ PWD = /home/mben-sal/Desktop/My_Tran
 # environment
 LSCOLORS = Gxfxcxdxbxegedabagacad
 # environment
-XDG_DATA_DIRS = /home/mben-sal/snap/code/179/.local/share:/home/mben-sal/snap/code/179:/snap/code/179/usr/share:/home/mben-sal/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop
+XDG_DATA_DIRS = /home/mben-sal/snap/code/181/.local/share:/home/mben-sal/snap/code/181:/snap/code/181/usr/share:/home/mben-sal/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop
 # environment
 SNAP_EUID = 1000
 # environment
-OLDPWD = /home/mben-sal/Desktop
+OLDPWD = /home/mben-sal
 # automatic
 ^D = $(patsubst %/,%,$(dir $^))
 # automatic
@@ -67,11 +69,11 @@ OLDPWD = /home/mben-sal/Desktop
 # environment
 NVM_INC = /home/mben-sal/.nvm/versions/node/v18.20.4/include/node
 # environment
-VSCODE_CODE_CACHE_PATH = /home/mben-sal/.config/Code/CachedData/fabdb6a30b49f79a7aba0f2ad9df9b399473380f
+VSCODE_CODE_CACHE_PATH = /home/mben-sal/.config/Code/CachedData/cd4ee3b1c348a13bafd8f9ad8060705f6d4b9cba
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.9IQ002
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.MLUZ02
 # default
 .LOADED := 
 # default
@@ -79,7 +81,7 @@ XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.9IQ002
 # environment
 MEMORY_PRESSURE_WATCH = /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@wayland.service/memory.pressure
 # environment
-GNOME_TERMINAL_SERVICE = :1.150
+GNOME_TERMINAL_SERVICE = :1.113
 # makefile
 MAKEFLAGS = pqrR
 # makefile
@@ -111,15 +113,15 @@ MAKEFILE_LIST := Makefile
 # environment
 ZSH = /home/mben-sal/.oh-my-zsh
 # environment
-VSCODE_PID = 7601
+VSCODE_PID = 6198
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-XDG_DATA_HOME = /home/mben-sal/snap/code/179/.local/share
+XDG_DATA_HOME = /home/mben-sal/snap/code/181/.local/share
 # environment
-SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3301,unix/ben-sal:/tmp/.ICE-unix/3301
+SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3206,unix/ben-sal:/tmp/.ICE-unix/3206
 # automatic
 *F = $(notdir $*)
 # environment
@@ -129,11 +131,11 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 # automatic
 <D = $(patsubst %/,%,$(dir $<))
 # environment
-VSCODE_NLS_CONFIG = {"userLocale":"en-us","osLocale":"en-us","resolvedLanguage":"en","defaultMessagesFile":"/snap/code/179/usr/share/code/resources/app/out/nls.messages.json","locale":"en-us","availableLanguages":{}}
+VSCODE_NLS_CONFIG = {"userLocale":"en-us","osLocale":"en-us","resolvedLanguage":"en","defaultMessagesFile":"/snap/code/181/usr/share/code/resources/app/out/nls.messages.json","locale":"en-us","availableLanguages":{}}
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
-GTK_PATH = /snap/code/179/usr/lib/x86_64-linux-gnu/gtk-3.0
+GTK_PATH = /snap/code/181/usr/lib/x86_64-linux-gnu/gtk-3.0
 # environment
 GNOME_DESKTOP_SESSION_ID = this-is-deprecated
 # makefile
@@ -145,7 +147,7 @@ XMODIFIERS = @im=ibus
 # environment
 SHLVL = 1
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/686eac65_3e26_4847_a06d_441a670ef9d1
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/9135aa06_aee8_4100_92db_b2e6bffdbd19
 # environment
 MAKELEVEL := 0
 # default
@@ -165,9 +167,9 @@ SNAP_USER_COMMON = /home/mben-sal/snap/code/common
 # environment
 LC_TIME = ar_MA.UTF-8
 # environment
-SNAP = /snap/code/179
+SNAP = /snap/code/181
 # environment
-SNAP_REVISION = 179
+SNAP_REVISION = 181
 # environment
 SNAP_REAL_HOME = /home/mben-sal
 # environment
@@ -195,7 +197,7 @@ DESKTOP_SESSION = ubuntu
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
-LOCPATH = /snap/code/179/usr/lib/locale
+LOCPATH = /snap/code/181/usr/lib/locale
 # 'override' directive
 GNUMAKEFLAGS := 
 # environment
@@ -207,7 +209,7 @@ SNAP_ARCH = amd64
 # makefile
 .DEFAULT_GOAL := up
 # environment
-SYSTEMD_EXEC_PID = 3340
+SYSTEMD_EXEC_PID = 3239
 # environment
 DISPLAY = :0
 # environment
@@ -217,7 +219,7 @@ GTK_MODULES = gail:atk-bridge
 # default
 MAKE_VERSION := 4.3
 # environment
-SNAP_DATA = /var/snap/code/179
+SNAP_DATA = /var/snap/code/181
 # environment
 SNAP_CONTEXT = _RX1P6PMhKvnn8hCs3zDVtacoUuUpfEyTUGtMnbybWLrVZvqrJ7_
 # environment
@@ -253,17 +255,17 @@ VSCODE_IPC_HOOK = /run/user/1000/vscode-773d2f78-1.96-main.sock
 # environment
 TERM = xterm-256color
 # environment
-GTK_EXE_PREFIX = /snap/code/179/usr
+GTK_EXE_PREFIX = /snap/code/181/usr
 # environment
 SNAP_NAME = code
 # environment
-GSETTINGS_SCHEMA_DIR = /home/mben-sal/snap/code/179/.local/share/glib-2.0/schemas
+GSETTINGS_SCHEMA_DIR = /home/mben-sal/snap/code/181/.local/share/glib-2.0/schemas
 # default
 .RECIPEPREFIX := 
 # automatic
 <F = $(notdir $<)
 # environment
-SNAP_VERSION = fabdb6a3
+SNAP_VERSION = cd4ee3b1
 # default
 SUFFIXES := 
 # environment
@@ -279,7 +281,7 @@ SNAP_COMMON = /var/snap/code/common
 # environment
 QTWEBENGINE_DICTIONARIES_PATH = /usr/share/hunspell-bdic/
 # environment
-SNAP_USER_DATA = /home/mben-sal/snap/code/179
+SNAP_USER_DATA = /home/mben-sal/snap/code/181
 # environment
 XDG_MENU_PREFIX = gnome-
 # environment
@@ -289,6 +291,7 @@ GDMSESSION = ubuntu
 # environment
 LC_IDENTIFICATION = ar_MA.UTF-8
 # environment
+ 
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
 # variable set hash-table stats:
 # Load=140/1024=14%, Rehash=0, Collisions=13/170=8%
@@ -299,9 +302,9 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Directories
 
-# . (device 66309, inode 5080815): 10 files, no impossibilities.
+# . (device 66309, inode 5080815): 11 files, no impossibilities.
 
-# 10 files, no impossibilities in 1 directories.
+# 11 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -358,14 +361,12 @@ down:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 18 / storage = 152 B / avg = 8 B
-# current buf: size = 8162 B / used = 152 B / count = 18 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 19 / storage = 158 B / avg = 8 B
+# current buf: size = 8162 B / used = 158 B / count = 19 / avg = 8 B
 
-# strcache performance: lookups = 26 / hit rate = 30%
+# strcache performance: lookups = 27 / hit rate = 29%
 # hash-table stats:
-# Load=18/8192=0%, Rehash=0, Collisions=0/26=0%
-# Finished Make data base on Thu Jan 23 12:38:26 2025
+# Load=19/8192=0%, Rehash=0, Collisions=0/27=0%
+# Finished Make data base on Sat Jan 25 15:16:34 2025
 
  
-make: *** No rule to make target 'all'.  Stop.
-
