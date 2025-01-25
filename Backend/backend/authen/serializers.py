@@ -29,15 +29,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ('id', 'first_name', 'last_name', 'email', 'intra_id', 'avatar', 
                  'display_name', 'status', 'two_factor_enabled', 'wins', 'losses')
 
-    def update(self, instance, validated_data):
-        user_data = validated_data.get('user', {})
-        if user_data:
-            for attr, value in user_data.items():
-                setattr(instance.user, attr, value)
-            instance.user.save()
+def update(self, instance, validated_data):
+    user = instance.user
+    user.first_name = validated_data.get('user', {}).get('first_name', user.first_name)
+    user.last_name = validated_data.get('user', {}).get('last_name', user.last_name)
+    user.save()
 
-        if 'two_factor_enabled' in validated_data:
-            instance.two_factor_enabled = validated_data['two_factor_enabled']
-        instance.save()
+    if 'two_factor_enabled' in validated_data:
+        instance.two_factor_enabled = validated_data['two_factor_enabled']
+    instance.save()
 
-        return instance
+    return instance

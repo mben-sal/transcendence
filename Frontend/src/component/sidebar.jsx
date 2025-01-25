@@ -70,8 +70,8 @@ const Sidebar = () => {
                                className="w-full h-full object-cover" 
                            />
                        </div>
-                       <span className='truncate w-[8.5rem]' title={`${user?.first_name || ''} ${user?.last_name || ''}`}>
-                           {user?.first_name ? `${user?.first_name} ${user?.last_name || ''}`.trim() : 'Loading...'}
+                       <span className='truncate w-[8.5rem]' title={`${user.intra_id || user.email}`}>
+                           {user?.first_name ? `${user.intra_id || user.email}`.trim() : 'Loading...'}
                        </span>
                    </NavLink>
                    <Notification />

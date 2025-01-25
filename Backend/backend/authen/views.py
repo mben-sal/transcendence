@@ -21,7 +21,7 @@ class LoginView(APIView):
         request_body=LoginSerializer,
         responses={
             200: openapi.Response(
-                description="Success",
+                description="Success", 
                 examples={
                     "application/json": {
                         "status": "success",
@@ -67,7 +67,7 @@ class FortyTwoLoginView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        state = request.GET.get('state', 'signin')  # Pour différencier signin/signup
+        state = request.GET.get('state', 'signin')
         auth_params = {
             'client_id': settings.FT_CLIENT_ID,
             'redirect_uri': settings.FT_REDIRECT_URI,
@@ -89,7 +89,6 @@ class FortyTwoCallbackView(APIView):
         print(f"Received code: {code}, state: {state}")
 
         try:
-            # Token exchange with 42 API
             token_response = requests.post(
                 settings.FT_TOKEN_URL,
                 data={
@@ -102,20 +101,21 @@ class FortyTwoCallbackView(APIView):
             )
             token_data = token_response.json()
 
-            # Get user info from 42 API
             user_response = requests.get(
                 f'{settings.FT_API_URL}/v2/me',
                 headers={'Authorization': f'Bearer {token_data["access_token"]}'}
             )
             user_data = user_response.json()
 
-            # Create or update user and profile
             user, created = User.objects.get_or_create(
                 username=user_data['login'],
-                defaults={'email': user_data.get('email', '')}
+                defaults={
+                    'email': user_data.get('email', ''),
+                    'first_name': user_data.get('first_name', ''),
+                    'last_name': user_data.get('last_name', '')
+                }
             )
 
-            # Create or update the profile
             profile, _ = UserProfile.objects.get_or_create(
                 user=user,
                 defaults={
@@ -126,16 +126,13 @@ class FortyTwoCallbackView(APIView):
                 }
             )
 
-            # Update profile fields if not created
             if not _:
                 profile.avatar = user_data.get('image', {}).get('link', profile.avatar)
                 profile.status = 'online'
                 profile.save()
 
-            # Generate JWT tokens
             refresh = RefreshToken.for_user(user)
             
-            # Construct redirect URL with tokens
             redirect_url = (
                 f"{settings.FRONTEND_URL}/auth/callback"
                 f"?access_token={str(refresh.access_token)}"
@@ -171,30 +168,24 @@ class UserProfileView(APIView):
             serializer = UserProfileSerializer(profile)
             return Response(serializer.data)
         except UserProfile.DoesNotExist:
-            return Response({
-                'error': 'Profile not found'
-            }, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
 
     def put(self, request):
         try:
-            profile = UserProfile.objects.get(user=request.user) 
-            serializer = UserProfileSerializer(profile, data=request.data, partial=True)
-            if serializer.is_valid():
-                updated_profile = serializer.save()
-                return Response(UserProfileSerializer(updated_profile).data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            profile = UserProfile.objects.get(user=request.user)
+            
+            # Update user fields directly
+            user = profile.user
+            user.first_name = request.data.get('first_name', user.first_name)
+            user.last_name = request.data.get('last_name', user.last_name)
+            user.save()
+            
+            # Update profile fields
+            if 'two_factor_enabled' in request.data:
+                profile.two_factor_enabled = request.data['two_factor_enabled']
+                profile.save()
+            
+            return Response(UserProfileSerializer(profile).data)
         except Exception as e:
             print("Update error:", str(e))
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request):
-        try:
-            user = request.user
-            user.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Exception as e:
-            return Response({
-                'error': str(e)
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-
