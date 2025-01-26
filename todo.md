@@ -1,4 +1,4 @@
-- get image cover de intra 
+- get image cover de intra (besion un autre endpoint)
 - travail logout in backend
 - cree un file pour inscription login (avec backend et lie par front-end )
 - resoudre problem de twofactor 

@@ -30,13 +30,21 @@ export const UserProvider = ({ children }) => {
 		}
 	};
 
-    const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('refresh_token');
-        setIsAuthenticated(false);
-        setUser(null);
-    };
-
+	const logout = async () => {
+		try {
+			const refreshToken = localStorage.getItem('refresh_token');
+			await axios.post('http://localhost:8000/api/users/logout/', {
+				refresh_token: refreshToken
+			});
+		} catch (error) {
+			console.error('Logout error:', error);
+		} finally {
+			localStorage.removeItem('token');
+			localStorage.removeItem('refresh_token');
+			setIsAuthenticated(false);
+			setUser(null);
+		}
+	};
     useEffect(() => {
         if (isAuthenticated) {
             fetchUserProfile();

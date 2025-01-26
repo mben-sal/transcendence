@@ -13,6 +13,8 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework_simplejwt.tokens import RefreshToken
 from urllib.parse import urlencode
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -188,4 +190,17 @@ class UserProfileView(APIView):
             return Response(UserProfileSerializer(profile).data)
         except Exception as e:
             print("Update error:", str(e))
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get('refresh_token')
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({'status': 'success'}, status=status.HTTP_200_OK)
+        except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
