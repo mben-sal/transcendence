@@ -7,7 +7,7 @@ import logoimage from '../assets/src/Right.svg';
 import { AUTH_CONFIG } from '../config';
 import PropTypes from 'prop-types';
 
-export default function Login({ setIsAuthenticated }) {
+export default function Login() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
@@ -171,7 +171,3 @@ return (
         </div>
     );
 }
-
-Login.propTypes = {  
-    setIsAuthenticated: PropTypes.func.isRequired
-};

@@ -1,0 +1,6 @@
+- get image cover de intra 
+- travail logout in backend
+- cree un file pour inscription login (avec backend et lie par front-end )
+- resoudre problem de twofactor 
+- save change image profil et cover
+- travail forget passeword 

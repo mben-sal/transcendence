@@ -10,33 +10,25 @@ export const UserProvider = ({ children }) => {
         return !!localStorage.getItem('token');
     });
 
-    const fetchUserProfile = async () => {
-        setLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:8000/api/users/profile/', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            
-            // Force refresh of user data
-            setUser(null);
-            setTimeout(() => {
-                setUser(response.data);
-                console.log('Updated user data:', response.data);
-            }, 0);
-            
-            setLoading(false);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching profile:', error);
-            if (error.response?.status === 401) {
-                localStorage.removeItem('token');
-                setUser(null);
-            }
-            setLoading(false);
-            return null;
-        }
-    };
+	const fetchUserProfile = async () => {
+		setLoading(true);
+		try {
+			const token = localStorage.getItem('token');
+			const response = await axios.get('http://localhost:8000/api/users/profile/', {
+				headers: { Authorization: `Bearer ${token}` }
+			});
+			setUser(response.data);
+			setLoading(false);
+			return response.data;
+		} catch (error) {
+			if (error.response?.status === 401) {
+				localStorage.removeItem('token');
+				setUser(null);
+			}
+			setLoading(false);
+			return null;
+		}
+	};
 
     const logout = () => {
         localStorage.removeItem('token');

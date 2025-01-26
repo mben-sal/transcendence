@@ -40,11 +40,9 @@ const ProfileSettings = () => {
   
 	  if (response.status === 200) {
 		await fetchUserProfile();
-		alert('Profile updated successfully!');
 	  }
 	} catch (error) {
 	  console.error('Error:', error);
-	  alert(error.response?.data?.error || 'Failed to update profile');
 	} finally {
 	  setLoading(false);
 	}
@@ -66,7 +64,6 @@ const ProfileSettings = () => {
       window.location.href = '/login';
     } catch (error) {
       console.error('Error:', error);
-      alert(error.response?.data?.message || 'Failed to delete account');
     }
   };
 

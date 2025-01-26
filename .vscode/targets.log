@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Jan 25 15:16:34 2025
+# Make data base, printed on Sun Jan 26 00:31:12 2025
 
 # Variables
 
@@ -81,7 +81,7 @@ XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.MLUZ02
 # environment
 MEMORY_PRESSURE_WATCH = /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@wayland.service/memory.pressure
 # environment
-GNOME_TERMINAL_SERVICE = :1.113
+GNOME_TERMINAL_SERVICE = :1.896
 # makefile
 MAKEFLAGS = pqrR
 # makefile
@@ -113,7 +113,7 @@ MAKEFILE_LIST := Makefile
 # environment
 ZSH = /home/mben-sal/.oh-my-zsh
 # environment
-VSCODE_PID = 6198
+VSCODE_PID = 129896
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -147,7 +147,7 @@ XMODIFIERS = @im=ibus
 # environment
 SHLVL = 1
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/9135aa06_aee8_4100_92db_b2e6bffdbd19
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/7bae45f5_7e76_44c1_a50a_398ffb3d1263
 # environment
 MAKELEVEL := 0
 # default
@@ -291,7 +291,6 @@ GDMSESSION = ubuntu
 # environment
 LC_IDENTIFICATION = ar_MA.UTF-8
 # environment
- 
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
 # variable set hash-table stats:
 # Load=140/1024=14%, Rehash=0, Collisions=13/170=8%
@@ -302,9 +301,9 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Directories
 
-# . (device 66309, inode 5080815): 11 files, no impossibilities.
+# . (device 66309, inode 5089110): 10 files, no impossibilities.
 
-# 11 files, no impossibilities in 1 directories.
+# 10 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -315,7 +314,8 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2025-01-23 12:38:09.614990342
+ 
+#  Last modified 2025-01-26 00:06:31.760007749
 #  File has been updated.
 #  Successfully updated.
 
@@ -361,12 +361,12 @@ down:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 19 / storage = 158 B / avg = 8 B
-# current buf: size = 8162 B / used = 158 B / count = 19 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 18 / storage = 152 B / avg = 8 B
+# current buf: size = 8162 B / used = 152 B / count = 18 / avg = 8 B
 
-# strcache performance: lookups = 27 / hit rate = 29%
+# strcache performance: lookups = 26 / hit rate = 30%
 # hash-table stats:
-# Load=19/8192=0%, Rehash=0, Collisions=0/27=0%
-# Finished Make data base on Sat Jan 25 15:16:34 2025
+# Load=18/8192=0%, Rehash=0, Collisions=0/26=0%
+# Finished Make data base on Sun Jan 26 00:31:12 2025
 
  
