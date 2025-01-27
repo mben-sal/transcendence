@@ -10,41 +10,70 @@ export const UserProvider = ({ children }) => {
         return !!localStorage.getItem('token');
     });
 
-	const fetchUserProfile = async () => {
-		setLoading(true);
-		try {
-			const token = localStorage.getItem('token');
-			const response = await axios.get('http://localhost:8000/api/users/profile/', {
-				headers: { Authorization: `Bearer ${token}` }
-			});
-			setUser(response.data);
-			setLoading(false);
-			return response.data;
-		} catch (error) {
-			if (error.response?.status === 401) {
-				localStorage.removeItem('token');
-				setUser(null);
-			}
-			setLoading(false);
-			return null;
-		}
-	};
+    const clearUserData = () => {
+        setUser(null);
+        setIsAuthenticated(false);
+        localStorage.removeItem('token');
+        localStorage.removeItem('refresh_token');
+    };
 
-	const logout = async () => {
-		try {
-			const refreshToken = localStorage.getItem('refresh_token');
-			await axios.post('http://localhost:8000/api/users/logout/', {
-				refresh_token: refreshToken
-			});
-		} catch (error) {
-			console.error('Logout error:', error);
-		} finally {
-			localStorage.removeItem('token');
-			localStorage.removeItem('refresh_token');
-			setIsAuthenticated(false);
-			setUser(null);
-		}
-	};
+    const logout = async () => {
+        try {
+            const refreshToken = localStorage.getItem('refresh_token');
+            await axios.post('http://localhost:8000/api/users/logout/', {
+                refresh_token: refreshToken
+            });
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            clearUserData();
+        }
+    };
+
+    const fetchUserProfile = async () => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                clearUserData();
+                setLoading(false);
+                return null;
+            }
+
+            const response = await axios.get('http://localhost:8000/api/users/profile/', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            const userData = response.data;
+            if (userData.avatar && userData.avatar.startsWith('/media')) {
+                userData.avatar = `http://localhost:8000${userData.avatar}`;
+            }
+            
+            setUser(userData);
+            setIsAuthenticated(true);
+            return userData;
+        } catch (error) {
+            if (error.response?.status === 401) {
+                clearUserData();
+            }
+            return null;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const updateUser = async (newData) => {
+        try {
+            if (newData.avatar && newData.avatar.startsWith('/media')) {
+                newData.avatar = `http://localhost:8000${newData.avatar}`;
+            }
+            setUser(newData);
+            await fetchUserProfile();
+        } catch (error) {
+            console.error('Error updating user:', error);
+        }
+    };
+
     useEffect(() => {
         if (isAuthenticated) {
             fetchUserProfile();
@@ -57,6 +86,8 @@ export const UserProvider = ({ children }) => {
         <UserContext.Provider 
             value={{ 
                 user, 
+                setUser,
+                updateUser,
                 loading, 
                 isAuthenticated, 
                 setIsAuthenticated,

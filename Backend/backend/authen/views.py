@@ -13,7 +13,14 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework_simplejwt.tokens import RefreshToken
 from urllib.parse import urlencode
-from rest_framework_simplejwt.tokens import RefreshToken
+import os
+from django.conf import settings
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 
 class LoginView(APIView):
@@ -108,14 +115,13 @@ class FortyTwoCallbackView(APIView):
                 headers={'Authorization': f'Bearer {token_data["access_token"]}'}
             )
             user_data = user_response.json()
-
             user, created = User.objects.get_or_create(
                 username=user_data['login'],
                 defaults={
                     'email': user_data.get('email', ''),
                     'first_name': user_data.get('first_name', ''),
-                    'last_name': user_data.get('last_name', '')
-                }
+                    'last_name': user_data.get('last_name', ''),
+                },
             )
 
             profile, _ = UserProfile.objects.get_or_create(
@@ -129,7 +135,7 @@ class FortyTwoCallbackView(APIView):
             )
 
             if not _:
-                profile.avatar = user_data.get('image', {}).get('link', profile.avatar)
+                # profile.avatar = user_data.get('image', {}).get('link', profile.avatar)
                 profile.status = 'online'
                 profile.save()
 
@@ -204,3 +210,81 @@ class LogoutView(APIView):
             return Response({'status': 'success'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+import os
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+class UpdateAvatarView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        print("=== Starting avatar upload ===")
+        try:
+            print("Files in request:", request.FILES)
+            
+            if 'avatar' not in request.FILES:
+                print("No avatar file found in request")
+                return Response(
+                    {'error': 'No image file provided'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            image_file = request.FILES['avatar']
+            print(f"File type: {image_file.content_type}")
+            print(f"File size: {image_file.size}")
+            
+            # Vérifier le type de fichier
+            allowed_types = ['image/jpeg', 'image/png', 'image/gif']
+            if image_file.content_type not in allowed_types:
+                print(f"Invalid file type: {image_file.content_type}")
+                return Response(
+                    {'error': f'Invalid file type: {image_file.content_type}. Only JPEG, PNG and GIF are allowed.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Créer le chemin du fichier
+            file_extension = os.path.splitext(image_file.name)[1].lower()
+            if not file_extension:
+                file_extension = '.jpg'  # Default extension
+            
+            file_path = f'avatars/user_{request.user.id}{file_extension}'
+            print(f"Saving to path: {file_path}")
+
+            try:
+                # Sauvegarder le fichier
+                path = default_storage.save(file_path, ContentFile(image_file.read()))
+                print(f"File saved successfully at: {path}")
+                
+                # Construire l'URL complète
+                file_url = f"/media/{path}"
+                print(f"File URL: {file_url}")
+
+                # Mettre à jour le profil utilisateur
+                profile = request.user.userprofile
+                profile.avatar = file_url
+                profile.save()
+                print("Profile updated successfully")
+
+                return Response({
+                    'status': 'success',
+                    'avatarUrl': file_url
+                })
+
+            except Exception as e:
+                print(f"Error saving file: {str(e)}")
+                raise
+
+        except Exception as e:
+            print(f"Error handling avatar upload: {str(e)}")
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

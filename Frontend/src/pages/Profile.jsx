@@ -5,14 +5,16 @@ import Friends from '../component/profile/Friends';
 import UserInfo from '../component/profile/UserInfo';
 import Achievements from '../component/profile/Achievements';
 import { useUser } from '../contexts/UserContext';
+import cover from '../assets/src/cover_1.jpg';
 
 const UserProfile = () => {
-  const { user } = useUser();
-  const [profileImage, setProfileImage] = useState(user?.avatar || player_);
+  const { user, updateUser, fetchUserProfile } = useUser();
+  const [profileImage, setProfileImage] = useState(player_);
   const [coverImage, setCoverImage] = useState(user?.cover || '');
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
@@ -25,30 +27,56 @@ const UserProfile = () => {
 
   const handleProfileImageChange = async (event) => {
     const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-      // Upload image API call here if needed
-    }
-  };
+    if (!file) return;
 
-  const handleCoverImageChange = async (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+    try {
+      setIsUploading(true);
+      
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await fetch('http://localhost:8000/api/users/avatar/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Upload error:', errorData);
+        throw new Error(errorData.error || 'Failed to upload image');
+      }
+
+      const data = await response.json();
+      console.log('Upload success:', data);
+      
+      if (data.avatarUrl) {
+        const fullAvatarUrl = `http://localhost:8000${data.avatarUrl}`;
+        setProfileImage(fullAvatarUrl);
+        
+        // Mettre à jour le profil complet
+        const updatedUser = { ...user, avatar: fullAvatarUrl };
+        updateUser(updatedUser);
+        
+        // Recharger le profil depuis le serveur
+        await fetchUserProfile();
+      } else {
+        throw new Error('No avatar URL in response');
+      }
+      
+    } catch (error) {
+      console.error('Error uploading profile image:', error);
+      alert(error.message || 'Failed to update profile image. Please try again.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
   const handleGameInvite = async () => {
     try {
-      await fetch('http://localhost:3001/api/game/invite', {
+      await fetch('http://localhost:8000/api/game/invite', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -71,33 +99,18 @@ const UserProfile = () => {
   }
 
   return (
-    <div onClick={() => setIsMoreOpen(false)}>
+    <div className="min-h-screen" onClick={() => setIsMoreOpen(false)}>
       <div className="max-w-6xl mx-auto bg-[#CBDCEB] rounded-3xl overflow-hidden shadow-xl">
         <div className="relative h-48">
-          {/* Cover Image with Click Handler */}
-          <div 
-            className="w-full h-full cursor-pointer relative group"
-            onClick={() => coverInputRef.current?.click()}
-          >
-            <div className={`w-full h-full ${coverImage ? '' : 'bg-gradient-to-r from-blue-500 to-purple-600'}`}>
-              {coverImage && (
-                <img
-                  src={coverImage}
-                  alt="Cover"
-                  className="w-full h-full object-cover"
-                />
-              )}
+          {/* Cover Image */}
+          <div className="w-full h-full cursor-pointer relative group">
+            <div className={`w-full h-full bg-cover bg-center ${coverImage ? '' : 'bg-gray-800'}`}>
+              <img
+                src={cover}
+                alt="Cover"
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-50 transition-opacity flex items-center justify-center">
-              <span className="text-white">Click to change cover</span>
-            </div>
-            <input
-              ref={coverInputRef}
-              type="file"
-              className="hidden"
-              accept="image/*"
-              onChange={handleCoverImageChange}
-            />
           </div>
 
           {/* More Options Menu */}
@@ -114,7 +127,8 @@ const UserProfile = () => {
               </button>
               
               {isMoreOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-[#CBDCEB] rounded-lg shadow-lg py-2 z-50" onClick={(e) => e.stopPropagation()}>
+                <div className="absolute right-0 mt-2 w-48 bg-[#CBDCEB] rounded-lg shadow-lg py-2 z-50" 
+                     onClick={(e) => e.stopPropagation()}>
                   <button 
                     className="bg-[#CBDCEB] flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
                     onClick={() => handleGameInvite()}
@@ -153,21 +167,32 @@ const UserProfile = () => {
             </div>
           </div>
 
-          {/* Profile Image with Click Handler */}
+          {/* Profile Image */}
           <div className="absolute -bottom-16 left-6">
             <div 
               className="relative cursor-pointer group"
-              onClick={() => profileInputRef.current?.click()}
+              onClick={() => !isUploading && profileInputRef.current?.click()}
             >
-              <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-white">
+              <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-white relative">
                 <img
-                  src={profileImage}
+                  src={profileImage || player_}
                   alt="Profile"
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full object-cover ${isUploading ? 'opacity-50' : ''}`}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = player_;
+                  }}
                 />
+                {isUploading && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                  </div>
+                )}
               </div>
               <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-50 transition-opacity rounded-2xl flex items-center justify-center">
-                <span className="text-white text-sm">Change photo</span>
+                <span className="text-white text-sm">
+                  {isUploading ? 'Uploading...' : 'Change photo'}
+                </span>
               </div>
               <input
                 ref={profileInputRef}
@@ -175,6 +200,7 @@ const UserProfile = () => {
                 className="hidden"
                 accept="image/*"
                 onChange={handleProfileImageChange}
+                disabled={isUploading}
               />
             </div>
           </div>

@@ -1,6 +1,4 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
-make: *** No rule to make target 'all'.  Stop.
-
 # GNU Make 4.3
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
@@ -8,7 +6,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Jan 27 14:36:28 2025
+# Make data base, printed on Mon Jan 27 18:20:13 2025
 
 # Variables
 
@@ -31,7 +29,7 @@ LC_NUMERIC = ar_MA.UTF-8
 # environment
 VSCODE_CRASH_REPORTER_PROCESS_TYPE = extensionHost
 # environment
-VSCODE_CWD = /home/mben-sal/Desktop/My_Trans
+VSCODE_CWD = /home/mben-sal/Desktop/My_tran
 # environment
 NVM_DIR = /home/mben-sal/.nvm
 # environment
@@ -51,7 +49,7 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
 .VARIABLES := 
 # environment
-PWD = /home/mben-sal/Desktop/My_Trans
+PWD = /home/mben-sal/Desktop/My_tran
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # environment
@@ -81,11 +79,11 @@ XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.C51Z02
 # environment
 MEMORY_PRESSURE_WATCH = /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@wayland.service/memory.pressure
 # environment
-GNOME_TERMINAL_SERVICE = :1.249
+GNOME_TERMINAL_SERVICE = :1.1330
 # makefile
 MAKEFLAGS = pqrR
 # makefile
-CURDIR := /home/mben-sal/Desktop/My_Trans
+CURDIR := /home/mben-sal/Desktop/My_tran
 # environment
 APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
 # environment
@@ -113,7 +111,7 @@ MAKEFILE_LIST := Makefile
 # environment
 ZSH = /home/mben-sal/.oh-my-zsh
 # environment
-VSCODE_PID = 22387
+VSCODE_PID = 170781
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -147,7 +145,7 @@ XMODIFIERS = @im=ibus
 # environment
 SHLVL = 1
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/452f2616_9fcf_4fb4_8d20_55584572380b
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/09bb4f91_90cd_4b7e_879f_d0f188b2ace7
 # environment
 MAKELEVEL := 0
 # default
@@ -277,7 +275,6 @@ VTE_VERSION = 7600
 # environment
 SNAP_COMMON = /var/snap/code/common
 # default
- 
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
 # environment
 QTWEBENGINE_DICTIONARIES_PATH = /usr/share/hunspell-bdic/
@@ -294,6 +291,9 @@ LC_IDENTIFICATION = ar_MA.UTF-8
 # environment
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
 # variable set hash-table stats:
+ 
+make: *** No rule to make target 'all'.  Stop.
+
 # Load=140/1024=14%, Rehash=0, Collisions=13/170=8%
 
 # Pattern-specific Variable Values
@@ -302,7 +302,7 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Directories
 
-# . (device 66309, inode 5089183): 11 files, no impossibilities.
+# . (device 66309, inode 5089287): 11 files, no impossibilities.
 
 # 11 files, no impossibilities in 1 directories.
 
@@ -315,7 +315,7 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2025-01-27 14:36:14.597613267
+#  Last modified 2025-01-27 18:20:01.064758174
 #  File has been updated.
 #  Successfully updated.
 
@@ -367,6 +367,6 @@ down:
 # strcache performance: lookups = 27 / hit rate = 29%
 # hash-table stats:
 # Load=19/8192=0%, Rehash=0, Collisions=0/27=0%
-# Finished Make data base on Mon Jan 27 14:36:28 2025
+# Finished Make data base on Mon Jan 27 18:20:13 2025
 
  
