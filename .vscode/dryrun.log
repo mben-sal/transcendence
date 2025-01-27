@@ -1,5 +1,5 @@
 make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/home/mben-sal/Desktop/My_Tran'
+make: Entering directory '/home/mben-sal/Desktop/My_Trans'
 docker compose up --build
-make: Leaving directory '/home/mben-sal/Desktop/My_Tran'
+make: Leaving directory '/home/mben-sal/Desktop/My_Trans'
  

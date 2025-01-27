@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+
 # GNU Make 4.3
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sun Jan 26 17:34:56 2025
+# Make data base, printed on Mon Jan 27 14:36:28 2025
 
 # Variables
 
@@ -29,7 +31,7 @@ LC_NUMERIC = ar_MA.UTF-8
 # environment
 VSCODE_CRASH_REPORTER_PROCESS_TYPE = extensionHost
 # environment
-VSCODE_CWD = /home/mben-sal/Desktop/My_Tran
+VSCODE_CWD = /home/mben-sal/Desktop/My_Trans
 # environment
 NVM_DIR = /home/mben-sal/.nvm
 # environment
@@ -49,7 +51,7 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
 .VARIABLES := 
 # environment
-PWD = /home/mben-sal/Desktop/My_Tran
+PWD = /home/mben-sal/Desktop/My_Trans
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # environment
@@ -71,7 +73,7 @@ VSCODE_CODE_CACHE_PATH = /home/mben-sal/.config/Code/CachedData/cd4ee3b1c348a13b
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.JHTV02
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.C51Z02
 # default
 .LOADED := 
 # default
@@ -79,11 +81,11 @@ XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.JHTV02
 # environment
 MEMORY_PRESSURE_WATCH = /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@wayland.service/memory.pressure
 # environment
-GNOME_TERMINAL_SERVICE = :1.157
+GNOME_TERMINAL_SERVICE = :1.249
 # makefile
 MAKEFLAGS = pqrR
 # makefile
-CURDIR := /home/mben-sal/Desktop/My_Tran
+CURDIR := /home/mben-sal/Desktop/My_Trans
 # environment
 APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
 # environment
@@ -111,7 +113,7 @@ MAKEFILE_LIST := Makefile
 # environment
 ZSH = /home/mben-sal/.oh-my-zsh
 # environment
-VSCODE_PID = 43737
+VSCODE_PID = 22387
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -119,7 +121,7 @@ XDG_SESSION_TYPE = wayland
 # environment
 XDG_DATA_HOME = /home/mben-sal/snap/code/181/.local/share
 # environment
-SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3328,unix/ben-sal:/tmp/.ICE-unix/3328
+SESSION_MANAGER = local/ben-sal:@/tmp/.ICE-unix/3204,unix/ben-sal:/tmp/.ICE-unix/3204
 # automatic
 *F = $(notdir $*)
 # environment
@@ -145,7 +147,7 @@ XMODIFIERS = @im=ibus
 # environment
 SHLVL = 1
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/3391756f_918a_4330_83d7_72be38f315fb
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/452f2616_9fcf_4fb4_8d20_55584572380b
 # environment
 MAKELEVEL := 0
 # default
@@ -207,7 +209,7 @@ SNAP_ARCH = amd64
 # makefile
 .DEFAULT_GOAL := up
 # environment
-SYSTEMD_EXEC_PID = 3364
+SYSTEMD_EXEC_PID = 3242
 # environment
 DISPLAY = :0
 # environment
@@ -275,10 +277,8 @@ VTE_VERSION = 7600
 # environment
 SNAP_COMMON = /var/snap/code/common
 # default
-.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
  
-make: *** No rule to make target 'all'.  Stop.
-
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
 # environment
 QTWEBENGINE_DICTIONARIES_PATH = /usr/share/hunspell-bdic/
 # environment
@@ -302,7 +302,7 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Directories
 
-# . (device 66309, inode 5089110): 11 files, no impossibilities.
+# . (device 66309, inode 5089183): 11 files, no impossibilities.
 
 # 11 files, no impossibilities in 1 directories.
 
@@ -315,7 +315,7 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2025-01-26 00:06:31.760007749
+#  Last modified 2025-01-27 14:36:14.597613267
 #  File has been updated.
 #  Successfully updated.
 
@@ -367,6 +367,6 @@ down:
 # strcache performance: lookups = 27 / hit rate = 29%
 # hash-table stats:
 # Load=19/8192=0%, Rehash=0, Collisions=0/27=0%
-# Finished Make data base on Sun Jan 26 17:34:56 2025
+# Finished Make data base on Mon Jan 27 14:36:28 2025
 
  
