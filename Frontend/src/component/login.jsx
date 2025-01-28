@@ -12,7 +12,7 @@ export default function Login() {
     const navigate = useNavigate();
     const { setIsAuthenticated } = useUser();
     const [formData, setFormData] = useState({
-        email: '',
+		loginName: '',
         password: '',
         rememberMe: false,
     });
@@ -21,10 +21,8 @@ export default function Login() {
 
     const validateForm = () => {
         const newErrors = {};
-        if (!formData.email) {
-            newErrors.email = 'Email is required!';
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Email is invalid!';
+        if (!formData.loginName) {
+            newErrors.loginName = 'Login name is required!';
         }
         if (!formData.password) {
             newErrors.password = 'Password is required!';
@@ -55,7 +53,7 @@ export default function Login() {
         setIsLoading(true);
         try {
             const response = await axios.post('http://localhost:8000/api/users/login/', {
-                email: formData.email,
+				login_name: formData.loginName, 
                 password: formData.password
             });
 
@@ -108,17 +106,17 @@ export default function Login() {
                 <h2>WELCOME BACK</h2>
                 <h6>Welcome back! Please enter your details</h6>
                 <form onSubmit={handleSubmit} className="w-[30rem]">
-                    <p>Email</p>
+                    <p>Login</p>
                     <input 
                         id='email'
-                        name='email'
+                        name='loginName'
                         className={`shared-input email-input ${errors.email ? 'error' : ''}`}
-                        type="email" 
-                        placeholder="Enter your email"
-                        value={formData.email}
+                        type="text" 
+                        placeholder="Enter your login name"
+                        value={formData.loginName}
                         onChange={handleChange}
                         disabled={isLoading}
-                        aria-invalid={errors.email ? 'true' : 'false'}
+                        aria-invalid={errors.loginName ? 'true' : 'false'}
                         required
                     />
                     {errors.email && <span className="error">{errors.email}</span>}

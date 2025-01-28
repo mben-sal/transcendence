@@ -8,8 +8,8 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email')
 
 class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField(
-        help_text="User's email address",
+    login_name = serializers.CharField(
+        help_text="User's login name",
         required=True
     )
     password = serializers.CharField(

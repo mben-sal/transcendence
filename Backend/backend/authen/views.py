@@ -23,41 +23,43 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
+from django.contrib.auth import authenticate
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
-    @swagger_auto_schema(
-        request_body=LoginSerializer,
-        responses={
-            200: openapi.Response(
-                description="Success", 
-                examples={
-                    "application/json": {
-                        "status": "success",
-                        "token": "jwt.token.here",
-                        "user": {
-                            "id": 1,
-                            "username": "user",
-                            "email": "user@example.com"
-                        }
-                    }
-                }
-            ),
-            400: "Invalid data",
-            401: "Invalid credentials"
-        }
-    )
     def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data['email']
+        try:
+            
+            # Debug: afficher tous les profils existants
+            all_profiles = UserProfile.objects.all()
+            for profile in all_profiles:
+                print(f"- intra_id: {profile.intra_id}, email: {profile.user.email}")
+            
+            serializer = LoginSerializer(data=request.data)
+            if not serializer.is_valid():
+                print("Serializer errors:", serializer.errors)
+                return Response({
+                    'status': 'error',
+                    'message': 'Invalid data format',
+                    'errors': serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            login_name = serializer.validated_data['login_name']
             password = serializer.validated_data['password']
             
             try:
-                user = User.objects.get(email=email)
-                if user.check_password(password):
+                # Trouver le profil utilisateur par intra_id
+                print(f"Looking for user profile with intra_id: {login_name}")
+                user_profile = UserProfile.objects.get(intra_id=login_name)
+                user = user_profile.user
+                print(f"Found user: {user.username}, email: {user.email}")
+                
+                # Utiliser authenticate pour vérifier le mot de passe
+                auth_user = authenticate(username=user.username, password=password)
+                
+                if auth_user is not None:
+                    print("User authenticated successfully")
                     refresh = RefreshToken.for_user(user)
                     return Response({
                         'status': 'success',
@@ -65,14 +67,26 @@ class LoginView(APIView):
                         'refresh_token': str(refresh),
                         'user': UserSerializer(user).data
                     })
-            except User.DoesNotExist:
-                pass
-            
+                else:
+                    print("Password verification failed")
+                    return Response({
+                        'status': 'error',
+                        'message': 'Invalid credentials'
+                    }, status=status.HTTP_401_UNAUTHORIZED)
+                
+            except UserProfile.DoesNotExist:
+                print(f"No user profile found with intra_id: {login_name}")
+                return Response({
+                    'status': 'error',
+                    'message': 'Invalid credentials'
+                }, status=status.HTTP_401_UNAUTHORIZED)
+                
+        except Exception as e:
+            print(f"Unexpected error during login: {str(e)}")
             return Response({
                 'status': 'error',
-                'message': 'Invalid credentials'
-            }, status=status.HTTP_401_UNAUTHORIZED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                'message': 'An error occurred during login'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class FortyTwoLoginView(APIView):
     permission_classes = [AllowAny]

@@ -1,5 +1,6 @@
-- travail logout in backend
-- resoudre problem de twofactor 
+- problem de | Unauthorized: /api/users/logout/
+- resoudre problem de twofactor (implement twofactor authentification par cercode)
 - travail forget passeword
 - teste bien le travail inscreption
 - ajouter login name 
+- travail delete account 
