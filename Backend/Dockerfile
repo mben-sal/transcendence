@@ -8,6 +8,18 @@ WORKDIR /app/backend
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install Pillow==10.1.0
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-dev \
+    libpq-dev \
+    libjpeg-dev \
+    libpng-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install Pillow
+
+# Créer les répertoires nécessaires
 
 COPY backend/ .
 

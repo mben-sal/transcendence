@@ -13,6 +13,7 @@ import ForgotPassword from './component/forgotPassword';
 import Profile from './pages/Profile';
 import OAuthCallback from './layout/OAuthCallback';
 import { useUser } from './contexts/UserContext';
+import SignUp from './component/SignUp';
 
 // Composant protégé séparé pour éviter les problèmes de contexte
 const ProtectedRoutes = () => {
@@ -47,6 +48,7 @@ const App = () => {
               <Route path="/auth/forgot-password" element={<ForgotPassword />} />
               {/* <Route path="/auth/two-factor" element={<TwoFactor />} /> */}
 			  <Route path="/auth/callback" element={<OAuthCallback />} />
+			  <Route path="/auth/signup" element={<SignUp />} />
 			</Route>
 
             <Route element={<ProtectedRoutes />}>

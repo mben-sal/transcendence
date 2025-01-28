@@ -198,7 +198,7 @@ const UserProfile = () => {
                 ref={profileInputRef}
                 type="file"
                 className="hidden"
-                accept="image/*"
+                accept="image/png, image/jpeg"
                 onChange={handleProfileImageChange}
                 disabled={isUploading}
               />

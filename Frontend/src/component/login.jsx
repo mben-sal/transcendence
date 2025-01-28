@@ -5,10 +5,12 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logoimage from '../assets/src/Right.svg';
 import { AUTH_CONFIG } from '../config';
-import PropTypes from 'prop-types';
+import signup from '../assets/src/signup.png';
+import { useUser } from '../contexts/UserContext';
 
 export default function Login() {
     const navigate = useNavigate();
+    const { setIsAuthenticated } = useUser();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -46,37 +48,61 @@ export default function Login() {
         }
     };
 
-	const handleSubmit = async (e) => {
-		e.preventDefault();
-		try {
-			const response = await authService.login(formData.email, formData.password);
-			// Redirection après connexion réussie
-			navigate('/dashboard');
-		} catch (error) {
-			setErrors({ submit: error.message });
-		}
-	};
-	const handle42Login = (type = 'signin') => {
-		if (!AUTH_CONFIG.CLIENT_ID || !AUTH_CONFIG.REDIRECT_URI) {
-			setErrors({ submit: 'OAuth configuration is missing.' });
-			return;
-		}
-	
-		const params = new URLSearchParams({
-			client_id: AUTH_CONFIG.CLIENT_ID,
-			redirect_uri: AUTH_CONFIG.REDIRECT_URI,
-			response_type: 'code',
-			scope: 'public',
-			state: type
-		});
-	
-		console.log('Redirect URI:', AUTH_CONFIG.REDIRECT_URI); // Pour déboguer
-		const authUrl = `https://api.intra.42.fr/oauth/authorize?${params.toString()}`;
-		window.location.href = authUrl;
-	};
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!validateForm()) return;
+        
+        setIsLoading(true);
+        try {
+            const response = await axios.post('http://localhost:8000/api/users/login/', {
+                email: formData.email,
+                password: formData.password
+            });
 
+            if (response.data.token) {
+                // Stockage des tokens
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('refresh_token', response.data.refresh_token);
+                
+                // Stockage du "Remember me" si coché
+                if (formData.rememberMe) {
+                    localStorage.setItem('rememberMe', 'true');
+                }
 
-return (
+                setIsAuthenticated(true);
+                // Redirection vers le tableau de bord
+                navigate('/dashboard');
+            }
+        } catch (error) {
+            setErrors({ 
+                submit: error.response?.data?.message || 'Invalid credentials'
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handle42Login = (type = 'signin') => {
+        if (!AUTH_CONFIG.CLIENT_ID || !AUTH_CONFIG.REDIRECT_URI) {
+            setErrors({ submit: 'OAuth configuration is missing.' });
+            return;
+        }
+    
+        const params = new URLSearchParams({
+            client_id: AUTH_CONFIG.CLIENT_ID,
+            redirect_uri: AUTH_CONFIG.REDIRECT_URI,
+            response_type: 'code',
+            scope: 'public',
+            state: type
+        });
+    
+        console.log('Redirect URI:', AUTH_CONFIG.REDIRECT_URI);
+        const authUrl = `https://api.intra.42.fr/oauth/authorize?${params.toString()}`;
+        window.location.href = authUrl;
+    };
+
+    // Votre JSX reste exactement le même
+    return (
         <div className="page">
             <div className='login-wrapper'>
                 <h2>WELCOME BACK</h2>
@@ -124,8 +150,8 @@ return (
                             />
                             <span>Remember me</span>
                         </label>
-						<Link to="/auth/forgot-password">Forgot password?</Link>
-						</div>
+                        <Link to="/auth/forgot-password">Forgot password?</Link>
+                    </div>
 
                     {errors.submit && <span className="error">{errors.submit}</span>}
                     
@@ -153,15 +179,13 @@ return (
 
                     <div className="sign-up-prompt">
                         <span>Don&apos;t have an account? </span>
-                        <button 
-                            type="button" 
-                            className="ft-sign-in-btn"
-                            onClick={() => handle42Login('signup')}
-                            disabled={isLoading}
+                        <Link 
+                            to="/auth/signup"
+                            className="ft-sign-in-btn flex items-center gap-2"
                         >
-                            <img src={logo42} alt="42 logo" />
-                            Sign up 
-                        </button>
+                            <img src={signup} alt="Sign up icon" className="h-8" />
+                            <span>Sign up</span>
+                        </Link>
                     </div>
                 </form>
             </div>

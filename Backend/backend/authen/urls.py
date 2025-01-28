@@ -5,14 +5,16 @@ from .views import (
     LoginView, 
     UserProfileView, 
     LogoutView,
-    UpdateAvatarView  # Nouvelle vue
+    UpdateAvatarView,
+    SignUpView
 )
 
 urlpatterns = [
+    path('users/signup/', SignUpView.as_view(), name='signup'),
     path('auth/42/login/', FortyTwoLoginView.as_view(), name='ft_login'),
     path('auth/42/callback/', FortyTwoCallbackView.as_view(), name='ft_callback'),
     path('users/login/', LoginView.as_view(), name='login'),
     path('users/profile/', UserProfileView.as_view(), name='user-profile'),
     path('users/logout/', LogoutView.as_view(), name='logout'),
-    path('users/avatar/', UpdateAvatarView.as_view(), name='update-avatar'),  # Nouvelle route
+    path('users/avatar/', UpdateAvatarView.as_view(), name='update-avatar'),
 ]

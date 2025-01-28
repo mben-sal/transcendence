@@ -265,10 +265,7 @@ const MenuItem = ({ icon, label }) => (
 );
 ```
 
-
-
-travail login 
-
+cours django : https://www.youtube.com/watch?v=_MAdUhH49so&list=PLknwEmKsW8OtK_n48UOuYGxJPbSFrICxm&index=7
 
 
 

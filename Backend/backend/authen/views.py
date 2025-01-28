@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 import requests
 from .models import UserProfile
-from .serializers import UserSerializer, LoginSerializer, UserProfileSerializer
+from .serializers import UserSerializer, LoginSerializer, UserProfileSerializer , SignUpSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -21,6 +21,8 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from rest_framework import status
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class LoginView(APIView):
@@ -212,15 +214,6 @@ class LogoutView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-import os
-from rest_framework_simplejwt.authentication import JWTAuthentication
-
 class UpdateAvatarView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -288,3 +281,73 @@ class UpdateAvatarView(APIView):
                 {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+class SignUpView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            print("Received data:", request.data)
+            print("Received files:", request.FILES)
+            for key, file in request.FILES.items():
+                print(f"File {key}:")
+                print(f"  - Name: {file.name}")
+                print(f"  - Content Type: {file.content_type}")
+                print(f"  - Size: {file.size} bytes")
+
+            serializer = SignUpSerializer(data=request.data)
+            
+            if not serializer.is_valid():
+                print("Validation errors:", serializer.errors)
+                return Response({
+                    'status': 'error',
+                    'message': 'Invalid data',
+                    'errors': serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            validated_data = serializer.validated_data
+            print("Validated data:", validated_data)
+
+            # Créer l'utilisateur
+            user = User.objects.create_user(
+                username=validated_data['email'],
+                email=validated_data['email'],
+                password=validated_data['password'],
+                first_name=validated_data['first_name'],
+                last_name=validated_data['last_name']
+            )
+
+            # Gestion de l'image
+            profile_image = request.FILES['profile_image']
+            file_extension = os.path.splitext(profile_image.name)[1].lower()
+            file_path = f'avatars/user_{user.id}{file_extension}'
+            path = default_storage.save(file_path, ContentFile(profile_image.read()))
+            avatar_url = f"/media/{path}"
+
+            # Créer le profil
+            profile = UserProfile.objects.create(
+                user=user,
+                intra_id=validated_data['intra_id'],
+                avatar=avatar_url,
+                display_name=validated_data['display_name'],
+                status='online'
+            )
+
+            # Générer le token
+            refresh = RefreshToken.for_user(user)
+
+            return Response({
+                'status': 'success',
+                'token': str(refresh.access_token),
+                'refresh_token': str(refresh),
+                'user': UserProfileSerializer(profile).data
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            print("Error during signup:", str(e))
+            import traceback
+            traceback.print_exc()
+            
+            return Response({
+                'status': 'error',
+                'message': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
