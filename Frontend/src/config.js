@@ -12,8 +12,7 @@ const getEnvVariable = (key) => {
 };
 
 export const AUTH_CONFIG = {
-    CLIENT_ID: 'u-s4t2ud-f6b5224609bea14ccd78911f1dbaad1708f2a5856009b937005dba1fcedc66f5',
-    REDIRECT_URI: 'http://localhost:8000/callback/',
-    VITE_API_URL: 'http://localhost:8000'
+	CLIENT_ID: import.meta.env.VITE_42_CLIENT_ID,
+	REDIRECT_URI: import.meta.env.VITE_42_REDIRECT_URI,
+	VITE_API_URL: import.meta.env.VITE_API_URL
 };
-export const API_URL = 'http://localhost:8000/api';

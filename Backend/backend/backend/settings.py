@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -125,6 +127,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+# Load .env file
+load_dotenv()
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 STATIC_URL = 'static/'
 
 FRONTEND_URL = 'http://localhost:5173'  # URL de votre frontend Vite
@@ -134,13 +141,16 @@ FRONTEND_URL = 'http://localhost:5173'  # URL de votre frontend Vite
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-FT_CLIENT_ID = 'u-s4t2ud-f6b5224609bea14ccd78911f1dbaad1708f2a5856009b937005dba1fcedc66f5'
-FT_CLIENT_SECRET = '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'
-FT_REDIRECT_URI = 'http://localhost:8000/callback/'  # URL simplifiée
+FT_CLIENT_ID = os.getenv('FT_CLIENT_ID')
+FT_CLIENT_SECRET = os.getenv('FT_CLIENT_SECRET')
+FT_REDIRECT_URI = os.getenv('FT_REDIRECT_URI')
+FT_API_URL = os.getenv('FT_API_URL')
 
-FT_API_URL = 'https://api.intra.42.fr'
+
 FT_AUTHORIZATION_BASE_URL = f'{FT_API_URL}/oauth/authorize'
 FT_TOKEN_URL = f'{FT_API_URL}/oauth/token'
+# print(FT_CLIENT_ID)
+
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [
@@ -184,7 +194,6 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
-import os
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

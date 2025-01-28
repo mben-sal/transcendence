@@ -113,6 +113,12 @@ class FortyTwoCallbackView(APIView):
         state = request.GET.get('state', 'signin')
         print(f"Received code: {code}, state: {state}")
 
+        print("=== Starting FortyTwoCallbackView ===", settings.FT_TOKEN_URL)
+        print("=== Starting FortyTwoCallbackView ===", settings.FT_CLIENT_ID)
+        print("=== Starting FortyTwoCallbackView ===", settings.FT_CLIENT_SECRET)
+        print("=== Starting FortyTwoCallbackView ===", settings.FT_REDIRECT_URI)
+        print("=== Starting FortyTwoCallbackView ===", settings.FT_API_URL)
+
         try:
             token_response = requests.post(
                 settings.FT_TOKEN_URL,
