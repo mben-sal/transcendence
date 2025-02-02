@@ -1,9 +1,10 @@
+        
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from .models import PasswordResetToken
 from django.shortcuts import redirect
 from django.conf import settings
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 import requests
@@ -14,9 +15,13 @@ from drf_yasg import openapi
 from rest_framework_simplejwt.tokens import RefreshToken
 from urllib.parse import urlencode
 import os
+import random
+import string
+import uuid
+from rest_framework.response import Response
+from django.contrib.auth.models import User
 from django.conf import settings
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.core.files.storage import default_storage
@@ -24,6 +29,7 @@ from django.core.files.base import ContentFile
 from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import authenticate
+from .serializers import PasswordResetRequestSerializer, PasswordResetConfirmSerializer
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -370,4 +376,114 @@ class SignUpView(APIView):
             return Response({
                 'status': 'error',
                 'message': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PasswordResetRequestView(APIView):
+    permission_classes = []
+
+    def post(self, request):
+        print("=== Début du processus de réinitialisation de mot de passe ===")
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            print("Erreur de validation:", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        email = serializer.validated_data['email']
+        print(f"Email reçu: {email}")
+        
+        try:
+            user = User.objects.get(email=email)
+            print(f"Utilisateur trouvé: {user.username}")
+            
+            # Créer un token
+            PasswordResetToken.objects.filter(user=user).delete()
+            reset_token = PasswordResetToken.objects.create(user=user)
+            print(f"Token créé: {reset_token.token}")
+            
+            reset_url = f"{settings.FRONTEND_URL}/auth/reset-password?token={reset_token.token}"
+            print(f"URL de réinitialisation: {reset_url}")
+            
+            # Préparer le contenu HTML
+            html_content = render_to_string('password_reset_email.html', {
+                'user': user,
+                'reset_url': reset_url,
+                'expires_in': '24 heures'
+            })
+            
+            try:
+                print("Tentative d'envoi d'email avec les paramètres suivants:")
+                print(f"HOST: {settings.EMAIL_HOST}")
+                print(f"PORT: {settings.EMAIL_PORT}")
+                print(f"TLS: {settings.EMAIL_USE_TLS}")
+                print(f"FROM: {settings.DEFAULT_FROM_EMAIL}")
+                
+                send_mail(
+                    subject='Réinitialisation de votre mot de passe',
+                    message=f'Pour réinitialiser votre mot de passe, cliquez sur ce lien : {reset_url}',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                    fail_silently=False,
+                    html_message=html_content
+                )
+                print("Email envoyé avec succès!")
+                
+            except Exception as e:
+                print(f"Erreur lors de l'envoi de l'email: {str(e)}")
+                return Response({
+                    'status': 'error',
+                    'message': f'Erreur lors de l\'envoi de l\'email: {str(e)}'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            return Response({
+                'status': 'success',
+                'message': 'Un email de réinitialisation a été envoyé.'
+            })
+
+        except User.DoesNotExist:
+            print(f"Aucun utilisateur trouvé avec l'email: {email}")
+            return Response({
+                'status': 'success',
+                'message': 'Si un compte existe avec cet email, vous recevrez un message.'
+            })
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = []
+
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)  # Modifié ici
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        token = serializer.validated_data['token']
+        new_password = serializer.validated_data['new_password']
+
+        try:
+            reset_token = PasswordResetToken.objects.get(token=token)
+            
+            if not reset_token.is_valid():
+                reset_token.delete()
+                return Response({
+                    'status': 'error',
+                    'message': 'Ce lien de réinitialisation a expiré.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Mettre à jour le mot de passe
+            user = reset_token.user
+            user.set_password(new_password)
+            user.save()
+
+            # Supprimer le token après utilisation
+            reset_token.delete()
+
+            return Response({
+                'status': 'success',
+                'message': 'Votre mot de passe a été réinitialisé avec succès.'
+            })
+
+        except PasswordResetToken.DoesNotExist:
+            return Response({
+                'status': 'error',
+                'message': 'Le lien de réinitialisation est invalide ou a expiré.'
             }, status=status.HTTP_400_BAD_REQUEST)

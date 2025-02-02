@@ -2,5 +2,6 @@
 - resoudre problem de twofactor (implement twofactor authentification par cercode)
 - travail forget passeword
 - teste bien le travail inscreption
-- ajouter login name 
 - travail delete account 
+- Avatar par défaut : Si un utilisateur ne télécharge pas de photo de profil, vous pouvez fournir un avatar par défaut.
+- securise le partier de settings 

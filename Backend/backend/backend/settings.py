@@ -59,11 +59,13 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
+# Dans settings.py
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
-        'APP_DIRS': True,
+        'APP_DIRS': True,  # Ceci permet à Django de chercher dans le dossier templates de chaque app
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -205,3 +207,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
+
+
+# Configuration Email avec MailHog
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mailhog'  # Nom du service dans docker-compose
+EMAIL_PORT = 1025  # Port SMTP de MailHog
+EMAIL_USE_TLS = False  # MailHog n'utilise pas TLS
+EMAIL_HOST_USER = ''  # Pas besoin d'authentification avec MailHog
+EMAIL_HOST_PASSWORD = ''  # Pas besoin de mot de passe
+DEFAULT_FROM_EMAIL = 'team1337@transcendence.com' # Email par défaut pour l'envoi

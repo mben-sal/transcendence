@@ -14,6 +14,7 @@ import Profile from './pages/Profile';
 import OAuthCallback from './layout/OAuthCallback';
 import { useUser } from './contexts/UserContext';
 import SignUp from './component/SignUp';
+import ResetPassword from './component/ResetPassword';
 
 // Composant protégé séparé pour éviter les problèmes de contexte
 const ProtectedRoutes = () => {
@@ -46,9 +47,9 @@ const App = () => {
             <Route element={<AuthLayout />}>
               <Route path="/auth/login" element={<Login />} />
               <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-              {/* <Route path="/auth/two-factor" element={<TwoFactor />} /> */}
-			  <Route path="/auth/callback" element={<OAuthCallback />} />
+			  <Route path="/auth/reset-password" element={<ResetPassword />} />
 			  <Route path="/auth/signup" element={<SignUp />} />
+			  <Route path="/auth/callback" element={<OAuthCallback />} />
 			</Route>
 
             <Route element={<ProtectedRoutes />}>
