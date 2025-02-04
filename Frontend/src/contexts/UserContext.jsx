@@ -45,9 +45,9 @@ export const UserProvider = ({ children }) => {
             });
             
             const userData = response.data;
-            if (userData.avatar && userData.avatar.startsWith('/media')) {
-                userData.avatar = `http://localhost:8000${userData.avatar}`;
-            }
+    		userData.avatar = userData.avatar && userData.avatar !== '/media/default-avatar.svg' ? 
+        		(userData.avatar.startsWith('/media') ? `http://localhost:8000${userData.avatar}` : userData.avatar) :
+        		defaultAvatar;
             
             setUser(userData);
             setIsAuthenticated(true);

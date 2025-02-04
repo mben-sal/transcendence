@@ -5,7 +5,13 @@ from .models import UserProfile
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email')
+        fields = ('id', 'username', 'email', 'avatar')
+        
+    def get_avatar(self, obj):
+        try:
+            return obj.userprofile.avatar
+        except UserProfile.DoesNotExist:
+            return UserProfile.DEFAULT_AVATAR
 
 class LoginSerializer(serializers.Serializer):
     login_name = serializers.CharField(
@@ -48,34 +54,6 @@ class SignUpSerializer(serializers.Serializer):
     last_name = serializers.CharField(required=True)
     intra_id = serializers.CharField(required=True)
     display_name = serializers.CharField(required=True)
-    profile_image = serializers.ImageField(
-        required=True,
-        allow_empty_file=False,
-        error_messages={
-            'invalid': 'Please upload a valid image file',
-            'required': 'Please provide a profile image'
-        }
-    )
-
-    def validate_profile_image(self, value):
-        try:
-            # Vérifier le type MIME
-            valid_types = ['image/jpeg', 'image/png', 'image/gif']
-            if hasattr(value, 'content_type') and value.content_type not in valid_types:
-                raise serializers.ValidationError(
-                    f"Invalid file type: {value.content_type}. Allowed types are: JPEG, PNG, GIF"
-                )
-
-            # Vérifier la taille (5MB max)
-            if value.size > 5 * 1024 * 1024:
-                raise serializers.ValidationError(
-                    "File too large. Size should not exceed 5 MB."
-                )
-
-            return value
-        except Exception as e:
-            print(f"Image validation error: {str(e)}")
-            raise serializers.ValidationError(str(e))
 
     def validate_intra_id(self, value):
         if UserProfile.objects.filter(intra_id=value).exists():

@@ -8,7 +8,8 @@ from datetime import timedelta
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     intra_id = models.CharField(max_length=100, unique=True)
-    avatar = models.URLField(max_length=500, blank=True)
+    DEFAULT_AVATAR = './media/avatars/defaultavatar.png'
+    avatar = models.URLField(default=DEFAULT_AVATAR)
     display_name = models.CharField(
         max_length=100,
         unique=True,

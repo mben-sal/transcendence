@@ -8,7 +8,7 @@ import game from '../assets/src/game.svg';
 import chat from '../assets/src/chat.svg';
 import settings from '../assets/src/setting.svg';
 import logout from '../assets/src/logout.svg';
-import Player from '../assets/src/player_.svg';
+import Player_ from '../assets/src/player_.svg';
 import Notification from './profile/Notification';
 
 const Sidebar = () => {
@@ -75,11 +75,12 @@ const Sidebar = () => {
                                     ? 'bg-[#608BC1] text-white' 
                                     : 'text-[#133E87] hover:bg-[#608BC1]/10'}`}>
                             <div className="w-10 h-10 rounded-full overflow-hidden bg-[#FFE5B4]">
-                                <img 
-                                    src={user.avatar || Player} 
-                                    alt="profile" 
-                                    className="w-full h-full object-cover" 
-                                />
+							<img 
+    							src={user?.avatar || Player_} 
+    							alt="profile" 
+    							onError={(e) => {e.target.src = Player_}}
+   								className="w-full h-full object-cover" 
+							/>
                             </div>
                             <span className='truncate w-[8.5rem]' title={`${user.intra_id || user.email}`}>
                                 {user.first_name ? (user.intra_id || user.email) : 'Loading...'}

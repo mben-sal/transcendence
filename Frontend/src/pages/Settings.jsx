@@ -2,7 +2,7 @@ import { Pencil, Shield, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useUser } from '../contexts/UserContext';
 import setting from '../assets/src/settings_.svg';
-import profil from '../assets/src/player_.svg';
+import Player_ from '../assets/src/player_.svg';
 import axios from 'axios';
 
 const ProfileSettings = () => {
@@ -81,7 +81,7 @@ const ProfileSettings = () => {
         </div>
         
         <div className="flex items-center gap-8 mb-6">
-          <img src={user.avatar || profil} alt="Profile" className="w-12 h-12 rounded-full object-cover" />
+          <img src={user?.avatar || Player_}  onError={(e) => {e.target.src = Player_}} alt="Profile" className="w-12 h-12 rounded-full object-cover" />
           <span className="text-white text-lg">{user.first_name} {user.last_name}</span>
         </div>
         
