@@ -18,6 +18,9 @@ import os
 import random
 import string
 import uuid
+from django.utils import timezone
+from datetime import timedelta
+from dateutil.parser import parse
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -36,15 +39,8 @@ class LoginView(APIView):
 
     def post(self, request):
         try:
-            
-            # Debug: afficher tous les profils existants
-            all_profiles = UserProfile.objects.all()
-            for profile in all_profiles:
-                print(f"- intra_id: {profile.intra_id}, email: {profile.user.email}")
-            
             serializer = LoginSerializer(data=request.data)
             if not serializer.is_valid():
-                print("Serializer errors:", serializer.errors)
                 return Response({
                     'status': 'error',
                     'message': 'Invalid data format',
@@ -54,41 +50,37 @@ class LoginView(APIView):
             login_name = serializer.validated_data['login_name']
             password = serializer.validated_data['password']
             
+            # Essayer de trouver l'utilisateur par intra_id ou email
             try:
-                # Trouver le profil utilisateur par intra_id
-                print(f"Looking for user profile with intra_id: {login_name}")
                 user_profile = UserProfile.objects.get(intra_id=login_name)
                 user = user_profile.user
-                print(f"Found user: {user.username}, email: {user.email}")
-                
-                # Utiliser authenticate pour vérifier le mot de passe
-                auth_user = authenticate(username=user.username, password=password)
-                
-                if auth_user is not None:
-                    print("User authenticated successfully")
-                    refresh = RefreshToken.for_user(user)
-                    return Response({
-                        'status': 'success',
-                        'token': str(refresh.access_token),
-                        'refresh_token': str(refresh),
-                        'user': UserSerializer(user).data
-                    })
-                else:
-                    print("Password verification failed")
+            except UserProfile.DoesNotExist:
+                try:
+                    user = User.objects.get(email=login_name)
+                    user_profile = user.userprofile
+                except (User.DoesNotExist, UserProfile.DoesNotExist):
                     return Response({
                         'status': 'error',
                         'message': 'Invalid credentials'
                     }, status=status.HTTP_401_UNAUTHORIZED)
-                
-            except UserProfile.DoesNotExist:
-                print(f"No user profile found with intra_id: {login_name}")
+
+            # Vérifier le mot de passe
+            if user.check_password(password):
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    'status': 'success',
+                    'token': str(refresh.access_token),
+                    'refresh_token': str(refresh),
+                    'user': UserProfileSerializer(user_profile).data
+                })
+            else:
                 return Response({
                     'status': 'error',
                     'message': 'Invalid credentials'
                 }, status=status.HTTP_401_UNAUTHORIZED)
-                
+
         except Exception as e:
-            print(f"Unexpected error during login: {str(e)}")
+            print(f"Login error: {str(e)}")
             return Response({
                 'status': 'error',
                 'message': 'An error occurred during login'
@@ -357,14 +349,20 @@ class SignUpView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
 
             validated_data = serializer.validated_data
-            user = User.objects.create_user(
+            
+            # Créer l'utilisateur avec l'email comme username
+            user = User.objects.create(
                 username=validated_data['email'],
                 email=validated_data['email'],
-                password=validated_data['password'],
                 first_name=validated_data['first_name'],
                 last_name=validated_data['last_name']
             )
+            
+            # Définir le mot de passe (ceci le hashe automatiquement)
+            user.set_password(validated_data['password'])
+            user.save()
 
+            # Créer le profil utilisateur
             profile = UserProfile.objects.create(
                 user=user,
                 intra_id=validated_data['intra_id'],
@@ -372,20 +370,24 @@ class SignUpView(APIView):
                 status='online'
             )
 
+            # Générer les tokens
             refresh = RefreshToken.for_user(user)
+            
+            # Retourner la réponse
             return Response({
                 'status': 'success',
+                'message': 'User created successfully',
                 'token': str(refresh.access_token),
                 'refresh_token': str(refresh),
                 'user': UserProfileSerializer(profile).data
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
+            print(f"Signup error: {str(e)}")
             return Response({
                 'status': 'error',
                 'message': str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
-
 
 class PasswordResetRequestView(APIView):
     permission_classes = []
@@ -495,3 +497,115 @@ class PasswordResetConfirmView(APIView):
                 'status': 'error',
                 'message': 'Le lien de réinitialisation est invalide ou a expiré.'
             }, status=status.HTTP_400_BAD_REQUEST)
+        
+class RequestProfileChangeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            # Générer le code de confirmation
+            confirmation_code = ''.join(random.choices(string.digits, k=6))
+            
+            # Stocker les changements en attente dans la session
+            request.session['pending_changes'] = {
+                'changes': request.data,
+                'code': confirmation_code,
+                'expires': str(timezone.now() + timedelta(minutes=15))
+            }
+            
+            # Préparer le contenu HTML de l'email
+            html_content = render_to_string('profile_change_email.html', {
+                'user': request.user,
+                'confirmation_code': confirmation_code,
+                'expires_in': '15 minutes'
+            })
+            
+            # Envoyer l'email
+            try:
+                send_mail(
+                    subject='Confirmez vos changements de profil',
+                    message=f'Votre code de confirmation est : {confirmation_code}',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[request.user.email],
+                    fail_silently=False,
+                    html_message=html_content
+                )
+                
+                return Response({
+                    'message': 'Code de confirmation envoyé',
+                    'email': request.user.email
+                })
+                
+            except Exception as email_error:
+                print(f"Erreur d'envoi d'email: {str(email_error)}")
+                return Response(
+                    {'error': "Impossible d'envoyer l'email de confirmation. Veuillez réessayer."},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+                
+        except Exception as e:
+            print(f"Erreur lors du traitement de la demande: {str(e)}")
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class ConfirmProfileChangeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        print("Session data:", request.session.get('pending_changes'))  # Debug log
+        pending = request.session.get('pending_changes')
+        
+        if not pending:
+            return Response(
+                {'error': 'No pending changes found'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        received_code = request.data.get('confirmation_code')
+        stored_code = pending.get('code')
+        
+        print(f"Received code: {received_code}, Stored code: {stored_code}")  # Debug log
+            
+        if received_code != stored_code:
+            return Response(
+                {'error': 'Invalid confirmation code'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        try:
+            expires = parse(pending['expires'])
+            if timezone.now() > expires:
+                del request.session['pending_changes']
+                return Response(
+                    {'error': 'Confirmation code expired'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Apply changes
+            user = request.user
+            changes = pending['changes']
+            
+            user.first_name = changes.get('first_name', user.first_name)
+            user.last_name = changes.get('last_name', user.last_name)
+            user.save()
+            
+            profile = user.userprofile
+            if 'two_factor_enabled' in changes:
+                profile.two_factor_enabled = changes['two_factor_enabled']
+                profile.save()
+                
+            # Clear pending changes
+            del request.session['pending_changes']
+            request.session.modified = True  # Important !
+            
+            return Response({'message': 'Profile updated successfully'})
+            
+        except Exception as e:
+            print(f"Error updating profile: {str(e)}")  # Debug log
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        

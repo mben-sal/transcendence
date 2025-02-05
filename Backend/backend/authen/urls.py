@@ -8,7 +8,9 @@ from .views import (
     UpdateAvatarView,
     SignUpView,
 	PasswordResetRequestView,
-	PasswordResetConfirmView
+    PasswordResetConfirmView,
+    RequestProfileChangeView,
+    ConfirmProfileChangeView
 )
 
 urlpatterns = [
@@ -21,4 +23,6 @@ urlpatterns = [
     path('users/avatar/', UpdateAvatarView.as_view(), name='update-avatar'),
 	path('users/password-reset/', PasswordResetRequestView.as_view(), name='password-reset-request'),
 	path('users/password-reset-confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
+	path('users/request-change/', RequestProfileChangeView.as_view(), name='request-profile-change'),
+	path('users/confirm-profile-change/', ConfirmProfileChangeView.as_view()),
 ]

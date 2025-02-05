@@ -7,3 +7,4 @@ requests==2.31.0
 djangorestframework-simplejwt
 django-cors-headers
 Pillow==10.1.0
+python-dateutil==2.8.2

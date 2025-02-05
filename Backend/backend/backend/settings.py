@@ -57,6 +57,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Configuration des sessions
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_SECURE = False  # Mettre True en production avec HTTPS
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_AGE = 1209600  # 2 semaines en secondes
+SESSION_SAVE_EVERY_REQUEST = True
+
 ROOT_URLCONF = 'backend.urls'
 
 # Dans settings.py
@@ -160,14 +168,17 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:5173',  # Votre frontend
+]
 CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
 ]
 
 CORS_ALLOW_HEADERS = [
@@ -217,3 +228,6 @@ EMAIL_USE_TLS = False  # MailHog n'utilise pas TLS
 EMAIL_HOST_USER = ''  # Pas besoin d'authentification avec MailHog
 EMAIL_HOST_PASSWORD = ''  # Pas besoin de mot de passe
 DEFAULT_FROM_EMAIL = 'team1337@transcendence.com' # Email par défaut pour l'envoi
+
+
+

@@ -58,44 +58,67 @@ export default function SignUp() {
         setErrors(prev => ({ ...prev, [name]: '' }));
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!validateForm()) return;
-
-        setIsLoading(true);
-        try {
-            const formDataToSend = new FormData();
-            formDataToSend.append('email', formData.email);
-            formDataToSend.append('password', formData.password);
-            formDataToSend.append('first_name', formData.firstName);
-            formDataToSend.append('last_name', formData.lastName);
-            formDataToSend.append('intra_id', formData.loginName);
-            formDataToSend.append('display_name', `${formData.firstName} ${formData.lastName}`);
-
-            const response = await axios.post('http://localhost:8000/api/users/signup/', formDataToSend, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            if (response.data.token) {
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('refresh_token', response.data.refresh_token);
-                setIsAuthenticated(true);
-                navigate('/login');
-            }
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 
-                               error.response?.data?.detail ||
-                               'An error occurred during signup';
-            setErrors(prev => ({ 
-                ...prev, 
-                submit: errorMessage
-            }));
-        } finally {
-            setIsLoading(false);
-        }
-    };
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		if (!validateForm()) return;
+	
+		setIsLoading(true);
+		try {
+			// Envoyer les données en JSON au lieu de FormData
+			const response = await axios.post(
+				'http://localhost:8000/api/users/signup/',
+				{
+					email: formData.email,
+					password: formData.password,
+					first_name: formData.firstName,
+					last_name: formData.lastName,
+					intra_id: formData.loginName,
+					display_name: `${formData.firstName} ${formData.lastName}`
+				},
+				{
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				}
+			);
+	
+			if (response.data.token) {
+				// Stocker les tokens
+				localStorage.setItem('token', response.data.token);
+				localStorage.setItem('refresh_token', response.data.refresh_token);
+				
+				// Mettre à jour l'état d'authentification
+				setIsAuthenticated(true);
+				
+				// Rediriger vers la page d'accueil au lieu de login
+				navigate('/');
+			}
+		} catch (error) {
+			console.error('Signup error:', error.response || error);
+			
+			// Gérer les erreurs spécifiques
+			if (error.response?.data?.errors?.intra_id) {
+				setErrors(prev => ({ 
+					...prev, 
+					loginName: 'This login name is already taken'
+				}));
+			} else if (error.response?.data?.errors?.email) {
+				setErrors(prev => ({ 
+					...prev, 
+					email: 'This email is already registered'
+				}));
+			} else {
+				setErrors(prev => ({ 
+					...prev, 
+					submit: error.response?.data?.message || 
+							error.response?.data?.detail ||
+							'An error occurred during signup'
+				}));
+			}
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
     return (
         <div className="flex justify-center items-center min-h-screen">
