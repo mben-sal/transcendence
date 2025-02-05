@@ -1,5 +1,5 @@
-import { Pencil, Shield, Trash2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Pencil, Shield, Trash2, Camera, X } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { useUser } from '../contexts/UserContext';
 import setting from '../assets/src/settings_.svg';
 import Player_ from '../assets/src/player_.svg';
@@ -12,6 +12,8 @@ const ProfileSettings = () => {
   const [password, setPassword] = useState('');
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (user) {
@@ -21,31 +23,77 @@ const ProfileSettings = () => {
     }
   }, [user]);
 
+  const handlePhotoClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handlePhotoUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    setUploadLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post('http://localhost:8000/api/users/avatar/', formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      await fetchUserProfile();
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+    } finally {
+      setUploadLoading(false);
+    }
+  };
+
+  const handleDeletePhoto = async () => {
+    if (!window.confirm('Are you sure you want to remove your profile picture?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete('http://localhost:8000/api/users/avatar/', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      await fetchUserProfile();
+    } catch (error) {
+      console.error('Error deleting photo:', error);
+    }
+  };
+
   const handleSave = async () => {
-	setLoading(true);
-	try {
-	  const token = localStorage.getItem('token');
-	  const data = {
-		first_name: firstName,
-		last_name: lastName,
-		two_factor_enabled: twoFactorEnabled
-	  };
-  
-	  const response = await axios.put('http://localhost:8000/api/users/profile/', data, {
-		headers: { 
-		  Authorization: `Bearer ${token}`,
-		  'Content-Type': 'application/json'
-		}
-	  });
-  
-	  if (response.status === 200) {
-		await fetchUserProfile();
-	  }
-	} catch (error) {
-	  console.error('Error:', error);
-	} finally {
-	  setLoading(false);
-	}
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const data = {
+        first_name: firstName,
+        last_name: lastName,
+        two_factor_enabled: twoFactorEnabled
+      };
+    
+      const response = await axios.put('http://localhost:8000/api/users/profile/', data, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+    
+      if (response.status === 200) {
+        await fetchUserProfile();
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDeleteAccount = async () => {
@@ -81,8 +129,40 @@ const ProfileSettings = () => {
         </div>
         
         <div className="flex items-center gap-8 mb-6">
-          <img src={user?.avatar || Player_}  onError={(e) => {e.target.src = Player_}} alt="Profile" className="w-12 h-12 rounded-full object-cover" />
-          <span className="text-white text-lg">{user.first_name} {user.last_name}</span>
+          <div className="relative group">
+            <img 
+              src={user?.avatar || Player_}  
+              onError={(e) => {e.target.src = Player_}} 
+              alt="Profile" 
+              className="w-12 h-12 rounded-full object-cover"
+            />
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <button 
+                onClick={handlePhotoClick}
+                className="absolute bg-black/50 rounded-full p-1"
+              >
+                <Camera className="w-4 h-4 text-white" />
+              </button>
+              {user?.avatar && user.avatar !== Player_ && (
+                <button 
+                  onClick={handleDeletePhoto}
+                  className="absolute bg-red-500/50 rounded-full p-1 -right-2 -top-2"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+              )}
+            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handlePhotoUpload}
+              accept="image/*"
+              className="hidden"
+            />
+          </div>
+          <span className="text-white text-lg">
+            {uploadLoading ? 'Uploading...' : `${user.first_name} ${user.last_name}`}
+          </span>
         </div>
         
         <div className="h-px bg-blue-100 mb-6" />

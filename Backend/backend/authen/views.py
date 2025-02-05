@@ -260,7 +260,6 @@ class UpdateAvatarView(APIView):
             print(f"File type: {image_file.content_type}")
             print(f"File size: {image_file.size}")
             
-            # Vérifier le type de fichier
             allowed_types = ['image/jpeg', 'image/png', 'image/gif']
             if image_file.content_type not in allowed_types:
                 print(f"Invalid file type: {image_file.content_type}")
@@ -269,25 +268,28 @@ class UpdateAvatarView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Créer le chemin du fichier
             file_extension = os.path.splitext(image_file.name)[1].lower()
             if not file_extension:
-                file_extension = '.jpg'  # Default extension
+                file_extension = '.jpg'
             
             file_path = f'avatars/user_{request.user.id}{file_extension}'
             print(f"Saving to path: {file_path}")
 
             try:
-                # Sauvegarder le fichier
                 path = default_storage.save(file_path, ContentFile(image_file.read()))
                 print(f"File saved successfully at: {path}")
                 
-                # Construire l'URL complète
                 file_url = f"/media/{path}"
                 print(f"File URL: {file_url}")
 
-                # Mettre à jour le profil utilisateur
                 profile = request.user.userprofile
+                
+                # Supprimer l'ancienne image si elle existe
+                if profile.avatar and profile.avatar != profile.DEFAULT_AVATAR:
+                    old_path = profile.avatar.replace('/media/', '', 1)
+                    if default_storage.exists(old_path):
+                        default_storage.delete(old_path)
+                
                 profile.avatar = file_url
                 profile.save()
                 print("Profile updated successfully")
@@ -307,6 +309,42 @@ class UpdateAvatarView(APIView):
                 {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+    def delete(self, request):
+        print("=== Starting avatar deletion ===")
+        try:
+            profile = request.user.userprofile
+            
+            if profile.avatar and profile.avatar != profile.DEFAULT_AVATAR:
+                # Supprimer le fichier physique
+                file_path = profile.avatar.replace('/media/', '', 1)
+                if default_storage.exists(file_path):
+                    default_storage.delete(file_path)
+                    print(f"Deleted file: {file_path}")
+                
+                # Réinitialiser l'avatar
+                profile.avatar = profile.DEFAULT_AVATAR
+                profile.save()
+                print("Reset avatar to default")
+                
+                return Response({
+                    'status': 'success',
+                    'message': 'Avatar removed successfully',
+                    'avatarUrl': profile.DEFAULT_AVATAR
+                })
+            
+            return Response({
+                'status': 'error',
+                'message': 'No custom avatar to delete'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            print(f"Error deleting avatar: {str(e)}")
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 class SignUpView(APIView):
     def post(self, request):
         try:
