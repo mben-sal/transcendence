@@ -14,7 +14,6 @@ export default function Login() {
     const [formData, setFormData] = useState({
 		loginName: '',
         password: '',
-        rememberMe: false,
     });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
@@ -61,11 +60,6 @@ export default function Login() {
                 // Stockage des tokens
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('refresh_token', response.data.refresh_token);
-                
-                // Stockage du "Remember me" si coché
-                if (formData.rememberMe) {
-                    localStorage.setItem('rememberMe', 'true');
-                }
 
                 setIsAuthenticated(true);
                 // Redirection vers le tableau de bord
@@ -137,17 +131,6 @@ export default function Login() {
                     {errors.password && <span className="error">{errors.password}</span>}
 
                     <div className="remember-forgot">
-                        <label className="remember-me">
-                            <input 
-                                type="checkbox"
-                                name='rememberMe'
-                                checked={formData.rememberMe}
-                                onChange={handleChange}
-                                disabled={isLoading}
-                                className='checkbox'
-                            />
-                            <span>Remember me</span>
-                        </label>
                         <Link to="/auth/forgot-password">Forgot password?</Link>
                     </div>
 
