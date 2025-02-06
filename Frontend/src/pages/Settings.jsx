@@ -98,59 +98,122 @@ const ProfileSettings = () => {
 	}
   };
 
-  const handleConfirmation = async (code) => {
-	try {
-	  const token = localStorage.getItem('token');
-	  const response = await axios.post(
-		'http://localhost:8000/api/users/confirm-profile-change/',
-		{
-		  confirmation_code: code
-		},
-		{
-		  headers: { 
-			Authorization: `Bearer ${token}`,
-			'Content-Type': 'application/json'
-		  },
-		  withCredentials: true  // Important pour les cookies de session
-		}
-	  );
-  
-	  if (response.data && response.data.message) {
-		setShowConfirmation(false);
-		await fetchUserProfile();
-	  }
-	} catch (error) {
-	  console.error('Confirmation error:', error.response || error);
-	  throw new Error(error.response?.data?.error || 'Invalid confirmation code');
-	}
-  };
-    
   const handleSave = async () => {
 	try {
 	  const token = localStorage.getItem('token');
-	  const response = await axios.post(
-		'http://localhost:8000/api/users/request-change/',
-		{
-		  first_name: firstName,
-		  last_name: lastName,
-		  two_factor_enabled: twoFactorEnabled
-		},
-		{
-		  headers: { 
-			Authorization: `Bearer ${token}`,
-			'Content-Type': 'application/json'
-		  },
-		  withCredentials: true  // Important pour les cookies de session
-		}
-	  );
 	  
-	  if (response.data && response.data.message) {
-		setConfirmationType('profile');
-		setShowConfirmation(true);
+	  if (newPassword) {
+		// Si changement de mot de passe
+		if (!validatePasswords()) {
+		  return;
+		}
+  
+		const response = await axios.post(
+		  'http://localhost:8000/api/users/request-password-change/',
+		  {
+			old_password: currentPassword,
+			new_password: newPassword
+		  },
+		  {
+			headers: { 
+			  Authorization: `Bearer ${token}`,
+			  'Content-Type': 'application/json'
+			},
+			withCredentials: true
+		  }
+		);
+  
+		if (response.data.status === 'success') {
+		  setConfirmationType('password');
+		  setShowConfirmation(true);
+		}
+	  } else {
+		// Pour les autres changements (nom, prénom, etc.)
+		const response = await axios.post(
+		  'http://localhost:8000/api/users/request-change/',
+		  {
+			first_name: firstName,
+			last_name: lastName,
+			two_factor_enabled: twoFactorEnabled
+		  },
+		  {
+			headers: { 
+			  Authorization: `Bearer ${token}`,
+			  'Content-Type': 'application/json'
+			},
+			withCredentials: true
+		  }
+		);
+		
+		if (response.data.message) {
+		  setConfirmationType('profile');
+		  setShowConfirmation(true);
+		}
 	  }
 	} catch (error) {
 	  console.error('Save error:', error.response || error);
-	  setError(error.response?.data?.error || 'Error saving changes');
+	  const errorMessage = error.response?.data?.message || 'Erreur lors de la sauvegarde';
+	  if (newPassword) {
+		setPasswordError(errorMessage);
+	  } else {
+		setError(errorMessage);
+	  }
+	}
+  };
+  
+  // Modification de handleConfirmation pour gérer les deux types
+  const handleConfirmation = async (code) => {
+	try {
+	  const token = localStorage.getItem('token');
+	  let response;
+  
+	  if (confirmationType === 'password') {
+		response = await axios.post(
+		  'http://localhost:8000/api/users/confirm-password-change/',
+		  { confirmation_code: code },
+		  {
+			headers: { 
+			  Authorization: `Bearer ${token}`,
+			  'Content-Type': 'application/json'
+			},
+			withCredentials: true
+		  }
+		);
+  
+		if (response.data.status === 'success') {
+		  setCurrentPassword('');
+		  setNewPassword('');
+		  setConfirmPassword('');
+		  setPasswordError('');
+		  setShowConfirmation(false);
+		  
+		  // Déconnexion après changement de mot de passe
+		  alert('Mot de passe changé avec succès. Veuillez vous reconnecter.');
+		  localStorage.removeItem('token');
+		  window.location.href = '/login';
+		}
+	  } else {
+		// Pour les changements de profil
+		response = await axios.post(
+		  'http://localhost:8000/api/users/confirm-profile-change/',
+		  { confirmation_code: code },
+		  {
+			headers: { 
+			  Authorization: `Bearer ${token}`,
+			  'Content-Type': 'application/json'
+			},
+			withCredentials: true
+		  }
+		);
+  
+		if (response.data && response.data.message) {
+		  setShowConfirmation(false);
+		  await fetchUserProfile();
+		}
+	  }
+	} catch (error) {
+	  console.error('Confirmation error:', error.response || error);
+	  throw new Error(error.response?.data?.error || 'Code de confirmation invalide');
 	}
   };
 

@@ -393,70 +393,76 @@ class PasswordResetRequestView(APIView):
     permission_classes = []
 
     def post(self, request):
-        print("=== Début du processus de réinitialisation de mot de passe ===")
-        serializer = PasswordResetRequestSerializer(data=request.data)
-        
-        if not serializer.is_valid():
-            print("Erreur de validation:", serializer.errors)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        email = serializer.validated_data['email']
-        print(f"Email reçu: {email}")
-        
+        print("=== Démarrage du processus de réinitialisation ===")
         try:
-            user = User.objects.get(email=email)
-            print(f"Utilisateur trouvé: {user.username}")
-            
-            # Créer un token
-            PasswordResetToken.objects.filter(user=user).delete()
-            reset_token = PasswordResetToken.objects.create(user=user)
-            print(f"Token créé: {reset_token.token}")
-            
-            reset_url = f"{settings.FRONTEND_URL}/auth/reset-password?token={reset_token.token}"
-            print(f"URL de réinitialisation: {reset_url}")
-            
-            # Préparer le contenu HTML
-            html_content = render_to_string('password_reset_email.html', {
-                'user': user,
-                'reset_url': reset_url,
-                'expires_in': '24 heures'
-            })
-            
+            serializer = PasswordResetRequestSerializer(data=request.data)
+            if not serializer.is_valid():
+                print("Erreurs de validation:", serializer.errors)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            email = serializer.validated_data['email']
+            print(f"Email reçu: {email}")
+
             try:
-                print("Tentative d'envoi d'email avec les paramètres suivants:")
-                print(f"HOST: {settings.EMAIL_HOST}")
-                print(f"PORT: {settings.EMAIL_PORT}")
-                print(f"TLS: {settings.EMAIL_USE_TLS}")
-                print(f"FROM: {settings.DEFAULT_FROM_EMAIL}")
-                
-                send_mail(
-                    subject='Réinitialisation de votre mot de passe',
-                    message=f'Pour réinitialiser votre mot de passe, cliquez sur ce lien : {reset_url}',
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[email],
-                    fail_silently=False,
-                    html_message=html_content
-                )
-                print("Email envoyé avec succès!")
-                
-            except Exception as e:
-                print(f"Erreur lors de l'envoi de l'email: {str(e)}")
-                return Response({
-                    'status': 'error',
-                    'message': f'Erreur lors de l\'envoi de l\'email: {str(e)}'
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                user = User.objects.get(email=email)
+                print(f"Utilisateur trouvé: {user.username}")
+
+                # Supprimer les anciens tokens
+                PasswordResetToken.objects.filter(user=user).delete()
+                reset_token = PasswordResetToken.objects.create(user=user)
+                print(f"Token créé: {reset_token.token}")
+
+                reset_url = f"{settings.FRONTEND_URL}/auth/reset-password?token={reset_token.token}"
+                print(f"URL de réinitialisation: {reset_url}")
+
+                try:
+                    # Préparer le contenu de l'email
+                    context = {
+                        'user': user,
+                        'reset_url': reset_url,
+                        'expires_in': '24 heures'
+                    }
+                    
+                    print("Tentative de rendu du template...")
+                    html_content = render_to_string('password_reset_email.html', context)
+                    print("Template rendu avec succès")
+
+                    print("Configuration email:")
+                    print(f"HOST: {settings.EMAIL_HOST}")
+                    print(f"PORT: {settings.EMAIL_PORT}")
+                    print(f"FROM: {settings.DEFAULT_FROM_EMAIL}")
+                    print(f"TO: {email}")
+
+                    send_mail(
+                        subject='Réinitialisation de votre mot de passe',
+                        message=f'Pour réinitialiser votre mot de passe, cliquez sur ce lien : {reset_url}',
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[email],
+                        fail_silently=False,
+                        html_message=html_content
+                    )
+                    print("Email envoyé avec succès!")
+
+                except Exception as template_error:
+                    print(f"Erreur lors du rendu du template ou de l'envoi de l'email: {str(template_error)}")
+                    return Response({
+                        'message': "Une erreur est survenue lors de l'envoi de l'email."
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            except User.DoesNotExist:
+                # Ne pas révéler si l'utilisateur existe ou non
+                print(f"Aucun utilisateur trouvé avec l'email: {email}")
+                pass
 
             return Response({
-                'status': 'success',
-                'message': 'Un email de réinitialisation a été envoyé.'
+                'message': 'Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.'
             })
 
-        except User.DoesNotExist:
-            print(f"Aucun utilisateur trouvé avec l'email: {email}")
+        except Exception as e:
+            print(f"Erreur inattendue: {str(e)}")
             return Response({
-                'status': 'success',
-                'message': 'Si un compte existe avec cet email, vous recevrez un message.'
-            })
+                'message': 'Une erreur inattendue est survenue.'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class PasswordResetConfirmView(APIView):
     permission_classes = []
@@ -512,13 +518,14 @@ class RequestProfileChangeView(APIView):
                 'code': confirmation_code,
                 'expires': str(timezone.now() + timedelta(minutes=15))
             }
-            
-            # Préparer le contenu HTML de l'email
-            html_content = render_to_string('profile_change_email.html', {
+            context = {
                 'user': request.user,
                 'confirmation_code': confirmation_code,
                 'expires_in': '15 minutes'
-            })
+			}
+
+            # Préparer le contenu HTML de l'email
+            html_content = render_to_string('authen/profile_change_email.html', context)
             
             # Envoyer l'email
             try:
@@ -609,3 +616,105 @@ class ConfirmProfileChangeView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         
+class RequestPasswordChangeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            # Vérifier l'ancien mot de passe
+            old_password = request.data.get('old_password')
+            new_password = request.data.get('new_password')
+            
+            # Vérifier l'ancien mot de passe
+            if not request.user.check_password(old_password):
+                return Response({
+                    'status': 'error',
+                    'message': 'Current password is incorrect'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Générer le code de confirmation
+            confirmation_code = ''.join(random.choices(string.digits, k=6))
+            
+            # Stocker dans la session
+            request.session['pending_password_change'] = {
+                'code': confirmation_code,
+                'new_password': new_password,
+                'expires': str(timezone.now() + timedelta(minutes=15))
+            }
+            
+            # Utiliser le même template que pour les changements de profil
+            html_content = render_to_string('profile_change_email.html', {
+                'user': request.user,
+                'confirmation_code': confirmation_code,
+                'expires_in': '15 minutes'
+            })
+            
+            send_mail(
+                subject='Confirmation du changement de mot de passe',
+                message=f'Votre code de confirmation est : {confirmation_code}',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[request.user.email],
+                fail_silently=False,
+                html_message=html_content
+            )
+            
+            return Response({
+                'status': 'success',
+                'message': 'Code de confirmation envoyé'
+            })
+            
+        except Exception as e:
+            print(f"Error requesting password change: {str(e)}")
+            return Response({
+                'status': 'error',
+                'message': 'Une erreur est survenue'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ConfirmPasswordChangeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            confirmation_code = request.data.get('confirmation_code')
+            pending = request.session.get('pending_password_change')
+            
+            if not pending:
+                return Response({
+                    'status': 'error',
+                    'message': 'Aucun changement de mot de passe en attente'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            if pending.get('code') != confirmation_code:
+                return Response({
+                    'status': 'error',
+                    'message': 'Code de confirmation invalide'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Vérifier l'expiration
+            expires = parse(pending['expires'])
+            if timezone.now() > expires:
+                del request.session['pending_password_change']
+                return Response({
+                    'status': 'error',
+                    'message': 'Code de confirmation expiré'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Changer le mot de passe
+            request.user.set_password(pending['new_password'])
+            request.user.save()
+            
+            # Nettoyer la session
+            del request.session['pending_password_change']
+            request.session.modified = True
+            
+            return Response({
+                'status': 'success',
+                'message': 'Mot de passe changé avec succès'
+            })
+            
+        except Exception as e:
+            print(f"Error confirming password change: {str(e)}")
+            return Response({
+                'status': 'error',
+                'message': 'Une erreur est survenue'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
