@@ -12,7 +12,8 @@ from .views import (
     RequestProfileChangeView,
     ConfirmProfileChangeView,
     RequestPasswordChangeView,
-    ConfirmPasswordChangeView
+    ConfirmPasswordChangeView,
+    DeleteAccountConfirmView
 )
 
 urlpatterns = [
@@ -26,6 +27,9 @@ urlpatterns = [
     path('users/password-reset/', PasswordResetRequestView.as_view(), name='password-reset-request'),
 	path('users/password-reset-confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 	path('users/request-change/', RequestProfileChangeView.as_view(), name='request-profile-change'),
-	path('users/confirm-profile-change/', ConfirmProfileChangeView.as_view()),path('users/request-password-change/', RequestPasswordChangeView.as_view(), name='request-password-change'),
+	path('users/confirm-profile-change/', ConfirmProfileChangeView.as_view()),
+	path('users/request-password-change/', RequestPasswordChangeView.as_view(), name='request-password-change'),
 	path('users/confirm-password-change/', ConfirmPasswordChangeView.as_view(), name='confirm-password-change'),
+	path('users/confirm-delete/', DeleteAccountConfirmView.as_view(), name='confirm-delete'),
+	
 ]

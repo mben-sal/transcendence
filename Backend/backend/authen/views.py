@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 import requests
 from .models import UserProfile
-from .serializers import UserSerializer, LoginSerializer, UserProfileSerializer , SignUpSerializer
+from .serializers import UserSerializer, LoginSerializer, UserProfileSerializer , SignUpSerializer, DeleteAccountConfirmSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -717,4 +717,38 @@ class ConfirmPasswordChangeView(APIView):
             return Response({
                 'status': 'error',
                 'message': 'Une erreur est survenue'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class DeleteAccountConfirmView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            serializer = DeleteAccountConfirmSerializer(data=request.data)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            # Vérifier le mot de passe
+            password = serializer.validated_data['password']
+            if not request.user.check_password(password):
+                return Response({
+                    'status': 'error',
+                    'message': 'Mot de passe incorrect'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Supprimer le compte
+            user = request.user
+            user.delete()
+
+            return Response({
+                'status': 'success',
+                'message': 'Compte supprimé avec succès'
+            })
+
+        except Exception as e:
+            print(f"Error deleting account: {str(e)}")
+            return Response({
+                'status': 'error',
+                'message': 'Une erreur est survenue lors de la suppression du compte'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

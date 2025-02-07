@@ -4,6 +4,8 @@ import { useUser } from '../contexts/UserContext';
 import Player_ from '../assets/src/player_.svg';
 import axios from 'axios';
 import ConfirmationModal from '../component/settings/confirmationModel';
+import ActionButtons from '../component/settings/ActionButtons';
+
 
 
 axios.defaults.withCredentials = true;
@@ -244,14 +246,19 @@ const ProfileSettings = () => {
     }
   };
 
-  const handleDeleteAccount = async () => {
+const handleDeleteAccount = async (password) => {
 	try {
 	  const token = localStorage.getItem('token');
-	  await axios.delete('http://localhost:8000/api/users/profile/', {
-		headers: { Authorization: `Bearer ${token}` }
-	  });
 	  
-	  // Nettoyer le stockage local
+	  // Appeler l'endpoint de confirmation de suppression
+	  await axios.post('http://localhost:8000/api/users/confirm-delete/', 
+		{ password: password },
+		{
+		  headers: { Authorization: `Bearer ${token}` }
+		}
+	  );
+	  
+	  // Si la suppression est réussie, déconnecter l'utilisateur
 	  localStorage.removeItem('token');
 	  localStorage.removeItem('refresh_token');
 	  
@@ -259,7 +266,7 @@ const ProfileSettings = () => {
 	  window.location.href = '/login';
 	} catch (error) {
 	  console.error('Error deleting account:', error);
-	  setError('Failed to delete account. Please try again.');
+	  setError(error.response?.data?.message || 'Failed to delete account. Please try again.');
 	}
   };
 
@@ -418,26 +425,11 @@ const ProfileSettings = () => {
               </div>
             </div>
           </div>
-		<div className="mt-8 space-y-4">
- 			 <button
-   			 onClick={handleSave}
-    		disabled={loading}
-   			 className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400"
- 		 >
-   		 {loading ? 'Saving...' : 'Save Changes'}
-  		</button>
-  
- 		 <button 
-    	onClick={() => {
-    	  if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-        	handleDeleteAccount();
-      	}
-    	}}
-   		 className="w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
- 		 >
-   		 Delete Account
-  		</button>
-		</div>
+		<ActionButtons 
+  			onSave={handleSave}
+  			onDelete={handleDeleteAccount}
+  			loading={loading}
+		/>
         </div>
       </div>
 

@@ -76,3 +76,10 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         min_length=8,
         style={'input_type': 'password'}
     )
+    
+class DeleteAccountConfirmSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        required=True,
+        write_only=True,
+        style={'input_type': 'password'}
+    )
