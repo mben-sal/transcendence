@@ -18,6 +18,10 @@ import os
 import random
 import string
 import uuid
+import jwt
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from .models import TwoFactorCode
 from django.utils import timezone
 from datetime import timedelta
 from dateutil.parser import parse
@@ -50,7 +54,6 @@ class LoginView(APIView):
             login_name = serializer.validated_data['login_name']
             password = serializer.validated_data['password']
             
-            # Essayer de trouver l'utilisateur par intra_id ou email
             try:
                 user_profile = UserProfile.objects.get(intra_id=login_name)
                 user = user_profile.user
@@ -64,15 +67,51 @@ class LoginView(APIView):
                         'message': 'Invalid credentials'
                     }, status=status.HTTP_401_UNAUTHORIZED)
 
-            # Vérifier le mot de passe
             if user.check_password(password):
-                refresh = RefreshToken.for_user(user)
-                return Response({
-                    'status': 'success',
-                    'token': str(refresh.access_token),
-                    'refresh_token': str(refresh),
-                    'user': UserProfileSerializer(user_profile).data
-                })
+                if user_profile.two_factor_enabled:
+                    # Générer un code 2FA
+                    code = ''.join(random.choices(string.digits, k=6))
+                    TwoFactorCode.objects.create(
+                        user=user,
+                        code=code
+                    )
+                    
+                    # Envoyer le code par email
+                    html_content = render_to_string('two_factor_email.html', {
+                        'user': user,
+                        'code': code,
+                        'expires_in': '10 minutes'
+                    })
+                    
+                    send_mail(
+                        subject='Code de vérification',
+                        message=f'Votre code de vérification est : {code}',
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[user.email],
+                        fail_silently=False,
+                        html_message=html_content
+                    )
+                    
+                    # Créer un token temporaire pour la vérification 2FA
+                    temp_token = jwt.encode(
+                        {'user_id': user.id, 'exp': timezone.now() + timedelta(minutes=10)},
+                        settings.SECRET_KEY,
+                        algorithm='HS256'
+                    )
+                    
+                    return Response({
+                        'requires_2fa': True,
+                        'temp_token': temp_token
+                    })
+                else:
+                    # Connexion sans 2FA
+                    refresh = RefreshToken.for_user(user)
+                    return Response({
+                        'requires_2fa': False,
+                        'token': str(refresh.access_token),
+                        'refresh_token': str(refresh),
+                        'user': UserProfileSerializer(user_profile).data
+                    })
             else:
                 return Response({
                     'status': 'error',
@@ -107,17 +146,10 @@ class FortyTwoCallbackView(APIView):
 
     def get(self, request):
         print("=== Starting FortyTwoCallbackView ===")
-        code = request.GET.get('code')
-        state = request.GET.get('state', 'signin')
-        print(f"Received code: {code}, state: {state}")
-
-        print("=== Starting FortyTwoCallbackView ===", settings.FT_TOKEN_URL)
-        print("=== Starting FortyTwoCallbackView ===", settings.FT_CLIENT_ID)
-        print("=== Starting FortyTwoCallbackView ===", settings.FT_CLIENT_SECRET)
-        print("=== Starting FortyTwoCallbackView ===", settings.FT_REDIRECT_URI)
-        print("=== Starting FortyTwoCallbackView ===", settings.FT_API_URL)
-
         try:
+            code = request.GET.get('code')
+            state = request.GET.get('state', 'signin')
+
             token_response = requests.post(
                 settings.FT_TOKEN_URL,
                 data={
@@ -128,63 +160,118 @@ class FortyTwoCallbackView(APIView):
                     'redirect_uri': settings.FT_REDIRECT_URI
                 }
             )
-            token_data = token_response.json()
+            
+            if not token_response.ok:
+                print(f"Token error: {token_response.text}")
+                return Response({
+                    'status': 'error',
+                    'message': 'Failed to get access token'
+                }, status=status.HTTP_400_BAD_REQUEST)
 
+            token_data = token_response.json()
+            
             user_response = requests.get(
                 f'{settings.FT_API_URL}/v2/me',
                 headers={'Authorization': f'Bearer {token_data["access_token"]}'}
             )
+            
+            if not user_response.ok:
+                print(f"User data error: {user_response.text}")
+                return Response({
+                    'status': 'error',
+                    'message': 'Failed to get user data'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
             user_data = user_response.json()
+            
             user, created = User.objects.get_or_create(
                 username=user_data['login'],
                 defaults={
                     'email': user_data.get('email', ''),
                     'first_name': user_data.get('first_name', ''),
-                    'last_name': user_data.get('last_name', ''),
-                },
-            )
-
-            profile, _ = UserProfile.objects.get_or_create(
-                user=user,
-                defaults={
-                    'intra_id': user_data['login'],
-                    'avatar': user_data.get('image', {}).get('link', ''),
-                    'display_name': user_data.get('displayname', user_data['login']),
-                    'status': 'online'
+                    'last_name': user_data.get('last_name', '')
                 }
             )
 
-            if not _:
-                # profile.avatar = user_data.get('image', {}).get('link', profile.avatar)
+            profile_defaults = {
+                'intra_id': user_data['login'],
+                'avatar': user_data.get('image', {}).get('link', ''),
+                'display_name': user_data.get('displayname', user_data['login']),
+                'status': 'online',
+                'two_factor_enabled': True
+            }
+
+            profile, created_profile = UserProfile.objects.get_or_create(
+                user=user,
+                defaults=profile_defaults
+            )
+
+            if not created_profile:
                 profile.status = 'online'
+                profile.two_factor_enabled = True
                 profile.save()
 
-            refresh = RefreshToken.for_user(user)
-            
-            redirect_url = (
-                f"{settings.FRONTEND_URL}/auth/callback"
-                f"?access_token={str(refresh.access_token)}"
-                f"&refresh_token={str(refresh)}"
-                f"&is_new_user={str(created).lower()}"
-            )
-            
+            print(f"2FA enabled: {profile.two_factor_enabled}")
+
+            if profile.two_factor_enabled:
+                print("Generating 2FA code")
+                code = ''.join(random.choices(string.digits, k=6))
+                TwoFactorCode.objects.create(
+                    user=user,
+                    code=code,
+                    expires_at=timezone.now() + timedelta(minutes=10)
+                )
+                
+                html_content = render_to_string('two_factor_email.html', {
+                    'user': user,
+                    'code': code,
+                    'expires_in': '10 minutes'
+                })
+                
+                send_mail(
+                    subject='Code de vérification',
+                    message=f'Votre code de vérification est : {code}',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=False,
+                    html_message=html_content
+                )
+                
+                temp_token = jwt.encode(
+                    {
+                        'user_id': user.id,
+                        'exp': int((timezone.now() + timedelta(minutes=10)).timestamp())
+                    },
+                    settings.SECRET_KEY,
+                    algorithm='HS256'
+                )
+                
+                redirect_url = (
+                    f"{settings.FRONTEND_URL}/auth/callback"
+                    f"?requires_2fa=true"
+                    f"&temp_token={temp_token}"
+                    f"&email={user.email}"
+                )
+                print(f"Redirecting to 2FA verification")
+            else:
+                print("No 2FA required, proceeding with normal login")
+                refresh = RefreshToken.for_user(user)
+                redirect_url = (
+                    f"{settings.FRONTEND_URL}/auth/callback"
+                    f"?access_token={str(refresh.access_token)}"
+                    f"&refresh_token={str(refresh)}"
+                    f"&is_new_user={str(created).lower()}"
+                )
+
             return redirect(redirect_url)
 
-        except requests.exceptions.RequestException as e:
-            print(f"API Request error: {str(e)}")
-            return Response({
-                'status': 'error',
-                'message': f"API Request error: {str(e)}"
-            }, status=status.HTTP_400_BAD_REQUEST)
-            
         except Exception as e:
-            print(f"Unexpected error: {str(e)}")
-            print(f"Error type: {type(e)}")
+            print(f"Error in FortyTwoCallbackView: {str(e)}")
             import traceback
             traceback.print_exc()
             return Response({
                 'status': 'error',
-                'message': f"Unexpected error: {str(e)}"
+                'message': str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
 
 class UserProfileView(APIView):
@@ -751,4 +838,59 @@ class DeleteAccountConfirmView(APIView):
             return Response({
                 'status': 'error',
                 'message': 'Une erreur est survenue lors de la suppression du compte'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class VerifyTwoFactorView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            temp_token = request.data.get('temp_token')
+            code = request.data.get('code')
+
+            if not temp_token or not code:
+                return Response({
+                    'status': 'error',
+                    'message': 'Missing required fields'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                payload = jwt.decode(temp_token, settings.SECRET_KEY, algorithms=['HS256'])
+                user = User.objects.get(id=payload['user_id'])
+            except (jwt.InvalidTokenError, User.DoesNotExist):
+                return Response({
+                    'status': 'error',
+                    'message': 'Invalid token'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            two_factor = TwoFactorCode.objects.filter(
+                user=user,
+                code=code,
+                is_used=False,
+                expires_at__gt=timezone.now()
+            ).first()
+
+            if not two_factor:
+                return Response({
+                    'status': 'error',
+                    'message': 'Invalid or expired code'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            two_factor.is_used = True
+            two_factor.save()
+
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                'status': 'success',
+                'token': str(refresh.access_token),
+                'refresh_token': str(refresh),
+                'user': UserProfileSerializer(user.userprofile).data
+            })
+
+        except Exception as e:
+            return Response({
+                'status': 'error',
+                'message': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

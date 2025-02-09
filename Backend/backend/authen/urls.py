@@ -13,7 +13,8 @@ from .views import (
     ConfirmProfileChangeView,
     RequestPasswordChangeView,
     ConfirmPasswordChangeView,
-    DeleteAccountConfirmView
+    DeleteAccountConfirmView,
+	VerifyTwoFactorView
 )
 
 urlpatterns = [
@@ -31,5 +32,6 @@ urlpatterns = [
 	path('users/request-password-change/', RequestPasswordChangeView.as_view(), name='request-password-change'),
 	path('users/confirm-password-change/', ConfirmPasswordChangeView.as_view(), name='confirm-password-change'),
 	path('users/confirm-delete/', DeleteAccountConfirmView.as_view(), name='confirm-delete'),
+	path('users/verify-2fa/', VerifyTwoFactorView.as_view(), name='verify-2fa'),
 	
 ]

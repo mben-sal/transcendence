@@ -45,35 +45,40 @@ export default function Login() {
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!validateForm()) return;
-        
-        setIsLoading(true);
-        try {
-            const response = await axios.post('http://localhost:8000/api/users/login/', {
-				login_name: formData.loginName, 
-                password: formData.password
-            });
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    
+    setIsLoading(true);
+    try {
+        const response = await axios.post('http://localhost:8000/api/users/login/', {
+            login_name: formData.loginName, 
+            password: formData.password
+        });
 
-            if (response.data.token) {
-                // Stockage des tokens
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('refresh_token', response.data.refresh_token);
-
-                setIsAuthenticated(true);
-                // Redirection vers le tableau de bord
-                navigate('/dashboard');
-            }
-        } catch (error) {
-            setErrors({ 
-                submit: error.response?.data?.message || 'Invalid credentials'
+        if (response.data.requires_2fa) {
+            // Rediriger vers la page 2FA avec les informations nécessaires
+            navigate('/auth/two-factor', {
+                state: {
+                    email: formData.loginName,
+                    tempToken: response.data.temp_token
+                }
             });
-        } finally {
-            setIsLoading(false);
+        } else {
+            // Login normal sans 2FA
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('refresh_token', response.data.refresh_token);
+            setIsAuthenticated(true);
+            navigate('/');
         }
-    };
-
+    } catch (error) {
+        setErrors({ 
+            submit: error.response?.data?.message || 'Invalid credentials'
+        });
+    } finally {
+        setIsLoading(false);
+    }
+};
     const handle42Login = (type = 'signin') => {
         if (!AUTH_CONFIG.CLIENT_ID || !AUTH_CONFIG.REDIRECT_URI) {
             setErrors({ submit: 'OAuth configuration is missing.' });

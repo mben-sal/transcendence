@@ -83,3 +83,14 @@ class DeleteAccountConfirmSerializer(serializers.Serializer):
         write_only=True,
         style={'input_type': 'password'}
     )
+
+
+class TwoFactorVerifySerializer(serializers.Serializer):
+    code = serializers.CharField(min_length=6, max_length=6)
+
+class TwoFactorLoginResponseSerializer(serializers.Serializer):
+    requires_2fa = serializers.BooleanField()
+    temp_token = serializers.CharField(required=False)
+    token = serializers.CharField(required=False)
+    refresh_token = serializers.CharField(required=False)
+    user = UserProfileSerializer(required=False)

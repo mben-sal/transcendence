@@ -58,3 +58,24 @@ class PasswordResetToken(models.Model):
 
     class Meta:
         db_table = 'password_reset_tokens'
+
+class TwoFactorCode(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(minutes=10)
+        super().save(*args, **kwargs)
+
+    def is_valid(self):
+        return (
+            not self.is_used and
+            timezone.now() <= self.expires_at
+        )
+
+    class Meta:
+        db_table = 'two_factor_codes'

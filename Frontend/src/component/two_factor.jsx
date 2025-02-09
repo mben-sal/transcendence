@@ -1,11 +1,25 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import './login.css';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { useUser } from '../contexts/UserContext';
 import logoimage from '../assets/src/Right.svg';
 import './two_factor.css';
 
-export default function Two_Factor() {
+const TwoFactor = () => {
   const [code, setCode] = useState(['', '', '', '', '', '']);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { setIsAuthenticated } = useUser();
+
+  useEffect(() => {
+    const state = location.state;
+    if (state?.email) {
+      setEmail(state.email);
+    }
+  }, [location]);
 
   const handleChange = (index, value) => {
     if (value.length <= 1 && /^[0-9]*$/.test(value)) {
@@ -19,56 +33,123 @@ export default function Two_Factor() {
       }
     }
   };
+
   const clearCode = () => {
     setCode(['', '', '', '', '', '']);
-    // Focus first input after clearing
     const firstInput = document.querySelector('input[name=code-0]');
     if (firstInput) firstInput.focus();
+  };
+
+  const handleVerify = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+      
+      const fullCode = code.join('');
+      if (fullCode.length !== 6) {
+        setError('Please enter the complete 6-digit code');
+        return;
+      }
+
+      const response = await axios.post('http://localhost:8000/api/users/verify-2fa/', {
+        code: fullCode,
+        temp_token: location.state?.tempToken
+      });
+
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('refresh_token', response.data.refresh_token);
+        setIsAuthenticated(true);
+        navigate('/');
+      }
+    } catch (error) {
+      setError(error.response?.data?.message || 'Invalid verification code');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+      
+      await axios.post('http://localhost:8000/api/users/resend-2fa/', {
+        temp_token: location.state?.tempToken
+      });
+      
+      setError('A new code has been sent to your email');
+    } catch (error) {
+      setError('Failed to resend code. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="page">
       <div className="login-wrapper">
         <div className="login-form">
-          <h2>WE&apos;VE EMAILED YOU A CODE</h2>
+          <h2>WE'VE EMAILED YOU A CODE</h2>
           <p>to continue account step, enter the code</p>
-          <p>we&apos;ve sent to: example@email.com</p>
+          <p>we've sent to: {email}</p>
           
           <div className="form-group">
             {code.map((digit, index) => (
               <input
-                type="text"
                 key={index}
+                type="text"
                 name={`code-${index}`}
                 value={digit}
-                maxLength={1}
                 onChange={(e) => handleChange(index, e.target.value)}
                 className="code-input"
-				placeholder='-'
+                maxLength={1}
+                placeholder="-"
+                disabled={isLoading}
               />
             ))}
-			<button onClick={clearCode} className="clear-button">
+            <button onClick={clearCode} className="clear-button">
               ×
             </button>
           </div>
 
-          <button className="verify-button">
-            Verify
+          {error && (
+            <div className="error-message">
+              {error}
+            </div>
+          )}
+
+          <button
+            onClick={handleVerify}
+            disabled={isLoading}
+            className="verify-button"
+          >
+            {isLoading ? 'Verifying...' : 'Verify'}
           </button>
 
           <div className="links">
             <p>
-              Didn&apos;t get the code?{' '}
-              <Link to="#" className="resend-link">Resend Code</Link>
+              Didn't get the code?{' '}
+              <button 
+                onClick={handleResendCode} 
+                className="resend-link"
+                disabled={isLoading}
+              >
+                Resend Code
+              </button>
             </p>
-            <Link to="./login" className="back-link">Back to Login</Link>
+            <Link to="/auth/login" className="back-link">
+              Back to Login
+            </Link>
           </div>
         </div>
       </div>
       
-      <div className = "image">
-		<img src = {logoimage}></img>
-	</div>
+      <div className="image">
+        <img src={logoimage} alt="Decorative right side image" />
+      </div>
     </div>
   );
-}
+};
+
+export default TwoFactor;
