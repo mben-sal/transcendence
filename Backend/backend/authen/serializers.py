@@ -49,20 +49,39 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 class SignUpSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
-    password = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(
+        write_only=True, 
+        required=True,
+        min_length=8
+    )
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
-    intra_id = serializers.CharField(required=True)
-    display_name = serializers.CharField(required=True)
+    login_name = serializers.CharField(
+        required=True,
+        min_length=3,
+        max_length=100
+    )
+    two_factor_enabled = serializers.BooleanField(default=False, required=False)
 
-    def validate_intra_id(self, value):
+    def validate_login_name(self, value):
         if UserProfile.objects.filter(intra_id=value).exists():
-            raise serializers.ValidationError("This login name is already taken.")
-        return value
+            raise serializers.ValidationError("Ce nom d'utilisateur est déjà pris.")
+        if not value.isalnum():
+            raise serializers.ValidationError("Le nom d'utilisateur ne peut contenir que des lettres et des chiffres.")
+        return value.lower()
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError("This email is already registered.")
+            raise serializers.ValidationError("Cet email est déjà enregistré.")
+        return value.lower()
+
+    def validate_password(self, value):
+        if len(value) < 8:
+            raise serializers.ValidationError("Le mot de passe doit contenir au moins 8 caractères.")
+        if not any(char.isdigit() for char in value):
+            raise serializers.ValidationError("Le mot de passe doit contenir au moins un chiffre.")
+        if not any(char.isupper() for char in value):
+            raise serializers.ValidationError("Le mot de passe doit contenir au moins une majuscule.")
         return value
 
 class PasswordResetRequestSerializer(serializers.Serializer):

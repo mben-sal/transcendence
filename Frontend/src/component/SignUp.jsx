@@ -12,7 +12,10 @@ export default function SignUp() {
         confirmPassword: '',
         firstName: '',
         lastName: '',
+        intraId: '',
+        displayName: '',
         loginName: '',
+        two_factor_enabled: false
     });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +39,9 @@ export default function SignUp() {
 
         if (!formData.loginName.trim()) {
             newErrors.loginName = 'Login name is required';
-        }
+        } else if (formData.loginName.length < 3) {
+			newErrors.loginName = 'Login name must be at least 3 characters';
+		}
 
         if (!formData.password) {
             newErrors.password = 'Password is required';
@@ -62,54 +67,27 @@ export default function SignUp() {
 		e.preventDefault();
 		if (!validateForm()) return;
 	
+		const payload = {
+			email: formData.email,
+			password: formData.password,
+			first_name: formData.firstName,
+			last_name: formData.lastName,
+			login_name: formData.loginName
+		};
+		
+		console.log('Payload:', payload);
+	
 		setIsLoading(true);
 		try {
-			const response = await axios.post('http://localhost:8000/api/users/signup/', {
-				email: formData.email,
-				password: formData.password,
-				first_name: formData.firstName,
-				last_name: formData.lastName,
-				intra_id: formData.intraId,
-				display_name: formData.displayName
-			});
-	
-			if (response.data.requires_2fa) {
-				// Rediriger vers la page 2FA
-				navigate('/auth/two-factor', {
-					state: {
-						email: response.data.email,
-						tempToken: response.data.temp_token
-					}
-				});
-			} else {
-				// Connexion normale sans 2FA
-				localStorage.setItem('token', response.data.token);
-				localStorage.setItem('refresh_token', response.data.refresh_token);
-				setIsAuthenticated(true);
-				navigate('/');
-			}
-		} catch (error) {
-			console.error("Signup error:", error);
-			let errorMessage = 'An error occurred during signup';
+			const response = await axios.post('http://localhost:8000/api/users/signup/', payload);
 			
-			if (error.response?.data?.errors) {
-				// Gestion des erreurs de validation spécifiques
-				const validationErrors = {};
-				Object.entries(error.response.data.errors).forEach(([field, messages]) => {
-					validationErrors[field] = Array.isArray(messages) ? messages[0] : messages;
-				});
-				setErrors(validationErrors);
-			} else if (error.response?.data?.message) {
-				// Message d'erreur spécifique du serveur
-				setErrors({
-					submit: error.response.data.message
-				});
-			} else {
-				// Erreur générique
-				setErrors({
-					submit: errorMessage
-				});
-			}
+			localStorage.setItem('token', response.data.token);
+			localStorage.setItem('refresh_token', response.data.refresh_token);
+			setIsAuthenticated(true);
+			navigate('/');
+		} catch (error) {
+			console.error("Signup error:", error.response?.data);
+			setErrors(error.response?.data?.errors || { submit: 'Erreur d\'inscription' });
 		} finally {
 			setIsLoading(false);
 		}

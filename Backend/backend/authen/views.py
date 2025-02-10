@@ -427,19 +427,21 @@ class UpdateAvatarView(APIView):
 class SignUpView(APIView):
     def post(self, request):
         try:
+            print("Données reçues:", request.data)
             serializer = SignUpSerializer(data=request.data)
+            
             if not serializer.is_valid():
+                print("Erreurs de validation:", serializer.errors)
                 return Response({
                     'status': 'error',
-                    'message': 'Invalid data',
+                    'message': 'Données invalides',
                     'errors': serializer.errors
                 }, status=status.HTTP_400_BAD_REQUEST)
 
             validated_data = serializer.validated_data
             
-            # Créer l'utilisateur avec l'email comme username
             user = User.objects.create(
-                username=validated_data['email'],
+                username=validated_data['login_name'],
                 email=validated_data['email'],
                 first_name=validated_data['first_name'],
                 last_name=validated_data['last_name']
@@ -448,59 +450,26 @@ class SignUpView(APIView):
             user.set_password(validated_data['password'])
             user.save()
 
-            # Créer le profil utilisateur avec 2FA activé
+            # Créer le profil utilisateur
             profile = UserProfile.objects.create(
                 user=user,
-                intra_id=validated_data['intra_id'],
-                display_name=validated_data['display_name'],
+                intra_id=validated_data['login_name'],
+                display_name=validated_data['login_name'],
                 status='online',
-                two_factor_enabled=True  # Activer 2FA par défaut
+                two_factor_enabled=validated_data.get('two_factor_enabled', False)
             )
 
-            # Générer un code 2FA
-            code = ''.join(random.choices(string.digits, k=6))
-            TwoFactorCode.objects.create(
-                user=user,
-                code=code,
-                expires_at=timezone.now() + timedelta(minutes=10)
-            )
-            
-            # Envoyer le code par email
-            html_content = render_to_string('two_factor_email.html', {
-                'user': user,
-                'code': code,
-                'expires_in': '10 minutes'
-            })
-            
-            send_mail(
-                subject='Code de vérification',
-                message=f'Votre code de vérification est : {code}',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[user.email],
-                fail_silently=False,
-                html_message=html_content
-            )
-            
-            # Créer un token temporaire pour 2FA
-            temp_token = jwt.encode(
-                {
-                    'user_id': user.id,
-                    'exp': int((timezone.now() + timedelta(minutes=10)).timestamp())
-                },
-                settings.SECRET_KEY,
-                algorithm='HS256'
-            )
-            
+            # Créer et renvoyer le token
+            refresh = RefreshToken.for_user(user)
             return Response({
                 'status': 'success',
-                'message': 'User created successfully',
-                'requires_2fa': True,
-                'temp_token': temp_token,
-                'email': user.email
+                'message': 'Utilisateur créé avec succès',
+                'token': str(refresh.access_token),
+                'refresh_token': str(refresh),
+                'user': UserProfileSerializer(profile).data
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            print(f"Signup error: {str(e)}")
             return Response({
                 'status': 'error',
                 'message': str(e)
