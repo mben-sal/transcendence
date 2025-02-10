@@ -198,7 +198,7 @@ class FortyTwoCallbackView(APIView):
                 'avatar': user_data.get('image', {}).get('link', ''),
                 'display_name': user_data.get('displayname', user_data['login']),
                 'status': 'online',
-                'two_factor_enabled': True
+                'two_factor_enabled': False
             }
 
             profile, created_profile = UserProfile.objects.get_or_create(
@@ -208,7 +208,7 @@ class FortyTwoCallbackView(APIView):
 
             if not created_profile:
                 profile.status = 'online'
-                profile.two_factor_enabled = True
+                # profile.two_factor_enabled = True
                 profile.save()
 
             print(f"2FA enabled: {profile.two_factor_enabled}")
