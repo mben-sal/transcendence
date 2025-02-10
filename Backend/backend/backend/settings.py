@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 	'authen',
+	'game',
 	'rest_framework',
 	'drf_yasg',
 	'corsheaders',
@@ -72,7 +73,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,  # Ceci permet à Django de chercher dans le dossier templates de chaque app
         'OPTIONS': {
             'context_processors': [

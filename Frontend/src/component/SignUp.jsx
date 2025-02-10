@@ -64,56 +64,51 @@ export default function SignUp() {
 	
 		setIsLoading(true);
 		try {
-			// Envoyer les données en JSON au lieu de FormData
-			const response = await axios.post(
-				'http://localhost:8000/api/users/signup/',
-				{
-					email: formData.email,
-					password: formData.password,
-					first_name: formData.firstName,
-					last_name: formData.lastName,
-					intra_id: formData.loginName,
-					display_name: `${formData.firstName} ${formData.lastName}`
-				},
-				{
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				}
-			);
+			const response = await axios.post('http://localhost:8000/api/users/signup/', {
+				email: formData.email,
+				password: formData.password,
+				first_name: formData.firstName,
+				last_name: formData.lastName,
+				intra_id: formData.intraId,
+				display_name: formData.displayName
+			});
 	
-			if (response.data.token) {
-				// Stocker les tokens
+			if (response.data.requires_2fa) {
+				// Rediriger vers la page 2FA
+				navigate('/auth/two-factor', {
+					state: {
+						email: response.data.email,
+						tempToken: response.data.temp_token
+					}
+				});
+			} else {
+				// Connexion normale sans 2FA
 				localStorage.setItem('token', response.data.token);
 				localStorage.setItem('refresh_token', response.data.refresh_token);
-				
-				// Mettre à jour l'état d'authentification
 				setIsAuthenticated(true);
-				
-				// Rediriger vers la page d'accueil au lieu de login
 				navigate('/');
 			}
 		} catch (error) {
-			console.error('Signup error:', error.response || error);
+			console.error("Signup error:", error);
+			let errorMessage = 'An error occurred during signup';
 			
-			// Gérer les erreurs spécifiques
-			if (error.response?.data?.errors?.intra_id) {
-				setErrors(prev => ({ 
-					...prev, 
-					loginName: 'This login name is already taken'
-				}));
-			} else if (error.response?.data?.errors?.email) {
-				setErrors(prev => ({ 
-					...prev, 
-					email: 'This email is already registered'
-				}));
+			if (error.response?.data?.errors) {
+				// Gestion des erreurs de validation spécifiques
+				const validationErrors = {};
+				Object.entries(error.response.data.errors).forEach(([field, messages]) => {
+					validationErrors[field] = Array.isArray(messages) ? messages[0] : messages;
+				});
+				setErrors(validationErrors);
+			} else if (error.response?.data?.message) {
+				// Message d'erreur spécifique du serveur
+				setErrors({
+					submit: error.response.data.message
+				});
 			} else {
-				setErrors(prev => ({ 
-					...prev, 
-					submit: error.response?.data?.message || 
-							error.response?.data?.detail ||
-							'An error occurred during signup'
-				}));
+				// Erreur générique
+				setErrors({
+					submit: errorMessage
+				});
 			}
 		} finally {
 			setIsLoading(false);

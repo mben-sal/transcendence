@@ -445,28 +445,58 @@ class SignUpView(APIView):
                 last_name=validated_data['last_name']
             )
             
-            # Définir le mot de passe (ceci le hashe automatiquement)
             user.set_password(validated_data['password'])
             user.save()
 
-            # Créer le profil utilisateur
+            # Créer le profil utilisateur avec 2FA activé
             profile = UserProfile.objects.create(
                 user=user,
                 intra_id=validated_data['intra_id'],
                 display_name=validated_data['display_name'],
-                status='online'
+                status='online',
+                two_factor_enabled=True  # Activer 2FA par défaut
             )
 
-            # Générer les tokens
-            refresh = RefreshToken.for_user(user)
+            # Générer un code 2FA
+            code = ''.join(random.choices(string.digits, k=6))
+            TwoFactorCode.objects.create(
+                user=user,
+                code=code,
+                expires_at=timezone.now() + timedelta(minutes=10)
+            )
             
-            # Retourner la réponse
+            # Envoyer le code par email
+            html_content = render_to_string('two_factor_email.html', {
+                'user': user,
+                'code': code,
+                'expires_in': '10 minutes'
+            })
+            
+            send_mail(
+                subject='Code de vérification',
+                message=f'Votre code de vérification est : {code}',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+                html_message=html_content
+            )
+            
+            # Créer un token temporaire pour 2FA
+            temp_token = jwt.encode(
+                {
+                    'user_id': user.id,
+                    'exp': int((timezone.now() + timedelta(minutes=10)).timestamp())
+                },
+                settings.SECRET_KEY,
+                algorithm='HS256'
+            )
+            
             return Response({
                 'status': 'success',
                 'message': 'User created successfully',
-                'token': str(refresh.access_token),
-                'refresh_token': str(refresh),
-                'user': UserProfileSerializer(profile).data
+                'requires_2fa': True,
+                'temp_token': temp_token,
+                'email': user.email
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
@@ -612,7 +642,7 @@ class RequestProfileChangeView(APIView):
 			}
 
             # Préparer le contenu HTML de l'email
-            html_content = render_to_string('authen/profile_change_email.html', context)
+            html_content = render_to_string('profile_change_email.html', context)
             
             # Envoyer l'email
             try:
