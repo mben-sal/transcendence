@@ -60,7 +60,7 @@ const NotificationComponent = () => {
       {/* Bouton de notification */}
       <button 
         onClick={handleNotificationClick}
-        className="bg-[#CBDCEB] relative p-0 rounded-full hover:text-[#133E87] border-none focus:outline-none"
+        className="bg-[#5376aa]  relative p-0 rounded-full hover:text-[#133E87] border-none focus:outline-none"
       >
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (

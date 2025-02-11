@@ -11,14 +11,14 @@ const Navbar = ({ isOpen, setIsOpen }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
-    <nav className="w-full bg-[#CBDCEB] p-4 flex items-center justify-between sticky top-0 z-40">
+    <nav className="h-[56px] bg-[#5376aa] p-4 flex items-center justify-between sticky top-0 z-40 shadow-2xl">
       <div className="flex items-center gap-4">
         <div className="md:hidden">
           <Hamburger toggled={isOpen} toggle={setIsOpen} color="#133E87" />
         </div>
       </div>
       
-      <div className="flex-1 max-w-xl mx-8">
+      <div className="flex-1 max-w-xl mx-8 text-black">
         <div className="relative">
           <input
             type="text"
@@ -27,7 +27,7 @@ const Navbar = ({ isOpen, setIsOpen }) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <Search className="absolute left-3 top-2.5 text-gray-500" size={20} />
+          <Search className="absolute left-3 top-2.5 text-black" size={20} />
         </div>
       </div>
 

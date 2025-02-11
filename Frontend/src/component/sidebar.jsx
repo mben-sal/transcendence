@@ -6,7 +6,6 @@ import game from '../assets/src/game.svg';
 import chat from '../assets/src/chat.svg';
 import settings from '../assets/src/setting.svg';
 import logout from '../assets/src/logout.svg';
-import Player_ from '../assets/src/player_.svg';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
     const { user, logout: contextLogout } = useUser();
@@ -25,23 +24,23 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     ];
 
     const SidebarContent = () => (
-        <div className="w-full md:w-[250px] bg-[#CBDCEB] flex flex-col h-full">
-            <div className="mb-8 flex justify-center p-6 border-b border-[#608BC1]/50">
-                <img src={logoImage} alt="Pong Logo" className="w-19 h-19" />
+        <div className="w-[100px] bg-[#5376aa] flex flex-col h-full shadow-lg">
+            <div className="mb-4 flex justify-center p-4">
+                <img src={logoImage} alt="Pong Logo" className="w-10 h-10" />
             </div>
 
-            <nav className="p-4 space-y-2">
+            <nav className="flex flex-col items-center gap-6 p-2">
                 {navLinks.map((link) => (
                     <NavLink
                         key={link.to}
                         to={link.to}
                         onClick={() => setIsOpen(false)}
-                        className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg transition-colors duration-200 
+                        className={({ isActive }) => `flex items-center justify-center w-12 h-12 rounded-lg transition-colors duration-200 
                             ${isActive 
-                                ? 'bg-[#608BC1] text-white font-medium' 
-                                : 'text-[#133E87] hover:bg-[#608BC1]/10'}`}>
-                        <img src={link.icon} alt={link.label} className="w-12" />
-                        <span>{link.label}</span>
+                                ? 'bg-[#608BC1]' 
+                                : 'hover:bg-[#608BC1]/10'}`}
+                    >
+                        <img src={link.icon} alt={link.label} className="w-15 h-15" />
                     </NavLink>
                 ))}
             </nav>
@@ -55,8 +54,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         bg-slate-400 hover:bg-[#608BC1] hover:text-white
                         rounded-lg transition-colors duration-200"
                 >
-                    <img src={logout} alt="logout" className="w-12" />
-                    <span>Logout</span>
+                    <img src={logout} alt="logout" className="w-15" />
                 </button>
             </div>
         </div>
@@ -69,8 +67,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             </div>
 
             {isOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden">
-                    <div className="h-screen w-[250px]">
+                <div className="fixed inset-0  z-40 md:hidden">
+                    <div className="h-screen w-[80px]">
                         <SidebarContent />
                     </div>
                 </div>
