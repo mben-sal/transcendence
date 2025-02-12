@@ -16,3 +16,16 @@ export const AUTH_CONFIG = {
 	REDIRECT_URI: import.meta.env.VITE_42_REDIRECT_URI,
 	VITE_API_URL: import.meta.env.VITE_API_URL
 };
+// import { defineConfig } from 'vite';
+// import react from '@vitejs/plugin-react';
+// import path from 'path';
+
+// export default defineConfig({
+//   plugins: [react()],
+//   resolve: {
+//     alias: {
+//       '@': path.resolve(__dirname, './src'),
+//     },
+//   },
+//   assetsInclude: ['**/*.gif', '**/*.jpg', '**/*.png'],
+// });

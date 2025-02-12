@@ -1,5 +1,5 @@
 - notofication 
-- chercher users 
+- en ligne dans profile User 
 - router page erreur 404 faire ( bruce lee ping pong gif )
 - change 2factor pas mail vrais 
 - affiche message erreur dans cas inscription dans cas constate que meme login 
