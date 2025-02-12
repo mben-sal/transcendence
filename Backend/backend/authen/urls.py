@@ -14,7 +14,11 @@ from .views import (
     RequestPasswordChangeView,
     ConfirmPasswordChangeView,
     DeleteAccountConfirmView,
-	VerifyTwoFactorView
+    VerifyTwoFactorView,
+    SearchUsersView,
+    UserProfileDetailView,
+    UserProfileByIntraIdView,
+    UserStatusView
 )
 
 urlpatterns = [
@@ -33,5 +37,7 @@ urlpatterns = [
 	path('users/confirm-password-change/', ConfirmPasswordChangeView.as_view(), name='confirm-password-change'),
 	path('users/confirm-delete/', DeleteAccountConfirmView.as_view(), name='confirm-delete'),
 	path('users/verify-2fa/', VerifyTwoFactorView.as_view(), name='verify-2fa'),
-	
+	path('users/search/', SearchUsersView.as_view(), name='search-users'),
+	path('users/<str:intra_id>/', UserProfileByIntraIdView.as_view(), name='user-profile-by-intra'),
+	path('users/status/', UserStatusView.as_view(), name='user-status'),
 ]

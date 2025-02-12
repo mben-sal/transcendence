@@ -37,6 +37,7 @@ from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import authenticate
 from .serializers import PasswordResetRequestSerializer, PasswordResetConfirmSerializer
+from django.db.models import Q
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -68,6 +69,8 @@ class LoginView(APIView):
                     }, status=status.HTTP_401_UNAUTHORIZED)
 
             if user.check_password(password):
+                user_profile.status = 'online'
+                user_profile.save()
                 if user_profile.two_factor_enabled:
                     # Générer un code 2FA
                     code = ''.join(random.choices(string.digits, k=6))
@@ -311,6 +314,10 @@ class LogoutView(APIView):
 
     def post(self, request):
         try:
+            profile = request.user.userprofile
+            profile.status = 'offline'
+            profile.save()
+			
             refresh_token = request.data.get('refresh_token')
             token = RefreshToken(refresh_token)
             token.blacklist()
@@ -893,3 +900,68 @@ class VerifyTwoFactorView(APIView):
                 'status': 'error',
                 'message': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class SearchUsersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        query = request.query_params.get('q', '')
+        if len(query) < 2:
+            return Response([])
+
+        users = UserProfile.objects.filter(
+            Q(display_name__icontains=query) |
+            Q(intra_id__icontains=query)
+        ).distinct()[:10]
+
+        serializer = UserProfileSerializer(users, many=True, context={'request': request})
+        return Response(serializer.data)
+    
+
+class UserProfileDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            profile = UserProfile.objects.get(id=user_id)
+            serializer = UserProfileSerializer(profile)
+            return Response(serializer.data)
+        except UserProfile.DoesNotExist:
+            return Response(
+                {'error': 'Profile not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+class UserProfileByIntraIdView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, intra_id):
+        try:
+            profile = UserProfile.objects.get(intra_id=intra_id)
+            if profile.user == request.user:
+                profile.status = 'online'
+                profile.save()
+            serializer = UserProfileSerializer(profile)
+            return Response(serializer.data)
+        except UserProfile.DoesNotExist:
+            return Response(
+                {'error': 'Profile not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+class UserStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            profile = request.user.userprofile
+            status = request.data.get('status', 'online')
+            profile.status = status
+            profile.save()
+            return Response({'status': 'success'})
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+

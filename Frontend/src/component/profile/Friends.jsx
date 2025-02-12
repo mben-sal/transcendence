@@ -34,8 +34,8 @@ const Friends = () => {
 
   return (
     <div className="flex-2 p-8">
-      <div className="max-w-6xl mx-auto bg-gray-200 rounded-xl shadow-lg p-6">
-        <div className="flex justify-between items-center mb-6">
+	  <div className="bg-white rounded-lg p-6 mb-6 shadow-lg">
+	 	 <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-[#133E87]"> Friends </h1>
           <div className="flex-1 max-w-md mx-4">
             <input

@@ -1,9 +1,5 @@
-- problem de | Unauthorized: /api/users/logout/
-- teste bien le travail inscreption
-- erreur dans 
-backend   | [06/Feb/2025 10:39:39] "OPTIONS /api/users/profile/ HTTP/1.1" 200 0
-backend   | Unauthorized: /api/users/profile/
-backend   | [06/Feb/2025 10:39:39] "GET /api/users/profile/ HTTP/1.1" 401 183
-
 - notofication 
 - chercher users 
+- router page erreur 404 faire ( bruce lee ping pong gif )
+- change 2factor pas mail vrais 
+- affiche message erreur dans cas inscription dans cas constate que meme login 

@@ -29,7 +29,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 <img src={logoImage} alt="Pong Logo" className="w-10 h-10" />
             </div>
 
-            <nav className="flex flex-col items-center gap-6 p-2">
+            <nav className="flex flex-col items-center gap-8 p-2">
                 {navLinks.map((link) => (
                     <NavLink
                         key={link.to}
@@ -38,9 +38,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         className={({ isActive }) => `flex items-center justify-center w-12 h-12 rounded-lg transition-colors duration-200 
                             ${isActive 
                                 ? 'bg-[#608BC1]' 
-                                : 'hover:bg-[#608BC1]/10'}`}
+                                : 'hover:bg-[#608BC1]/80'}`}
                     >
-                        <img src={link.icon} alt={link.label} className="w-15 h-15" />
+                        <img src={link.icon} alt={link.label} className="w-25 h-25" />
                     </NavLink>
                 ))}
             </nav>

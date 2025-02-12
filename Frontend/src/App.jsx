@@ -59,6 +59,7 @@ const App = () => {
               <Route path="/chat" element={<Chat />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/profile" element={<Profile />} />
+			  <Route path="/profile/:intraId" element={<Profile />} /> 
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

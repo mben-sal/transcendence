@@ -5,6 +5,7 @@ import { Divide as Hamburger } from 'hamburger-react';
 import Player_ from '../assets/src/player_.svg';
 import { Search } from 'lucide-react';
 import Notification from './profile/Notification';
+import SearchNavbar  from '../component/profile/searchNavbar';
 
 const Navbar = ({ isOpen, setIsOpen }) => {
   const { user } = useUser();
@@ -19,16 +20,7 @@ const Navbar = ({ isOpen, setIsOpen }) => {
       </div>
       
       <div className="flex-1 max-w-xl mx-8 text-black">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Rechercher des utilisateurs..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg bg-white/80"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <Search className="absolute left-3 top-2.5 text-black" size={20} />
-        </div>
+		<SearchNavbar />
       </div>
 
       <div className="flex items-center gap-4">

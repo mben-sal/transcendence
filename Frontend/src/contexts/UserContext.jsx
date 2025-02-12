@@ -10,6 +10,23 @@ export const UserProvider = ({ children }) => {
         return !!localStorage.getItem('token');
     });
 
+    // Fonction pour mettre à jour le statut
+    const updateStatus = async (status = 'online') => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            await axios.post('http://localhost:8000/api/users/status/', 
+                { status },
+                {
+                    headers: { Authorization: `Bearer ${token}` }
+                }
+            );
+        } catch (error) {
+            console.error('Error updating status:', error);
+        }
+    };
+
     const clearUserData = () => {
         setUser(null);
         setIsAuthenticated(false);
@@ -19,6 +36,9 @@ export const UserProvider = ({ children }) => {
 
     const logout = async () => {
         try {
+            // Mettre à jour le statut à 'offline' avant la déconnexion
+            await updateStatus('offline');
+            
             const refreshToken = localStorage.getItem('refresh_token');
             await axios.post('http://localhost:8000/api/users/logout/', {
                 refresh_token: refreshToken
@@ -45,9 +65,15 @@ export const UserProvider = ({ children }) => {
             });
             
             const userData = response.data;
-    		userData.avatar = userData.avatar && userData.avatar !== '/media/default-avatar.svg' ? 
-        		(userData.avatar.startsWith('/media') ? `http://localhost:8000${userData.avatar}` : userData.avatar) :
-        		defaultAvatar;
+            userData.avatar = userData.avatar && userData.avatar !== '/media/default-avatar.svg' ? 
+                (userData.avatar.startsWith('/media') ? `http://localhost:8000${userData.avatar}` : userData.avatar) :
+                defaultAvatar;
+            
+            // Mettre à jour le statut quand on récupère le profil
+            if (userData.status !== 'online') {
+                await updateStatus('online');
+                userData.status = 'online';
+            }
             
             setUser(userData);
             setIsAuthenticated(true);
@@ -74,6 +100,47 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+    // Effet pour gérer le ping périodique du statut
+    useEffect(() => {
+        let pingInterval;
+        
+        if (isAuthenticated) {
+            // Mettre à jour le statut immédiatement à la connexion
+            updateStatus('online');
+            
+            // Configurer le ping périodique
+            pingInterval = setInterval(() => {
+                updateStatus('online');
+            }, 30000); // Ping toutes les 30 secondes
+        }
+
+        return () => {
+            if (pingInterval) {
+                clearInterval(pingInterval);
+            }
+            // Mettre à jour le statut à 'offline' quand le composant est démonté
+            if (isAuthenticated) {
+                updateStatus('offline');
+            }
+        };
+    }, [isAuthenticated]);
+
+    // Effet pour gérer la déconnexion lors de la fermeture de la fenêtre
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            if (isAuthenticated) {
+                // Synchrone pour s'assurer que c'est fait avant la fermeture
+                navigator.sendBeacon(
+                    'http://localhost:8000/api/users/status/',
+                    JSON.stringify({ status: 'offline' })
+                );
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [isAuthenticated]);
+
     useEffect(() => {
         if (isAuthenticated) {
             fetchUserProfile();
@@ -92,7 +159,8 @@ export const UserProvider = ({ children }) => {
                 isAuthenticated, 
                 setIsAuthenticated,
                 fetchUserProfile,
-                logout
+                logout,
+                updateStatus
             }}
         >
             {children}
