@@ -240,10 +240,15 @@ const Profile = () => {
   const profileInputRef = useRef(null);
   const isOwnProfile = !intraId || (user && user.intra_id === intraId);
 
+  const normalizeAvatarUrl = (avatar) => {
+    if (!avatar) return player_;
+    if (avatar.startsWith('http')) return avatar;
+    if (avatar.startsWith('./media')) return `http://localhost:8000${avatar.substring(1)}`;
+    if (avatar.startsWith('/media')) return `http://localhost:8000${avatar}`;
+    return avatar;
+  };
+
   useEffect(() => {
-    console.log('Profile component mounted with intraId:', intraId);
-    console.log('Current user:', user);
-    console.log('Is own profile:', isOwnProfile);
     
     const loadProfileData = async () => {
       if (isOwnProfile) {
@@ -263,7 +268,7 @@ const Profile = () => {
         if (response.ok) {
           const data = await response.json();
           setProfileData(data);
-          setProfileImage(data.avatar || player_);
+          setProfileImage(normalizeAvatarUrl(data.avatar));
         }
       } catch (error) {
         console.error('Error loading profile:', error);
@@ -298,7 +303,7 @@ const Profile = () => {
       }
 
       const data = await response.json();
-      const fullAvatarUrl = `http://localhost:8000${data.avatarUrl}`;
+      const fullAvatarUrl = normalizeAvatarUrl(data.avatarUrl);
       setProfileImage(fullAvatarUrl);
       await fetchUserProfile();
     } catch (error) {
