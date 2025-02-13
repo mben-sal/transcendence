@@ -224,6 +224,8 @@ import UserInfo from '../component/profile/UserInfo';
 import Achievements from '../component/profile/Achievements';
 import { useUser } from '../contexts/UserContext';
 import cover from '../assets/src/cover_1.jpg';
+import { useNavigate } from 'react-router-dom';
+
 
 const Profile = () => {
   const { intraId } = useParams(); // Get userId from URL
@@ -236,7 +238,7 @@ const Profile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  
+  const navigate = useNavigate();
   const profileInputRef = useRef(null);
   const isOwnProfile = !intraId || (user && user.intra_id === intraId);
 
@@ -248,37 +250,42 @@ const Profile = () => {
     return avatar;
   };
 
+
   useEffect(() => {
-    
-    const loadProfileData = async () => {
-      if (isOwnProfile) {
-        setProfileData(user);
-        setProfileImage(user?.avatar || player_);
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(`http://localhost:8000/api/users/${intraId}/`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setProfileData(data);
-          setProfileImage(normalizeAvatarUrl(data.avatar));
-        }
-      } catch (error) {
-        console.error('Error loading profile:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadProfileData();
-  }, [intraId, user, isOwnProfile]);
+	const loadProfileData = async () => {
+	  if (isOwnProfile) {
+		setProfileData(user);
+		setProfileImage(user?.avatar || player_);
+		setIsLoading(false);
+		return;
+	  }
+  
+	  try {
+		const response = await fetch(`http://localhost:8000/api/users/${intraId}/`, {
+		  headers: {
+			'Authorization': `Bearer ${localStorage.getItem('token')}`
+		  }
+		});
+  
+		if (response.ok) {
+		  const data = await response.json();
+		  setProfileData(data);
+		  setProfileImage(normalizeAvatarUrl(data.avatar));
+		} else {
+		  // Rediriger vers l'accueil avec un message d'erreur
+		  navigate("/", { state: { error: "L'utilisateur n'existe pas." } });
+		}
+	  } catch (error) {
+		console.error('Error loading profile:', error);
+		navigate("/", { state: { error: "Impossible de charger l'utilisateur." } });
+	  } finally {
+		setIsLoading(false);
+	  }
+	};
+  
+	loadProfileData();
+  }, [intraId, user, isOwnProfile, navigate]);
+  
 
   const handleProfileImageChange = async (event) => {
     if (!isOwnProfile) return;
