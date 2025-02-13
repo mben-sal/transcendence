@@ -27,28 +27,53 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    const clearUserData = () => {
-        setUser(null);
-        setIsAuthenticated(false);
-        localStorage.removeItem('token');
-        localStorage.removeItem('refresh_token');
-    };
-
     const logout = async () => {
         try {
-            // Mettre à jour le statut à 'offline' avant la déconnexion
-            await updateStatus('offline');
-            
+            const token = localStorage.getItem('token');
             const refreshToken = localStorage.getItem('refresh_token');
-            await axios.post('http://localhost:8000/api/users/logout/', {
-                refresh_token: refreshToken
-            });
+            
+            // Mettre le statut à offline
+            await axios.post(
+                'http://localhost:8000/api/users/status/',
+                { status: 'offline' },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            
+            // Faire le logout
+            if (refreshToken) {
+                await axios.post(
+                    'http://localhost:8000/api/users/logout/',
+                    { refresh_token: refreshToken },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+            }
         } catch (error) {
             console.error('Logout error:', error);
         } finally {
             clearUserData();
         }
     };
+
+	const clearUserData = async () => {
+		try {
+			// Mettre à jour le statut avant de supprimer le token
+			const token = localStorage.getItem('token');
+			if (token) {
+				await axios.post(
+					'http://localhost:8000/api/users/status/',
+					{ status: 'offline' },
+					{ headers: { Authorization: `Bearer ${token}` } }
+				);
+			}
+		} catch (error) {
+			console.error('Error updating status during logout:', error);
+		} finally {
+			setUser(null);
+			setIsAuthenticated(false);
+			localStorage.removeItem('token');
+			localStorage.removeItem('refresh_token');
+		}
+	};
 
     const fetchUserProfile = async () => {
         setLoading(true);
@@ -101,29 +126,26 @@ export const UserProvider = ({ children }) => {
     };
 
     // Effet pour gérer le ping périodique du statut
-    useEffect(() => {
-        let pingInterval;
-        
-        if (isAuthenticated) {
-            // Mettre à jour le statut immédiatement à la connexion
-            updateStatus('online');
-            
-            // Configurer le ping périodique
-            pingInterval = setInterval(() => {
-                updateStatus('online');
-            }, 30000); // Ping toutes les 30 secondes
-        }
-
-        return () => {
-            if (pingInterval) {
-                clearInterval(pingInterval);
-            }
-            // Mettre à jour le statut à 'offline' quand le composant est démonté
-            if (isAuthenticated) {
-                updateStatus('offline');
-            }
-        };
-    }, [isAuthenticated]);
+	useEffect(() => {
+		let pingInterval;
+		
+		if (isAuthenticated) {
+			pingInterval = setInterval(() => {
+				// Vérifier si l'utilisateur est toujours authentifié avant le ping
+				if (localStorage.getItem('token')) {
+					updateStatus('online');
+				} else {
+					clearInterval(pingInterval);
+				}
+			}, 30000);
+		}
+	
+		return () => {
+			if (pingInterval) {
+				clearInterval(pingInterval);
+			}
+		};
+	}, [isAuthenticated]);
 
     // Effet pour gérer la déconnexion lors de la fermeture de la fenêtre
     useEffect(() => {
@@ -148,6 +170,23 @@ export const UserProvider = ({ children }) => {
             setLoading(false);
         }
     }, [isAuthenticated]);
+
+	useEffect(() => {
+		const handleVisibilityChange = () => {
+			if (document.visibilityState === 'hidden' && isAuthenticated) {
+				// L'utilisateur quitte la page
+				updateStatus('offline');
+			} else if (document.visibilityState === 'visible' && isAuthenticated) {
+				// L'utilisateur revient sur la page
+				updateStatus('online');
+			}
+		};
+	
+		document.addEventListener('visibilitychange', handleVisibilityChange);
+		return () => {
+			document.removeEventListener('visibilitychange', handleVisibilityChange);
+		};
+	}, [isAuthenticated]);
 
     return (
         <UserContext.Provider 

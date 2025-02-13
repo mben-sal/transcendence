@@ -56,6 +56,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'authen.middleware.UserStatusMiddleware', 
+
 ]
 
 # Configuration des sessions
@@ -229,6 +231,5 @@ EMAIL_USE_TLS = False  # MailHog n'utilise pas TLS
 EMAIL_HOST_USER = ''  # Pas besoin d'authentification avec MailHog
 EMAIL_HOST_PASSWORD = ''  # Pas besoin de mot de passe
 DEFAULT_FROM_EMAIL = 'team1337@transcendence.com' # Email par défaut pour l'envoi
-
 
 

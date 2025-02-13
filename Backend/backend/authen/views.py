@@ -38,88 +38,96 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import authenticate
 from .serializers import PasswordResetRequestSerializer, PasswordResetConfirmSerializer
 from django.db.models import Q
+from django.db import transaction
+from rest_framework import status
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         try:
-            serializer = LoginSerializer(data=request.data)
-            if not serializer.is_valid():
-                return Response({
-                    'status': 'error',
-                    'message': 'Invalid data format',
-                    'errors': serializer.errors
-                }, status=status.HTTP_400_BAD_REQUEST)
+            with transaction.atomic():
+                serializer = LoginSerializer(data=request.data)
+                if not serializer.is_valid():
+                    return Response({
+                        'status': 'error',
+                        'message': 'Invalid data format',
+                        'errors': serializer.errors
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
-            login_name = serializer.validated_data['login_name']
-            password = serializer.validated_data['password']
-            
-            try:
-                user_profile = UserProfile.objects.get(intra_id=login_name)
-                user = user_profile.user
-            except UserProfile.DoesNotExist:
+                login_name = serializer.validated_data['login_name']
+                password = serializer.validated_data['password']
+                
                 try:
-                    user = User.objects.get(email=login_name)
-                    user_profile = user.userprofile
-                except (User.DoesNotExist, UserProfile.DoesNotExist):
+                    user_profile = UserProfile.objects.get(intra_id=login_name)
+                    user = user_profile.user
+                except UserProfile.DoesNotExist:
+                    try:
+                        user = User.objects.get(email=login_name)
+                        user_profile = user.userprofile
+                    except (User.DoesNotExist, UserProfile.DoesNotExist):
+                        return Response({
+                            'status': 'error',
+                            'message': 'Invalid credentials'
+                        }, status=status.HTTP_401_UNAUTHORIZED)
+
+                if user.check_password(password):
+                    if user_profile.two_factor_enabled:
+                        # Générer un code 2FA
+                        code = ''.join(random.choices(string.digits, k=6))
+                        TwoFactorCode.objects.create(
+                            user=user,
+                            code=code,
+                            expires_at=timezone.now() + timedelta(minutes=10)
+                        )
+                        
+                        # Envoyer le code par email
+                        html_content = render_to_string('two_factor_email.html', {
+                            'user': user,
+                            'code': code,
+                            'expires_in': '10 minutes'
+                        })
+                        
+                        send_mail(
+                            subject='Code de vérification',
+                            message=f'Votre code de vérification est : {code}',
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[user.email],
+                            fail_silently=False,
+                            html_message=html_content
+                        )
+                        
+                        # Créer un token temporaire pour la vérification 2FA
+                        temp_token = jwt.encode(
+                            {
+                                'user_id': user.id, 
+                                'exp': timezone.now() + timedelta(minutes=10)
+                            },
+                            settings.SECRET_KEY,
+                            algorithm='HS256'
+                        )
+                        
+                        return Response({
+                            'requires_2fa': True,
+                            'temp_token': temp_token
+                        })
+                    else:
+                        # Connexion sans 2FA
+                        user_profile.status = 'online'
+                        user_profile.save()
+                        
+                        refresh = RefreshToken.for_user(user)
+                        return Response({
+                            'requires_2fa': False,
+                            'token': str(refresh.access_token),
+                            'refresh_token': str(refresh),
+                            'user': UserProfileSerializer(user_profile).data
+                        })
+                else:
                     return Response({
                         'status': 'error',
                         'message': 'Invalid credentials'
                     }, status=status.HTTP_401_UNAUTHORIZED)
-
-            if user.check_password(password):
-                user_profile.status = 'online'
-                user_profile.save()
-                if user_profile.two_factor_enabled:
-                    # Générer un code 2FA
-                    code = ''.join(random.choices(string.digits, k=6))
-                    TwoFactorCode.objects.create(
-                        user=user,
-                        code=code
-                    )
-                    
-                    # Envoyer le code par email
-                    html_content = render_to_string('two_factor_email.html', {
-                        'user': user,
-                        'code': code,
-                        'expires_in': '10 minutes'
-                    })
-                    
-                    send_mail(
-                        subject='Code de vérification',
-                        message=f'Votre code de vérification est : {code}',
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[user.email],
-                        fail_silently=False,
-                        html_message=html_content
-                    )
-                    
-                    # Créer un token temporaire pour la vérification 2FA
-                    temp_token = jwt.encode(
-                        {'user_id': user.id, 'exp': timezone.now() + timedelta(minutes=10)},
-                        settings.SECRET_KEY,
-                        algorithm='HS256'
-                    )
-                    
-                    return Response({
-                        'requires_2fa': True,
-                        'temp_token': temp_token
-                    })
-                else:
-                    # Connexion sans 2FA
-                    refresh = RefreshToken.for_user(user)
-                    return Response({
-                        'requires_2fa': False,
-                        'token': str(refresh.access_token),
-                        'refresh_token': str(refresh),
-                        'user': UserProfileSerializer(user_profile).data
-                    })
-            else:
-                return Response({
-                    'status': 'error',
-                    'message': 'Invalid credentials'
-                }, status=status.HTTP_401_UNAUTHORIZED)
 
         except Exception as e:
             print(f"Login error: {str(e)}")
@@ -314,18 +322,30 @@ class LogoutView(APIView):
 
     def post(self, request):
         try:
-            profile = request.user.userprofile
-            profile.status = 'offline'
-            profile.save()
-			
-            refresh_token = request.data.get('refresh_token')
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return Response({'status': 'success'}, status=status.HTTP_200_OK)
+            with transaction.atomic():
+                # Mettre le statut à offline avant de blacklister le token
+                UserProfile.objects.filter(user=request.user).update(
+                    status='offline',
+                    updated_at=timezone.now()
+                )
+                
+                refresh_token = request.data.get('refresh_token')
+                if refresh_token:
+                    try:
+                        token = RefreshToken(refresh_token)
+                        token.blacklist()
+                    except Exception as token_error:
+                        print(f"Token blacklist error: {str(token_error)}")
+                
+                return Response({'status': 'success'})
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
+            print(f"Logout error: {str(e)}")
+            # Forcer le statut offline même en cas d'erreur
+            UserProfile.objects.filter(user=request.user).update(status='offline')
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 class UpdateAvatarView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -952,16 +972,30 @@ class UserProfileByIntraIdView(APIView):
 class UserStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def get(self, request):
         try:
             profile = request.user.userprofile
-            status = request.data.get('status', 'online')
-            profile.status = status
-            profile.save()
-            return Response({'status': 'success'})
+            return Response({'status': profile.status})
         except Exception as e:
             return Response(
-                {'error': str(e)}, 
+                {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    def post(self, request):
+        try:
+            profile = request.user.userprofile
+            new_status = request.data.get('status')
+            if new_status in ['online', 'offline', 'in_game']:
+                profile.status = new_status
+                profile.save()
+                return Response({'status': 'success'})
+            return Response(
+                {'error': 'Invalid status'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
