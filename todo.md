@@ -1,4 +1,4 @@
-- notofication 
+- test notification 
 - Ajouter des amis dans profile 
 - change 2factor pas mail vrais 
 - affiche message erreur dans cas inscription dans cas constate que meme login 

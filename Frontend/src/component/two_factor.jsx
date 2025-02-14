@@ -128,16 +128,6 @@ const TwoFactor = () => {
           </button>
 
           <div className="links">
-            <p>
-              Didn't get the code?{' '}
-              <button 
-                onClick={handleResendCode} 
-                className="resend-link"
-                disabled={isLoading}
-              >
-                Resend Code
-              </button>
-            </p>
             <Link to="/auth/login" className="back-link">
               Back to Login
             </Link>

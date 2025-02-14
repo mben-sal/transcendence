@@ -192,7 +192,7 @@ const ProfileSettings = () => {
 		  // Déconnexion après changement de mot de passe
 		  alert('Mot de passe changé avec succès. Veuillez vous reconnecter.');
 		  localStorage.removeItem('token');
-		  window.location.href = '/login';
+		  window.location.href = '/auth/login';
 		}
 	  } else {
 		// Pour les changements de profil
@@ -263,7 +263,7 @@ const handleDeleteAccount = async (password) => {
 	  localStorage.removeItem('refresh_token');
 	  
 	  // Rediriger vers la page de login
-	  window.location.href = '/login';
+	  window.location.href = '/auth/login';
 	} catch (error) {
 	  console.error('Error deleting account:', error);
 	  setError(error.response?.data?.message || 'Failed to delete account. Please try again.');
