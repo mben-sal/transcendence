@@ -7,7 +7,7 @@ from .views import (
     LogoutView,
     UpdateAvatarView,
     SignUpView,
-	PasswordResetRequestView,
+    PasswordResetRequestView,
     PasswordResetConfirmView,
     RequestProfileChangeView,
     ConfirmProfileChangeView,
@@ -18,7 +18,8 @@ from .views import (
     SearchUsersView,
     UserProfileDetailView,
     UserProfileByIntraIdView,
-    UserStatusView
+    UserStatusView,
+    NotificationViewSet
 )
 
 urlpatterns = [
@@ -40,4 +41,5 @@ urlpatterns = [
 	path('users/search/', SearchUsersView.as_view(), name='search-users'),
 	path('users/<str:intra_id>/', UserProfileByIntraIdView.as_view(), name='user-profile-by-intra'),
 	path('users/status/', UserStatusView.as_view(), name='user-status'),
+	path('notifications/', NotificationViewSet.as_view({'get': 'list'}), name='notifications'),
 ]

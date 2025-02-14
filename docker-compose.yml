@@ -1,93 +1,4 @@
-# services:
-#   db:
-#     image: postgres:13
-#     container_name: database
-#     volumes:
-#       - postgres_data:/var/lib/postgresql/data
-#     environment:
-#       - POSTGRES_USER=ft_transcendence
-#       - POSTGRES_PASSWORD=ft_transcendence
-#       - POSTGRES_DB=backend_db
-#     ports:
-#       - "5432:5432"
-#     networks:
-#       - app-network
-#     restart: always
-#     healthcheck:
-#       test: ["CMD-SHELL", "pg_isready -U ft_transcendence -d backend_db"]
-#       interval: 5s
-#       timeout: 5s
-#       retries: 5
 
-#   adminer:
-#     image: adminer
-#     container_name: adminer
-#     ports:
-#       - "8080:8080"
-#     networks:
-#       - app-network
-#     depends_on:
-#       db:
-#         condition: service_healthy
-#     restart: always
-
-#   backend:
-#     build: 
-#       context: ./Backend
-#       dockerfile: Dockerfile
-#     container_name: backend
-#     volumes:
-#       - ./Backend/backend:/app/backend
-#       - static_volume:/app/backend/static
-#       - media_volume:/app/backend/media
-#     environment:
-#       - POSTGRES_NAME=backend_db
-#       - POSTGRES_USER=ft_transcendence
-#       - POSTGRES_PASSWORD=ft_transcendence
-#       - POSTGRES_HOST=db
-#       - POSTGRES_PORT=5432
-#     command: >
-#       sh -c "
-#         mkdir -p /app/backend/static &&
-#         mkdir -p /app/backend/media &&
-#         python manage.py makemigrations &&
-#         python manage.py migrate &&
-#         python manage.py collectstatic --noinput &&
-#         python manage.py runserver 0.0.0.0:8000"
-#     ports:
-#       - "8000:8000"
-#     depends_on:
-#       db:
-#         condition: service_healthy
-#     networks:
-#       - app-network
-#     restart: always
-
-#   frontend:
-#     build:
-#       context: ./Frontend
-#       dockerfile: Dockerfile
-#     container_name: frontend
-#     ports: 
-#       - "5173:5173"
-#     networks:
-#       - app-network
-#     volumes: 
-#       - ./Frontend:/app
-#       - frontend_modules:/app/node_modules
-#     restart: always
-#     depends_on:
-#       - backend
-
-# volumes:
-#   postgres_data:
-#   frontend_modules:
-#   static_volume:
-#   media_volume:
-
-# networks:
-#   app-network:
-#     driver: bridge
 
 services:
   db:
@@ -160,7 +71,8 @@ services:
         python manage.py makemigrations &&
         python manage.py migrate &&
         python manage.py collectstatic --noinput &&
-        python manage.py runserver 0.0.0.0:8000"
+        python manage.py runserver 0.0.0.0:8000
+        daphne -p 0.0.0.0 -p 8000 backend.asgi:application"
     ports:
       - "8000:8000"
     depends_on:

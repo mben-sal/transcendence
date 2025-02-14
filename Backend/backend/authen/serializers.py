@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import UserProfile
+from .models import UserProfile, Notification
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -113,3 +113,13 @@ class TwoFactorLoginResponseSerializer(serializers.Serializer):
     token = serializers.CharField(required=False)
     refresh_token = serializers.CharField(required=False)
     user = UserProfileSerializer(required=False)
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    sender_name = serializers.CharField(source='sender.userprofile.display_name', read_only=True)
+    sender_avatar = serializers.CharField(source='sender.userprofile.avatar', read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = ['id', 'notification_type', 'content', 'is_read', 'created_at', 
+                 'sender_name', 'sender_avatar']

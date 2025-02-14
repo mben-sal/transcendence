@@ -15,13 +15,19 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libjpeg-dev \
     libpng-dev \
+	gcc \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install Pillow
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install Pillow==10.1.0
 RUN pip install python-dotenv
+RUN pip install channels==4.0.0
+RUN pip install channels-redis==4.1.0
+RUN pip install daphne
 
 # Créer les répertoires nécessaires
 
 COPY backend/ .
 
-CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "backend.asgi:application"]
+

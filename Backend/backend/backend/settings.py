@@ -45,6 +45,9 @@ INSTALLED_APPS = [
 	'drf_yasg',
 	'corsheaders',
     'rest_framework_simplejwt',
+    'channels',
+    'channels_redis',
+    
 ]
 
 MIDDLEWARE = [
@@ -222,6 +225,16 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
+ASGI_APPLICATION = 'backend.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6379)],
+        },
+    },
+}
 
 # Configuration Email avec MailHog
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

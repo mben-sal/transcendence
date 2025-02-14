@@ -79,3 +79,22 @@ class TwoFactorCode(models.Model):
 
     class Meta:
         db_table = 'two_factor_codes'
+        
+# Dans models.py, ajoutez:
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('friend_request', 'Invitation ami'),
+        ('message', 'Message'),
+        ('game_invite', 'Invitation jeu'),
+    ]
+
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications')
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    content = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']

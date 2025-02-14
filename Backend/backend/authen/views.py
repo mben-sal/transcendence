@@ -1,11 +1,14 @@
-        
+from .models import Notification
+from .serializers import NotificationSerializer
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from .models import PasswordResetToken
 from django.shortcuts import redirect
 from django.conf import settings
 from django.contrib.auth import authenticate
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 import requests
 from .models import UserProfile
@@ -999,3 +1002,25 @@ class UserStatusView(APIView):
                 {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(recipient=self.request.user)
+
+    def perform_create(self, serializer):
+        notification = serializer.save(sender=self.request.user)
+        
+        # Envoyer la notification via WebSocket
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"user_{notification.recipient.id}",
+            {
+                "type": "notification_message",
+                "message": NotificationSerializer(notification).data
+            }
+        )
