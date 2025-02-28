@@ -19,7 +19,14 @@ from .views import (
     UserProfileDetailView,
     UserProfileByIntraIdView,
     UserStatusView,
-    NotificationViewSet
+    NotificationViewSet,
+    FriendshipView,
+    FriendRequestView,
+    PendingFriendRequestsView,
+    SentFriendRequestsView,
+    FriendRequestActionView,
+    MarkNotificationAsReadView,
+    RemoveFriendView
 )
 
 urlpatterns = [
@@ -39,7 +46,16 @@ urlpatterns = [
 	path('users/confirm-delete/', DeleteAccountConfirmView.as_view(), name='confirm-delete'),
 	path('users/verify-2fa/', VerifyTwoFactorView.as_view(), name='verify-2fa'),
 	path('users/search/', SearchUsersView.as_view(), name='search-users'),
-	path('users/<str:intra_id>/', UserProfileByIntraIdView.as_view(), name='user-profile-by-intra'),
 	path('users/status/', UserStatusView.as_view(), name='user-status'),
 	path('notifications/', NotificationViewSet.as_view({'get': 'list'}), name='notifications'),
+	path('users/friends/', FriendshipView.as_view(), name='friends-list'),
+    path('users/friends/requests/', FriendRequestView.as_view(), name='friend-request'),
+    path('users/friends/requests/pending/', PendingFriendRequestsView.as_view(), name='pending-friend-requests'),
+    path('users/friends/requests/sent/', SentFriendRequestsView.as_view(), name='sent-friend-requests'),
+    path('users/friends/requests/<int:friendship_id>/', FriendRequestActionView.as_view(), name='friend-request-action'),
+	path('users/<str:intra_id>/', UserProfileByIntraIdView.as_view(), name='user-profile-by-intra'),
+	path('notifications/read/', MarkNotificationAsReadView.as_view(), name='mark-notifications-read'),
+    path('notifications/<int:notification_id>/read/', MarkNotificationAsReadView.as_view(), name='mark-single-notification-read'),
+	path('users/friends/remove/<int:friendship_id>/', RemoveFriendView.as_view(), name='remove-friend-by-friendship'),
+	path('users/friends/remove/user/<int:user_id>/', RemoveFriendView.as_view(), name='remove-friend-by-user'),
 ]

@@ -1,23 +1,276 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useUser } from '../../contexts/UserContext'; // Utilisation de useUser à la place de useAuth
 
 const UserInfo = ({ userData, isOwnProfile }) => {
+  const { user } = useUser(); // Obtenir l'utilisateur depuis le contexte
+  const token = localStorage.getItem('token'); // Récupérer le token depuis localStorage
+  
   const [displayData, setDisplayData] = useState(null);
+  const [friendStatus, setFriendStatus] = useState('none'); // 'none', 'pending', 'friends', 'received'
+  const [friendshipId, setFriendshipId] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (userData) {
       setDisplayData(userData);
+      
+      // Vérifier le statut d'amitié uniquement si ce n'est pas notre propre profil
+      if (!isOwnProfile && user) {
+        checkFriendshipStatus(userData.id);
+      }
     }
-  }, [userData]);
+  }, [userData, user]);
+
+  const checkFriendshipStatus = async (profileId) => {
+    try {
+      // Vérifier les demandes envoyées
+      const sentResponse = await axios.get('http://localhost:8000/api/users/friends/requests/sent/', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const sentRequest = sentResponse.data.find(req => req.receiver_id === profileId);
+      if (sentRequest) {
+        setFriendStatus('pending');
+        setFriendshipId(sentRequest.id);
+        return;
+      }
+      
+      // Vérifier les demandes reçues
+      const pendingResponse = await axios.get('http://localhost:8000/api/users/friends/requests/pending/', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const pendingRequest = pendingResponse.data.find(req => req.sender_id === profileId);
+      if (pendingRequest) {
+        setFriendStatus('received');
+        setFriendshipId(pendingRequest.id);
+        return;
+      }
+      
+      // Vérifier si déjà amis
+      const friendsResponse = await axios.get('http://localhost:8000/api/users/friends/', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const existingFriendship = friendsResponse.data.find(
+        f => f.sender_id === profileId || f.receiver_id === profileId
+      );
+      
+      if (existingFriendship) {
+        setFriendStatus('friends');
+        setFriendshipId(existingFriendship.id);
+      } else {
+        setFriendStatus('none');
+      }
+    } catch (err) {
+      console.error('Erreur lors de la vérification du statut d\'amitié:', err);
+    }
+  };
+  
+  const sendFriendRequest = async () => {
+	try {
+	  setLoading(true);
+	  
+	  // Assurez-vous que l'ID est un nombre
+	  const receiverId = parseInt(displayData.id, 10);
+	  console.log("ID du destinataire (après conversion):", receiverId);
+	  
+	  // Configurez correctement les headers
+	  const config = {
+		headers: { 
+		  'Authorization': `Bearer ${localStorage.getItem('token')}`,
+		  'Content-Type': 'application/json'
+		}
+	  };
+	  
+	  // Utilisez un objet payload explicite
+	  const payload = { receiver_id: receiverId };
+	  console.log("Payload envoyé:", payload);
+	  
+	  const response = await axios.post(
+		'http://localhost:8000/api/users/friends/requests/',
+		payload,
+		config
+	  );
+	  
+	  console.log("Réponse de la requête:", response.data);
+	  setFriendStatus('pending');
+	  setFriendshipId(response.data.id);
+	  setLoading(false);
+	} catch (err) {
+	  console.error("Erreur complète:", err);
+	  console.error("Détails:", err.response?.data);
+	  setLoading(false);
+	}
+  };
+  
+  const cancelFriendRequest = async () => {
+    try {
+      setLoading(true);
+      await axios.post(
+        `http://localhost:8000/api/users/friends/requests/${friendshipId}/`,
+        { action: 'cancel' },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setFriendStatus('none');
+      setFriendshipId(null);
+      setLoading(false);
+    } catch (err) {
+      console.error('Erreur lors de l\'annulation de la demande:', err);
+      setLoading(false);
+    }
+  };
+
+  const removeFriend = async () => {
+	try {
+	  setLoading(true);
+	  
+	  // Vous pouvez soit utiliser l'ID de l'amitié si vous l'avez
+	  if (friendshipId) {
+		await axios.post(
+		  `http://localhost:8000/api/users/friends/remove/${friendshipId}/`,
+		  {},
+		  { headers: { Authorization: `Bearer ${token}` } }
+		);
+	  } 
+	  // Ou utiliser l'ID de l'utilisateur
+	  else {
+		await axios.post(
+		  `http://localhost:8000/api/users/friends/remove/user/${displayData.id}/`,
+		  {},
+		  { headers: { Authorization: `Bearer ${token}` } }
+		);
+	  }
+	  
+	  // Mettre à jour l'état
+	  setFriendStatus('none');
+	  setFriendshipId(null);
+	  setLoading(false);
+	} catch (err) {
+	  console.error('Erreur lors de la suppression de l\'ami:', err);
+	  setLoading(false);
+	}
+  };
+  
+  const acceptFriendRequest = async () => {
+    try {
+      setLoading(true);
+      await axios.post(
+        `http://localhost:8000/api/users/friends/requests/${friendshipId}/`,
+        { action: 'accept' },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setFriendStatus('friends');
+      setLoading(false);
+    } catch (err) {
+      console.error('Erreur lors de l\'acceptation de la demande:', err);
+      setLoading(false);
+    }
+  };
+  
+  const rejectFriendRequest = async () => {
+    try {
+      setLoading(true);
+      await axios.post(
+        `http://localhost:8000/api/users/friends/requests/${friendshipId}/`,
+        { action: 'reject' },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setFriendStatus('none');
+      setFriendshipId(null);
+      setLoading(false);
+    } catch (err) {
+      console.error('Erreur lors du rejet de la demande:', err);
+      setLoading(false);
+    }
+  };
 
   if (!displayData) return null;
   
   return (
     <div className="bg-white rounded-lg p-6 mb-6 shadow-lg">
       <div className="flex flex-col">
-        <h1 className="text-2xl font-bold text-gray-900">
-          {displayData.display_name}
-        </h1>
-        <div className="text-sm text-gray-500">@{displayData.intra_id}</div>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {displayData.display_name}
+            </h1>
+            <div className="text-sm text-gray-500">@{displayData.intra_id}</div>
+          </div>
+          
+          {!isOwnProfile && (
+            <div>
+              {friendStatus === 'none' && (
+                <button 
+                  onClick={sendFriendRequest}
+                  disabled={loading}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm flex items-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+                  </svg>
+                  Ajouter
+                </button>
+              )}
+              
+              {friendStatus === 'pending' && (
+                <button 
+                  onClick={cancelFriendRequest}
+                  disabled={loading}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm flex items-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  Annuler
+                </button>
+              )}
+              
+              {friendStatus === 'received' && (
+                <div className="flex space-x-2">
+                  <button 
+                    onClick={acceptFriendRequest}
+                    disabled={loading}
+                    className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm"
+                  >
+                    Accepter
+                  </button>
+                  <button 
+                    onClick={rejectFriendRequest}
+                    disabled={loading}
+                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm"
+                  >
+                    Refuser
+                  </button>
+                </div>
+              )}
+              
+			{friendStatus === 'friends' && (
+  				<div className="flex items-center">
+    				<div className="flex items-center text-green-600 mr-3">
+     					<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+       						<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+      					</svg>
+      					Amis
+    				</div>
+    				<button 
+     				onClick={removeFriend}
+      				className="text-red-500 hover:text-red-700 text-sm flex items-center"
+    				>
+      				<svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+        			<path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+      				</svg>
+     				 Retirer
+    				</button>
+  				</div>
+			)}
+            </div>
+          )}
+        </div>
         
         <div className="mt-4 flex items-center">
           <span className={`inline-block w-3 h-3 rounded-full mr-2 ${

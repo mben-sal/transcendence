@@ -1,4 +1,4 @@
-from .models import Notification
+from .models import Notification, Friendship
 from .serializers import NotificationSerializer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -12,7 +12,7 @@ from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 import requests
 from .models import UserProfile
-from .serializers import UserSerializer, LoginSerializer, UserProfileSerializer , SignUpSerializer, DeleteAccountConfirmSerializer
+from .serializers import UserSerializer, LoginSerializer, UserProfileSerializer , SignUpSerializer, DeleteAccountConfirmSerializer, FriendshipSerializer, FriendRequestSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -27,12 +27,13 @@ from django.template.loader import render_to_string
 from .models import TwoFactorCode
 from django.utils import timezone
 from datetime import timedelta
-from dateutil.parser import parse
+from datetime import datetime
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework import status
+from datetime import datetime
 from rest_framework.permissions import IsAuthenticated
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
@@ -698,7 +699,7 @@ class ConfirmProfileChangeView(APIView):
             )
             
         try:
-            expires = parse(pending['expires'])
+            expires = datetime.fromisoformat(pending['expires'])
             if timezone.now() > expires:
                 del request.session['pending_changes']
                 return Response(
@@ -807,7 +808,7 @@ class ConfirmPasswordChangeView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
             
             # Vérifier l'expiration
-            expires = parse(pending['expires'])
+            expires = datetime.strptime(pending['expires'], '%Y-%m-%d %H:%M:%S.%f%z')
             if timezone.now() > expires:
                 del request.session['pending_password_change']
                 return Response({
@@ -1024,3 +1025,357 @@ class NotificationViewSet(viewsets.ModelViewSet):
                 "message": NotificationSerializer(notification).data
             }
         )
+
+# Ajoutez ces vues à votre views.py
+
+class FriendRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        try:
+            print("Données reçues pour la demande d'ami:", request.data)
+            serializer = FriendRequestSerializer(data=request.data)
+            if not serializer.is_valid():
+                print("Erreurs de validation:", serializer.errors)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                
+            receiver_id = serializer.validated_data['receiver_id']
+            
+            # Vérifier si l'utilisateur essaie de s'ajouter lui-même
+            if receiver_id == request.user.id:
+                return Response(
+                    {'error': 'Vous ne pouvez pas vous ajouter vous-même comme ami'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+            # Vérifier si le destinataire existe
+            try:
+                receiver = User.objects.get(id=receiver_id)
+            except User.DoesNotExist:
+                return Response(
+                    {'error': 'Utilisateur non trouvé'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+                
+            # Vérifier si une demande existe déjà
+            existing_request = Friendship.objects.filter(
+                (Q(sender=request.user) & Q(receiver=receiver)) | 
+                (Q(sender=receiver) & Q(receiver=request.user))
+            ).first()
+            
+            if existing_request:
+                if existing_request.status == 'accepted':
+                    return Response(
+                        {'error': 'Vous êtes déjà amis avec cet utilisateur'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                elif existing_request.status == 'pending':
+                    if existing_request.sender == request.user:
+                        return Response(
+                            {'error': 'Vous avez déjà envoyé une invitation à cet utilisateur'},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                    else:
+                        # L'autre utilisateur nous a déjà envoyé une invitation, on l'accepte automatiquement
+                        existing_request.status = 'accepted'
+                        existing_request.updated_at = timezone.now()
+                        existing_request.save()
+                        
+                        return Response({
+                            'message': 'Invitation acceptée',
+                            'friendship': FriendshipSerializer(existing_request).data
+                        })
+            
+            # Créer une nouvelle demande d'ami
+            friendship = Friendship.objects.create(
+                sender=request.user,
+                receiver=receiver,
+                status='pending'
+            )
+            
+            # Créer une notification pour le destinataire
+            notification = Notification.objects.create(
+                recipient=receiver,
+                sender=request.user,
+                notification_type='friend_request',
+                content=f"{request.user.userprofile.display_name} vous a envoyé une invitation d'ami"
+            )
+            
+            # Envoyer la notification via WebSocket
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f"user_{receiver.id}",
+                {
+                    "type": "notification_message",
+                    "message": NotificationSerializer(notification).data
+                }
+            )
+            
+            return Response(
+                FriendshipSerializer(friendship).data,
+                status=status.HTTP_201_CREATED
+            )
+            
+        except Exception as e:
+            print(f"Error in friend request: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            
+class FriendshipView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        # Récupérer toutes les amitiés (acceptées) de l'utilisateur
+        friendships = Friendship.objects.filter(
+            (Q(sender=request.user) | Q(receiver=request.user)) &
+            Q(status='accepted')
+        )
+        
+        serializer = FriendshipSerializer(friendships, many=True)
+        return Response(serializer.data)
+        
+class FriendRequestActionView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, friendship_id):
+        try:
+            action = request.data.get('action')
+            if action not in ['accept', 'reject', 'cancel']:
+                return Response(
+                    {'error': 'Action invalide. Les actions possibles sont: accept, reject, cancel'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+            try:
+                friendship = Friendship.objects.get(id=friendship_id)
+            except Friendship.DoesNotExist:
+                return Response(
+                    {'error': 'Invitation non trouvée'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+                
+            # Vérifier les permissions
+            if action == 'accept' or action == 'reject':
+                # Seul le destinataire peut accepter ou rejeter
+                if friendship.receiver != request.user:
+                    return Response(
+                        {'error': 'Vous n\'êtes pas autorisé à effectuer cette action'},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+                    
+                if friendship.status != 'pending':
+                    return Response(
+                        {'error': 'Cette invitation n\'est plus en attente'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                    
+                friendship.status = 'accepted' if action == 'accept' else 'rejected'
+                friendship.save()
+                
+                if action == 'accept':
+                    # Créer une notification pour l'expéditeur
+                    notification = Notification.objects.create(
+                        recipient=friendship.sender,
+                        sender=request.user,
+                        notification_type='friend_accepted',
+                        content=f"{request.user.userprofile.display_name} a accepté votre invitation d'ami"
+                    )
+                    
+                    # Envoyer la notification via WebSocket
+                    channel_layer = get_channel_layer()
+                    async_to_sync(channel_layer.group_send)(
+                        f"user_{friendship.sender.id}",
+                        {
+                            "type": "notification_message",
+                            "message": NotificationSerializer(notification).data
+                        }
+                    )
+                
+            elif action == 'cancel':
+                # Seul l'expéditeur peut annuler
+                if friendship.sender != request.user:
+                    return Response(
+                        {'error': 'Vous n\'êtes pas autorisé à effectuer cette action'},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+                    
+                if friendship.status != 'pending':
+                    return Response(
+                        {'error': 'Cette invitation n\'est plus en attente'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                    
+                friendship.delete()
+                return Response({'message': 'Invitation annulée'})
+                
+            return Response(FriendshipSerializer(friendship).data)
+            
+        except Exception as e:
+            print(f"Error in friendship action: {str(e)}")
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            
+class PendingFriendRequestsView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        # Récupérer toutes les demandes d'amitié en attente reçues par l'utilisateur
+        pending_requests = Friendship.objects.filter(
+            receiver=request.user,
+            status='pending'
+        )
+        
+        serializer = FriendshipSerializer(pending_requests, many=True)
+        return Response(serializer.data)
+        
+class SentFriendRequestsView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        # Récupérer toutes les demandes d'amitié envoyées par l'utilisateur
+        sent_requests = Friendship.objects.filter(
+            sender=request.user,
+            status='pending'
+        )
+        
+        serializer = FriendshipSerializer(sent_requests, many=True)
+        return Response(serializer.data)
+    
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from .models import Notification
+from .serializers import NotificationSerializer
+from django.db.models import Q
+
+class MarkNotificationAsReadView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, notification_id=None):
+        """
+        Mark a single notification or multiple notifications as read
+        
+        Request body can include:
+        - Single notification ID
+        - List of notification IDs
+        - Optional: mark_all (boolean to mark all notifications as read)
+        """
+        try:
+            # Check if marking a single notification
+            if notification_id:
+                try:
+                    notification = Notification.objects.get(
+                        id=notification_id, 
+                        recipient=request.user
+                    )
+                    notification.is_read = True
+                    notification.save()
+                    return Response({
+                        'status': 'success',
+                        'message': 'Notification marked as read',
+                        'notification': NotificationSerializer(notification).data
+                    })
+                except Notification.DoesNotExist:
+                    return Response({
+                        'status': 'error',
+                        'message': 'Notification not found or not authorized'
+                    }, status=status.HTTP_404_NOT_FOUND)
+            
+            # Check for bulk marking or mark all
+            mark_all = request.data.get('mark_all', False)
+            notification_ids = request.data.get('notification_ids', [])
+            
+            # Mark all unread notifications
+            if mark_all:
+                unread_notifications = Notification.objects.filter(
+                    recipient=request.user, 
+                    is_read=False
+                )
+                count = unread_notifications.count()
+                unread_notifications.update(is_read=True)
+                
+                return Response({
+                    'status': 'success',
+                    'message': f'Marked {count} notifications as read',
+                    'count': count
+                })
+            
+            # Mark specific notifications
+            if notification_ids:
+                # Validate and mark only notifications belonging to the user
+                notifications = Notification.objects.filter(
+                    Q(id__in=notification_ids) & 
+                    Q(recipient=request.user) & 
+                    Q(is_read=False)
+                )
+                
+                count = notifications.count()
+                notifications.update(is_read=True)
+                
+                return Response({
+                    'status': 'success',
+                    'message': f'Marked {count} notifications as read',
+                    'count': count,
+                    'marked_ids': list(notifications.values_list('id', flat=True))
+                })
+            
+            # If no specific action specified
+            return Response({
+                'status': 'error',
+                'message': 'No action specified. Provide notification_id, notification_ids, or mark_all'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            print(f"Error marking notifications as read: {str(e)}")
+            return Response({
+                'status': 'error',
+                'message': 'An unexpected error occurred'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class RemoveFriendView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, friendship_id=None, user_id=None):
+        try:
+            # Si un friendship_id est fourni
+            if friendship_id:
+                try:
+                    friendship = Friendship.objects.get(
+                        Q(sender=request.user) | Q(receiver=request.user),
+                        id=friendship_id,
+                        status='accepted'
+                    )
+                    friendship.delete()
+                    return Response({'message': 'Ami retiré avec succès'})
+                except Friendship.DoesNotExist:
+                    return Response({'error': 'Relation d\'amitié non trouvée'}, status=404)
+            
+            # Si un user_id est fourni à la place
+            elif user_id:
+                friendship = Friendship.objects.filter(
+                    status='accepted'
+                ).filter(
+                    (Q(sender=request.user) & Q(receiver_id=user_id)) | 
+                    (Q(receiver=request.user) & Q(sender_id=user_id))
+                ).first()
+                
+                if friendship:
+                    friendship.delete()
+                    return Response({'message': 'Ami retiré avec succès'})
+                else:
+                    return Response({'error': 'Relation d\'amitié non trouvée'}, status=404)
+            else:
+                return Response({'error': 'ID d\'amitié ou d\'utilisateur requis'}, status=400)
+                
+        except Exception as e:
+            print(f"Error removing friend: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return Response({'error': str(e)}, status=500)

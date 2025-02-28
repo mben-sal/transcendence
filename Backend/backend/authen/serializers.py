@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import UserProfile, Notification
+from .models import UserProfile, Notification, Friendship
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -118,8 +118,33 @@ class TwoFactorLoginResponseSerializer(serializers.Serializer):
 class NotificationSerializer(serializers.ModelSerializer):
     sender_name = serializers.CharField(source='sender.userprofile.display_name', read_only=True)
     sender_avatar = serializers.CharField(source='sender.userprofile.avatar', read_only=True)
+    sender_id = serializers.IntegerField(source='sender.id', read_only=True),
+    sender_intra_id = serializers.CharField(source='sender.userprofile.intra_id', read_only=True)
 
     class Meta:
         model = Notification
         fields = ['id', 'notification_type', 'content', 'is_read', 'created_at', 
-                 'sender_name', 'sender_avatar']
+                 'sender_name', 'sender_avatar', 'sender_id', 'sender_intra_id']
+        
+# Ajoutez ceci à votre serializers.py
+
+class FriendshipSerializer(serializers.ModelSerializer):
+    sender_name = serializers.CharField(source='sender.userprofile.display_name', read_only=True)
+    sender_avatar = serializers.CharField(source='sender.userprofile.avatar', read_only=True)
+    sender_intra_id = serializers.CharField(source='sender.userprofile.intra_id', read_only=True)
+    sender_id = serializers.IntegerField(source='sender.id', read_only=True),
+    
+    
+    receiver_name = serializers.CharField(source='receiver.userprofile.display_name', read_only=True)
+    receiver_avatar = serializers.CharField(source='receiver.userprofile.avatar', read_only=True)
+    receiver_intra_id = serializers.CharField(source='receiver.userprofile.intra_id', read_only=True)
+    receiver_id = serializers.IntegerField(source='receiver.id', read_only=True)
+    
+    class Meta:
+        model = Friendship
+        fields = ['id', 'sender_id', 'sender_name', 'sender_avatar', 'sender_intra_id',
+                 'receiver_id', 'receiver_name', 'receiver_avatar', 'receiver_intra_id',
+                 'status', 'created_at', 'updated_at']
+        
+class FriendRequestSerializer(serializers.Serializer):
+    receiver_id = serializers.IntegerField(required=True)

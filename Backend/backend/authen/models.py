@@ -98,3 +98,25 @@ class Notification(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        
+
+# Ajoutez ceci à votre models.py
+
+class Friendship(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'En attente'),
+        ('accepted', 'Accepté'),
+        ('rejected', 'Rejeté'),
+    ]
+    
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_friendships')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_friendships')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ('sender', 'receiver')
+        
+    def __str__(self):
+        return f"{self.sender.username} -> {self.receiver.username} ({self.status})"
