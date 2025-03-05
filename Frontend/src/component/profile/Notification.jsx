@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell } from 'lucide-react';
+import { Bell, Check } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -59,6 +59,24 @@ const NotificationComponent = () => {
       );
     } catch (error) {
       console.error("Erreur lors du marquage de la notification comme lue:", error);
+    }
+  };
+
+  // Fonction pour marquer toutes les notifications comme lues
+  const markAllAsRead = async () => {
+    try {
+      await axios.post(
+        'http://localhost:8000/api/notifications/mark-all-read/',
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Mettre à jour toutes les notifications localement
+      setNotifications(
+        notifications.map(n => ({...n, is_read: true}))
+      );
+    } catch (error) {
+      console.error("Erreur lors du marquage de toutes les notifications comme lues:", error);
     }
   };
 
@@ -138,7 +156,18 @@ const NotificationComponent = () => {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Notifications</DialogTitle>
+            <div className="flex justify-between items-center">
+              <DialogTitle>Notifications</DialogTitle>
+              {unreadCount > 0 && (
+                <button 
+                  onClick={markAllAsRead}
+                  className="flex items-center text-sm text-blue-600 hover:text-blue-800"
+                >
+                  <Check className="w-4 h-4 mr-1" />
+                  Tout marquer comme lu
+                </button>
+              )}
+            </div>
           </DialogHeader>
           
           <div className="space-y-4 max-h-96 overflow-y-auto">
@@ -155,10 +184,23 @@ const NotificationComponent = () => {
                   key={notification.id}
                   className={`p-4 rounded-lg border transition-all hover:bg-gray-100 ${!notification.is_read ? 'bg-blue-50' : ''}`}
                 >
-                  {getNotificationContent(notification)}
-                  <span className="text-xs text-gray-400 mt-2 block">
-                    {new Date(notification.created_at).toLocaleString()}
-                  </span>
+                  <div className="flex justify-between">
+                    <div className="flex-grow">
+                      {getNotificationContent(notification)}
+                      <span className="text-xs text-gray-400 mt-2 block">
+                        {new Date(notification.created_at).toLocaleString()}
+                      </span>
+                    </div>
+                    {!notification.is_read && (
+                      <button 
+                        onClick={() => markAsRead(notification.id)}
+                        className="ml-2 p-1.5 text-blue-600 hover:bg-blue-100 rounded-full"
+                        title="Marquer comme lu"
+                      >
+                        <Check className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))
             )}

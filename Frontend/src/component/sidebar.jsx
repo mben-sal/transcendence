@@ -45,7 +45,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 ))}
             </nav>
 
-            <div className="mt-auto p-4 border-t border-[#608BC1]/50">
+            <div className="mt-auto p-2 border-t border-[#608BC1]/50">
                 <div className='flex items-center gap-2'>
                 </div>
                 <button

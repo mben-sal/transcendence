@@ -18,6 +18,15 @@ const Friends = ({ userId }) => {
     fetchFriends();
   }, [userId]);
 
+  // Fonction pour normaliser les URL d'avatar
+  const normalizeAvatarUrl = (avatar) => {
+    if (!avatar) return player_;
+    if (avatar.startsWith('http')) return avatar;
+    if (avatar.startsWith('./media')) return `http://localhost:8000${avatar.substring(1)}`;
+    if (avatar.startsWith('/media')) return `http://localhost:8000${avatar}`;
+    return avatar;
+  };
+
   const fetchFriends = async () => {
     try {
       setLoading(true);
@@ -36,14 +45,16 @@ const Friends = ({ userId }) => {
           ? {
               id: friendship.receiver_id,
               name: friendship.receiver_name,
-              image: friendship.receiver_avatar,
-              intraId: friendship.receiver_intra_id
+              image: normalizeAvatarUrl(friendship.receiver_avatar),
+              intraId: friendship.receiver_intra_id,
+              isOnline: Math.random() > 0.5 // Simulation du statut en ligne
             }
           : {
               id: friendship.sender_id,
               name: friendship.sender_name,
-              image: friendship.sender_avatar,
-              intraId: friendship.sender_intra_id
+              image: normalizeAvatarUrl(friendship.sender_avatar),
+              intraId: friendship.sender_intra_id,
+              isOnline: Math.random() > 0.5 // Simulation du statut en ligne
             };
       });
       
@@ -56,8 +67,8 @@ const Friends = ({ userId }) => {
     }
   };
 
-  const handleFriendClick = (friendId) => {
-    navigate(`/profile/${friendId}`);
+  const handleFriendClick = (friendIntraId) => {
+    navigate(`/profile/${friendIntraId}`);
   };
 
   const filteredFriends = friends.filter(friend =>
@@ -72,13 +83,18 @@ const Friends = ({ userId }) => {
           {userId ? "Amis" : "Mes Amis"}
         </h1>
         <div className="flex-1 max-w-md mx-4">
-          <input
-            type="text"
-            placeholder="Rechercher un ami..."
-            className="w-full px-4 py-2 rounded-lg bg-slate-300 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-[#133E87]"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Rechercher un ami..."
+              className="w-full px-4 py-2 rounded-lg bg-slate-300 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-[#133E87]"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <svg className="w-5 h-5 absolute right-3 top-2.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
         </div>
       </div>
 
@@ -104,33 +120,37 @@ const Friends = ({ userId }) => {
               </p>
             ) : (
               filteredFriends.map((friend) => (
-			  <button
-                key={friend.id}
-                onClick={() => handleFriendClick(friend.id)}
-                className="bg-white flex w-full gap-2 items-center p-3 rounded-xl hover:bg-gray-100 transition-all duration-200 border border-gray-100"
-              >
-                <div className="relative flex-shrink-0">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16">
-                    <img
-                      src={friend.image || player_}
-                      alt={friend.name}
-                      className="w-full h-full object-cover rounded-full"
+                <button
+                  key={friend.id}
+                  onClick={() => handleFriendClick(friend.intraId)}
+                  className="bg-white flex w-full gap-2 items-center p-3 rounded-xl hover:bg-gray-100 transition-all duration-200 border border-gray-100"
+                >
+                  <div className="relative flex-shrink-0">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16">
+                      <img
+                        src={friend.image || player_}
+                        alt={friend.name}
+                        className="w-full h-full object-cover rounded-full"
+                        onError={(e) => {
+                          console.log("Image error, using default:", friend.image);
+                          e.target.onerror = null;
+                          e.target.src = player_;
+                        }}
+                      />
+                    </div>
+                    <div 
+                      className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-white 
+                      ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
                     />
                   </div>
-                  <div 
-                    className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-white 
-                    ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
-                  />
-                </div>
-                <div className="flex flex-col items-start justify-start min-w-0">
-                  <span className="font-medium text-gray-900 truncate w-full">{friend.name}</span>
-                  <span className="text-sm text-start text-gray-500 truncate w-full">
-                    @{friend.intraId}
-                  </span>
-                </div>
-              </button>
-			  
-            ))
+                  <div className="flex flex-col items-start justify-start min-w-0">
+                    <span className="font-medium text-gray-900 truncate w-full">{friend.name}</span>
+                    <span className="text-sm text-start text-gray-500 truncate w-full">
+                      @{friend.intraId}
+                    </span>
+                  </div>
+                </button>
+              ))
             )}
           </div>
         </div>
