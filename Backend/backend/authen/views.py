@@ -1101,16 +1101,21 @@ class FriendRequestView(APIView):
                 content=f"{request.user.userprofile.display_name} vous a envoyé une invitation d'ami"
             )
             
-            # Envoyer la notification via WebSocket
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                f"user_{receiver.id}",
-                {
-                    "type": "notification_message",
-                    "message": NotificationSerializer(notification).data
-                }
-            )
+            # Essayer d'envoyer la notification via WebSocket, mais gérer les erreurs
+            try:
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f"user_{receiver.id}",
+                    {
+                        "type": "notification_message",
+                        "message": NotificationSerializer(notification).data
+                    }
+                )
+            except Exception as ws_error:
+                # Si Redis n'est pas configuré, on ignore simplement l'erreur
+                print(f"WebSocket notification error (ignored): {str(ws_error)}")
             
+            # Renvoyer une réponse réussie même si WebSocket échoue
             return Response(
                 FriendshipSerializer(friendship).data,
                 status=status.HTTP_201_CREATED

@@ -171,22 +171,6 @@ const Profile = () => {
                     >
                       🎮 Invite to Game 
                     </button>
-                    <button 
-                      className="bg-[#CBDCEB] flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
-                      onClick={() => setIsFollowing(!isFollowing)}
-                    >
-                      {isFollowing ? (
-                        <>
-                          <UserMinus className="w-4 h-4 mr-2" />
-                          Unfollow
-                        </>
-                      ) : (
-                        <>
-                          <UserPlus className="w-4 h-4 mr-2" />
-                          Follow
-                        </>
-                      )}
-                    </button>
                     <button className="bg-[#CBDCEB] flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100">
                       <MessageCircle className="w-4 h-4 mr-2" />
                       Send Message
