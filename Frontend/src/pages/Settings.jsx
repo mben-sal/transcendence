@@ -246,29 +246,29 @@ const ProfileSettings = () => {
     }
   };
 
-const handleDeleteAccount = async (password) => {
-	try {
-	  const token = localStorage.getItem('token');
+// const handleDeleteAccount = async (password) => {
+// 	try {
+// 	  const token = localStorage.getItem('token');
 	  
-	  // Appeler l'endpoint de confirmation de suppression
-	  await axios.post('http://localhost:8000/api/users/confirm-delete/', 
-		{ password: password },
-		{
-		  headers: { Authorization: `Bearer ${token}` }
-		}
-	  );
+// 	  // Appeler l'endpoint de confirmation de suppression
+// 	  await axios.post('http://localhost:8000/api/users/confirm-delete/', 
+// 		{ password: password },
+// 		{
+// 		  headers: { Authorization: `Bearer ${token}` }
+// 		}
+// 	  );
 	  
-	  // Si la suppression est réussie, déconnecter l'utilisateur
-	  localStorage.removeItem('token');
-	  localStorage.removeItem('refresh_token');
+// 	  // Si la suppression est réussie, déconnecter l'utilisateur
+// 	  localStorage.removeItem('token');
+// 	  localStorage.removeItem('refresh_token');
 	  
-	  // Rediriger vers la page de login
-	  window.location.href = '/auth/login';
-	} catch (error) {
-	  console.error('Error deleting account:', error);
-	  setError(error.response?.data?.message || 'Failed to delete account. Please try again.');
-	}
-  };
+// 	  // Rediriger vers la page de login
+// 	  window.location.href = '/auth/login';
+// 	} catch (error) {
+// 	  console.error('Error deleting account:', error);
+// 	  setError(error.response?.data?.message || 'Failed to delete account. Please try again.');
+// 	}
+//   };
 
   if (!user) return <div>Loading...</div>;
 
@@ -427,7 +427,7 @@ const handleDeleteAccount = async (password) => {
           </div>
 		<ActionButtons 
   			onSave={handleSave}
-  			onDelete={handleDeleteAccount}
+  			// onDelete={handleDeleteAccount}
   			loading={loading}
 		/>
         </div>

@@ -10,7 +10,7 @@ const ActionButtons = ({ onSave, onDelete, loading }) => {
   };
 
   return (
-    <>
+    // <>
       <div className="mt-8 space-y-4">
         <button
           onClick={onSave}
@@ -20,20 +20,20 @@ const ActionButtons = ({ onSave, onDelete, loading }) => {
           {loading ? 'Saving...' : 'Save Changes'}
         </button>
         
-        <button 
+        {/* <button 
           onClick={() => setShowDeleteModal(true)}
           className="w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
         >
           Delete Account
-        </button>
+        </button> */}
       </div>
 
-      <DeleteAccountModal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={handleDeleteConfirm}
-      />
-    </>
+    //   <DeleteAccountModal
+    //     isOpen={showDeleteModal}
+    //     onClose={() => setShowDeleteModal(false)}
+    //     onConfirm={handleDeleteConfirm}
+    //   />
+    // </>
   );
 };
 

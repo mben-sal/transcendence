@@ -175,13 +175,13 @@ const Profile = () => {
                       <MessageCircle className="w-4 h-4 mr-2" />
                       Send Message
                     </button>
-                    <button 
+                    {/* <button 
                       className="bg-[#CBDCEB] flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
                       onClick={() => setIsBlocked(!isBlocked)}
                     >
                       <Lock className="w-4 h-4 mr-2" />
                       {isBlocked ? 'Unblock' : 'Block'}
-                    </button>
+                    </button> */}
                   </div>
                 )}
               </div>
