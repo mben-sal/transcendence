@@ -150,7 +150,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 STATIC_URL = 'static/'
 
-FRONTEND_URL = 'http://localhost:5173'  # URL de votre frontend Vite
+FRONTEND_URL = 'https://localhost:8443'  # URL de votre frontend Vite
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -170,13 +170,15 @@ FT_TOKEN_URL = f'{FT_API_URL}/oauth/token'
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Votre frontend Vite
+    "http://localhost:5173",  # Votre frontend Vite en développement direct
+    "https://localhost:8443",  # Votre frontend Vite
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:5173',  # Votre frontend
+    'http://localhost:5173',
+    'https://localhost:8443',  # Votre frontend Vite
 ]
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -245,4 +247,30 @@ EMAIL_HOST_USER = ''  # Pas besoin d'authentification avec MailHog
 EMAIL_HOST_PASSWORD = ''  # Pas besoin de mot de passe
 DEFAULT_FROM_EMAIL = 'team1337@transcendence.com' # Email par défaut pour l'envoi
 
+
+# Paramètres de sécurité pour HTTPS
+if os.environ.get('USE_HTTPS', 'False') == 'True':
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 an
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+# Mise à jour des hôtes autorisés
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
+# Configuration des WebSockets avec SSL
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6379)],
+        },
+    },
+}
+
+# URLs pour les WebSockets
+ASGI_APPLICATION = 'backend.asgi.application'
 

@@ -63,5 +63,6 @@ const handleSubmit = async (e) => {
 
 //------------
 
-ajouter swager 
-focus pour chat 
+focus pour chat //
+
+j ai un problem une fois je change https a http et aussi ws a wss il connecte normal par https mais il fois je peux logi par 42 ou inscri dans page il me donne dans le cas de 42 il navige a page page erreur pas a dashbord home dans inscription il me donne erreur inscription dans tous les cas il donne se message (ajouter message networking et console + partage aussi app.js et back-end + OauthCallback )
