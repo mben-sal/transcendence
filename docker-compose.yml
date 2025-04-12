@@ -1,15 +1,15 @@
-
+version: '3.8'
 
 services:
   db:
     image: postgres:13
     container_name: database
+    environment:
+      POSTGRES_USER: ft_transcendence
+      POSTGRES_PASSWORD: ft_transcendence
+      POSTGRES_DB: backend_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=ft_transcendence
-      - POSTGRES_PASSWORD=ft_transcendence
-      - POSTGRES_DB=backend_db
     ports:
       - "5432:5432"
     networks:
@@ -20,6 +20,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 30s
+
   redis:
     image: redis:latest
     ports:
@@ -31,16 +33,18 @@ services:
       - app-network
 
   adminer:
-    image: adminer
+    image: adminer:4.8.1-standalone
     container_name: adminer
     ports:
-      - "8080:8080"
+      - "8082:8080"
     networks:
       - app-network
     depends_on:
       db:
         condition: service_healthy
     restart: always
+    environment:
+      ADMINER_DEFAULT_SERVER: db
 
   mailhog:
     image: mailhog/mailhog:latest
@@ -52,27 +56,31 @@ services:
       - app-network
     restart: always
 
+  swagger:
+    image: swaggerapi/swagger-ui:latest
+    container_name: swagger
+    ports:
+      - "8081:8080"
+    environment:
+      - SWAGGER_JSON=/app/swagger.json
+    volumes:
+      - ./Backend/swagger.json:/app/swagger.json
+    networks:
+      - app-network
+    restart: always
+
   backend:
     build: 
       context: ./Backend
       dockerfile: Dockerfile
     container_name: backend
+    environment:
+      - DATABASE_URL=postgres://ft_transcendence:yourpassword@db:5432/backend_db
+      - REDIS_URL=redis://redis:6379/0
     volumes:
       - ./Backend/backend:/app/backend
       - static_volume:/app/backend/static
       - media_volume:/app/backend/media
-    environment:
-      - POSTGRES_NAME=backend_db
-      - POSTGRES_USER=ft_transcendence
-      - POSTGRES_PASSWORD=ft_transcendence
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
-      - EMAIL_HOST=mailhog
-      - EMAIL_PORT=1025
-      - EMAIL_USE_TLS=0
-      - EMAIL_HOST_USER=
-      - EMAIL_HOST_PASSWORD=
-      - DEFAULT_FROM_EMAIL=team1337@transcendence.com
     command: >
       sh -c "
         mkdir -p /app/backend/static &&
@@ -80,13 +88,14 @@ services:
         python manage.py makemigrations &&
         python manage.py migrate &&
         python manage.py collectstatic --noinput &&
-        python manage.py runserver 0.0.0.0:8000
-        daphne -p 0.0.0.0 -p 8000 backend.asgi:application"
+        daphne -b 0.0.0.0 -p 8000 backend.asgi:application"
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
       mailhog:
         condition: service_started
     networks:
