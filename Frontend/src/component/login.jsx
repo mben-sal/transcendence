@@ -7,6 +7,8 @@ import logoimage from '../assets/src/Right.svg';
 import { AUTH_CONFIG } from '../config';
 import signup from '../assets/src/signup.png';
 import { useUser } from '../contexts/UserContext';
+import api from '../api/axios';
+
 
 export default function Login() {
     const navigate = useNavigate();
@@ -51,7 +53,7 @@ const handleSubmit = async (e) => {
     
     setIsLoading(true);
     try {
-        const response = await axios.post('http://localhost:8000/api/users/login/', {
+        const response = await api.post('/users/login/', {
             login_name: formData.loginName, 
             password: formData.password
         });
@@ -79,6 +81,7 @@ const handleSubmit = async (e) => {
         setIsLoading(false);
     }
 };
+	// Function to handle 42 login
     const handle42Login = (type = 'signin') => {
         if (!AUTH_CONFIG.CLIENT_ID || !AUTH_CONFIG.REDIRECT_URI) {
             setErrors({ submit: 'OAuth configuration is missing.' });
@@ -98,7 +101,6 @@ const handleSubmit = async (e) => {
         window.location.href = authUrl;
     };
 
-    // Votre JSX reste exactement le même
     return (
         <div className="page">
             <div className='login-wrapper'>

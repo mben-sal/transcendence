@@ -163,7 +163,7 @@ const handleClick = () => {
 1. Axios Requête GET :Pour récupérer des données d'une API :
 
 ```
-axios.get('https://api.example.com/data')
+api.get('https://api.example.com/data')
   .then(response => {
     console.log('Données reçues:', response.data);
   })
@@ -177,7 +177,7 @@ axios.get('https://api.example.com/data')
   ```
   const newData = { name: 'John', age: 30 };
 
-axios.post('https://api.example.com/users', newData)
+api.post('https://api.example.com/users', newData)
   .then(response => console.log('Données enregistrées:', response.data))
   .catch(error => console.error(error));
 ```
@@ -187,7 +187,7 @@ axios.post('https://api.example.com/users', newData)
 ```
 const updatedData = { name: 'John Doe', age: 31 };
 
-axios.put('https://api.example.com/users/1', updatedData)
+api.put('https://api.example.com/users/1', updatedData)
   .then(response => console.log('Mise à jour réussie:', response.data))
   .catch(error => console.error(error));
 ```
@@ -195,7 +195,7 @@ axios.put('https://api.example.com/users/1', updatedData)
 4. Axios Requête DELETE : Pour supprimer des données sur le serveur 
 
 ```
-axios.delete('https://api.example.com/users/1')
+api.delete('https://api.example.com/users/1')
   .then(response => console.log('Utilisateur supprimé'))
   .catch(error => console.error(error));
 ```
@@ -205,7 +205,7 @@ axios.delete('https://api.example.com/users/1')
 ```
 const fetchData = async () => {
   try {
-    const response = await axios.get('https://api.example.com/data');
+    const response = await api.get('https://api.example.com/data');
     console.log('Données:', response.data);
   } catch (error) {
     console.error('Erreur:', error);

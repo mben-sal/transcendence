@@ -49,7 +49,7 @@ const Game = () => {
         userId: localStorage.getItem('userId')
       };
 
-      const response = await axios.post('http://localhost:3001/api/games/create', gameData);
+      const response = await api.post('/games/create', gameData);
       const { gameId } = response.data;
       
       navigate(`${path}/${gameId}`);

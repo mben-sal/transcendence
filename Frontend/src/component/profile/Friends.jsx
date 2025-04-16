@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import player_ from '../../assets/src/player_.svg';
 import axios from 'axios';
 import { useUser } from '../../contexts/UserContext'; // Utilisation de useUser à la place de useAuth
+import api from '../../api/axios';
+import { API_BASE_URL } from '../../config'; // Assurez-vous que le chemin est correct
+
 
 const Friends = ({ userId }) => {
   const navigate = useNavigate();
@@ -22,8 +25,8 @@ const Friends = ({ userId }) => {
   const normalizeAvatarUrl = (avatar) => {
     if (!avatar) return player_;
     if (avatar.startsWith('http')) return avatar;
-    if (avatar.startsWith('./media')) return `http://localhost:8000${avatar.substring(1)}`;
-    if (avatar.startsWith('/media')) return `http://localhost:8000${avatar}`;
+    if (avatar.startsWith('./media')) return `${API_BASE_URL}${avatar.substring(1)}`;
+    if (avatar.startsWith('/media')) return `${API_BASE_URL}${avatar}`;
     return avatar;
   };
 
@@ -32,7 +35,7 @@ const Friends = ({ userId }) => {
       setLoading(true);
       
       // Récupérer la liste des amitiés
-      const response = await axios.get('http://localhost:8000/api/users/friends/', {
+      const response = await api.get('/users/friends/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -138,10 +141,10 @@ const Friends = ({ userId }) => {
                         }}
                       />
                     </div>
-                    <div 
+                    {/* <div 
                       className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-white 
                       ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
-                    />
+                    /> */}
                   </div>
                   <div className="flex flex-col items-start justify-start min-w-0">
                     <span className="font-medium text-gray-900 truncate w-full">{friend.name}</span>

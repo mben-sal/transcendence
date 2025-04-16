@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useUser } from '../../contexts/UserContext';
+import api from '../../api/axios';
+
 
 const UserInfo = ({ userData, isOwnProfile }) => {
   const { user } = useUser();
@@ -10,6 +12,7 @@ const UserInfo = ({ userData, isOwnProfile }) => {
   const [friendStatus, setFriendStatus] = useState('none'); // 'none', 'pending', 'friends', 'received'
   const [friendshipId, setFriendshipId] = useState(null);
   const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     if (userData) {
@@ -24,10 +27,10 @@ const UserInfo = ({ userData, isOwnProfile }) => {
 
   const checkFriendshipStatus = async (profileId) => {
     try {
-      setLoading(true); // Ajouter un état de chargement pendant la vérification
+      setLoading(true); 
       
       // Vérifier les demandes envoyées
-      const sentResponse = await axios.get('http://localhost:8000/api/users/friends/requests/sent/', {
+      const sentResponse = await api.get('/users/friends/requests/sent/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -40,7 +43,7 @@ const UserInfo = ({ userData, isOwnProfile }) => {
       }
       
       // Vérifier les demandes reçues
-      const pendingResponse = await axios.get('http://localhost:8000/api/users/friends/requests/pending/', {
+      const pendingResponse = await api.get('/users/friends/requests/pending/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -53,7 +56,7 @@ const UserInfo = ({ userData, isOwnProfile }) => {
       }
       
       // Vérifier si déjà amis
-      const friendsResponse = await axios.get('http://localhost:8000/api/users/friends/', {
+      const friendsResponse = await api.get('http://localhost:8000/api/users/friends/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -96,8 +99,8 @@ const UserInfo = ({ userData, isOwnProfile }) => {
       console.log("Payload envoyé:", payload);
       
       try {
-        const response = await axios.post(
-          'http://localhost:8000/api/users/friends/requests/',
+        const response = await api.post(
+          '/users/friends/requests/',
           payload,
           config
         );
@@ -134,8 +137,8 @@ const UserInfo = ({ userData, isOwnProfile }) => {
   const cancelFriendRequest = async () => {
     try {
       setLoading(true);
-      await axios.post(
-        `http://localhost:8000/api/users/friends/requests/${friendshipId}/`,
+      await api.post(
+        `/users/friends/requests/${friendshipId}/`,
         { action: 'cancel' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -156,16 +159,16 @@ const UserInfo = ({ userData, isOwnProfile }) => {
       
       // Vous pouvez soit utiliser l'ID de l'amitié si vous l'avez
       if (friendshipId) {
-        await axios.post(
-          `http://localhost:8000/api/users/friends/remove/${friendshipId}/`,
+        await api.post(
+          `/users/friends/remove/${friendshipId}/`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
       } 
       // Ou utiliser l'ID de l'utilisateur
       else {
-        await axios.post(
-          `http://localhost:8000/api/users/friends/remove/user/${displayData.id}/`,
+        await api.post(
+          `/users/friends/remove/user/${displayData.id}/`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -184,8 +187,8 @@ const UserInfo = ({ userData, isOwnProfile }) => {
   const acceptFriendRequest = async () => {
     try {
       setLoading(true);
-      await axios.post(
-        `http://localhost:8000/api/users/friends/requests/${friendshipId}/`,
+      await api.post(
+        `/users/friends/requests/${friendshipId}/`,
         { action: 'accept' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -202,8 +205,8 @@ const UserInfo = ({ userData, isOwnProfile }) => {
   const rejectFriendRequest = async () => {
     try {
       setLoading(true);
-      await axios.post(
-        `http://localhost:8000/api/users/friends/requests/${friendshipId}/`,
+      await api.post(
+        `/users/friends/requests/${friendshipId}/`,
         { action: 'reject' },
         { headers: { Authorization: `Bearer ${token}` } }
       );

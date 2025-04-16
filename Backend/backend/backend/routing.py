@@ -1,12 +1,7 @@
-# backend/routing.py
-from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
-from authen.routing import websocket_urlpatterns
+# Dans authen/routing.py
+from django.urls import re_path
+from . import consumers
 
-application = ProtocolTypeRouter({
-    'websocket': AuthMiddlewareStack(
-        URLRouter(
-            websocket_urlpatterns
-        )
-    ),
-})
+websocket_urlpatterns = [
+    re_path(r'wss/notifications/$', consumers.NotificationConsumer.as_asgi()),
+]

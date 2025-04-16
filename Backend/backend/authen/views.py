@@ -50,6 +50,7 @@ class LoginView(APIView):
 
     def post(self, request):
         try:
+            #pour garantir l'intégrité des données(si une erreur se produit, toutes les modifications de base de données sont annulées)
             with transaction.atomic():
                 serializer = LoginSerializer(data=request.data)
                 if not serializer.is_valid():
@@ -82,14 +83,14 @@ class LoginView(APIView):
                         TwoFactorCode.objects.create(
                             user=user,
                             code=code,
-                            expires_at=timezone.now() + timedelta(minutes=10)
+                            expires_at=timezone.now() + timedelta(minutes=2)
                         )
                         
                         # Envoyer le code par email
                         html_content = render_to_string('two_factor_email.html', {
                             'user': user,
                             'code': code,
-                            'expires_in': '10 minutes'
+                            'expires_in': '2 minutes'
                         })
                         
                         send_mail(
@@ -105,7 +106,7 @@ class LoginView(APIView):
                         temp_token = jwt.encode(
                             {
                                 'user_id': user.id, 
-                                'exp': timezone.now() + timedelta(minutes=10)
+                                'exp': timezone.now() + timedelta(minutes=2)
                             },
                             settings.SECRET_KEY,
                             algorithm='HS256'
@@ -139,7 +140,7 @@ class LoginView(APIView):
                 'status': 'error',
                 'message': 'An error occurred during login'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+# initie le processus d'authentification avec l'API de l'École 42
 class FortyTwoLoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -156,6 +157,7 @@ class FortyTwoLoginView(APIView):
         auth_url = f"https://api.intra.42.fr/oauth/authorize?{urlencode(auth_params)}"
         return redirect(auth_url)
 
+#elle traite le retour de l'API 42 après autorisation
 class FortyTwoCallbackView(APIView):
     permission_classes = [AllowAny]
 
@@ -234,13 +236,13 @@ class FortyTwoCallbackView(APIView):
                 TwoFactorCode.objects.create(
                     user=user,
                     code=code,
-                    expires_at=timezone.now() + timedelta(minutes=10)
+                    expires_at=timezone.now() + timedelta(minutes=2)
                 )
                 
                 html_content = render_to_string('two_factor_email.html', {
                     'user': user,
                     'code': code,
-                    'expires_in': '10 minutes'
+                    'expires_in': '2 minutes'
                 })
                 
                 send_mail(
@@ -289,6 +291,7 @@ class FortyTwoCallbackView(APIView):
                 'message': str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
 
+# gère l'affichage et la mise à jour du profil utilisateur
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -326,7 +329,7 @@ class LogoutView(APIView):
 
     def post(self, request):
         try:
-            with transaction.atomic():
+            with transaction.atomic(): #pour garantir que tout se passe ou rien ne se passe
                 # Mettre le statut à offline avant de blacklister le token
                 UserProfile.objects.filter(user=request.user).update(
                     status='offline',
@@ -350,6 +353,7 @@ class LogoutView(APIView):
                 {'error': str(e)}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+        
 class UpdateAvatarView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -974,9 +978,10 @@ class UserProfileByIntraIdView(APIView):
             )
         
 class UserStatusView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated] # verifie que l utilisateur est authentifié	
 
     def get(self, request):
+        #recuperer le statut actuel
         try:
             profile = request.user.userprofile
             return Response({'status': profile.status})
@@ -987,6 +992,7 @@ class UserStatusView(APIView):
             )
 
     def post(self, request):
+        # Mettre à jour le statut de l'utilisateur
         try:
             profile = request.user.userprofile
             new_status = request.data.get('status')
@@ -1026,7 +1032,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
             }
         )
 
-# Ajoutez ces vues à votre views.py
 
 class FriendRequestView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1384,3 +1389,26 @@ class RemoveFriendView(APIView):
             import traceback
             traceback.print_exc()
             return Response({'error': str(e)}, status=500)
+        
+class UserIPView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            # Récupérer l'adresse IP
+            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+            if x_forwarded_for:
+                ip = x_forwarded_for.split(',')[0]
+            else:
+                ip = request.META.get('REMOTE_ADDR')
+            
+            return Response({
+                'status': 'success',
+                'ip_address': ip
+            })
+        except Exception as e:
+            print(f"Error retrieving user IP: {str(e)}")
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

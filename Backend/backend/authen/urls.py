@@ -26,7 +26,8 @@ from .views import (
     SentFriendRequestsView,
     FriendRequestActionView,
     MarkNotificationAsReadView,
-    RemoveFriendView
+    RemoveFriendView,
+    UserIPView
 )
 
 urlpatterns = [
@@ -58,4 +59,5 @@ urlpatterns = [
     path('notifications/<int:notification_id>/read/', MarkNotificationAsReadView.as_view(), name='mark-single-notification-read'),
 	path('users/friends/remove/<int:friendship_id>/', RemoveFriendView.as_view(), name='remove-friend-by-friendship'),
 	path('users/friends/remove/user/<int:user_id>/', RemoveFriendView.as_view(), name='remove-friend-by-user'),
+	path('users/ip/', UserIPView.as_view(), name='user-ip'),
 ]

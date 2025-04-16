@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useUser } from '../contexts/UserContext';
 import logoimage from '../assets/src/Right.svg';
 import './two_factor.css';
+import api from '../api/axios';
+
 
 const TwoFactor = () => {
   const [code, setCode] = useState(['', '', '', '', '', '']);
@@ -51,7 +53,7 @@ const TwoFactor = () => {
         return;
       }
 
-      const response = await axios.post('http://localhost:8000/api/users/verify-2fa/', {
+      const response = await api.post('/users/verify-2fa/', {
         code: fullCode,
         temp_token: location.state?.tempToken
       });
@@ -74,7 +76,7 @@ const TwoFactor = () => {
       setIsLoading(true);
       setError('');
       
-      await axios.post('http://localhost:8000/api/users/resend-2fa/', {
+      await api.post('/users/resend-2fa/', {
         temp_token: location.state?.tempToken
       });
       

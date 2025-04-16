@@ -126,8 +126,6 @@ class NotificationSerializer(serializers.ModelSerializer):
         fields = ['id', 'notification_type', 'content', 'is_read', 'created_at', 
                  'sender_name', 'sender_avatar', 'sender_id', 'sender_intra_id']
         
-# Ajoutez ceci à votre serializers.py
-
 class FriendshipSerializer(serializers.ModelSerializer):
     sender_name = serializers.CharField(source='sender.userprofile.display_name', read_only=True)
     sender_avatar = serializers.CharField(source='sender.userprofile.avatar', read_only=True)

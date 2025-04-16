@@ -8,6 +8,7 @@ import Achievements from '../component/profile/Achievements';
 import { useUser } from '../contexts/UserContext';
 import cover from '../assets/src/cover_1.jpg';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 
 
 const Profile = () => {
@@ -28,8 +29,8 @@ const Profile = () => {
   const normalizeAvatarUrl = (avatar) => {
     if (!avatar) return player_;
     if (avatar.startsWith('http')) return avatar;
-    if (avatar.startsWith('./media')) return `http://localhost:8000${avatar.substring(1)}`;
-    if (avatar.startsWith('/media')) return `http://localhost:8000${avatar}`;
+    if (avatar.startsWith('./media')) return `${API_BASE_URL}${avatar.substring(1)}`;
+    if (avatar.startsWith('/media')) return `${API_BASE_URL}${avatar}`;
     return avatar;
   };
 
@@ -44,7 +45,7 @@ const Profile = () => {
 	  }
   
 	  try {
-		const response = await fetch(`http://localhost:8000/api/users/${intraId}/`, {
+		const response = await fetch(`${API_BASE_URL}/users/${intraId}/`, {
 		  headers: {
 			'Authorization': `Bearer ${localStorage.getItem('token')}`
 		  }
@@ -80,7 +81,7 @@ const Profile = () => {
       const formData = new FormData();
       formData.append('avatar', file);
 
-      const response = await fetch('http://localhost:8000/api/users/avatar/', {
+      const response = await fetch('${API_BASE_URL}/users/avatar/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -107,7 +108,7 @@ const Profile = () => {
   const handleGameInvite = async () => {
     if (isOwnProfile) return;
     try {
-      await fetch('http://localhost:8000/api/game/invite', {
+      await fetch('${API_BASE_URL}/game/invite', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

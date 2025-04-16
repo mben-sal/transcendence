@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useUser } from '../contexts/UserContext';
+import api from '../api/axios';
+
 
 export default function SignUp() {
     const navigate = useNavigate();
@@ -58,10 +60,25 @@ export default function SignUp() {
     };
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-        setErrors(prev => ({ ...prev, [name]: '' }));
-    };
+		const { name, value } = e.target;
+		setFormData(prev => ({ ...prev, [name]: value }));
+		
+		// Effacer l'erreur spécifique à ce champ
+		setErrors(prev => {
+			const newErrors = { ...prev };
+			
+			// Supprimer l'erreur spécifique
+			delete newErrors[name];
+			
+			// Si le champ modifié est "loginName" et qu'il y a une erreur de soumission qui concerne le login,
+			// supprimer également l'erreur de soumission
+			if (name === 'loginName' && prev.submit && prev.submit.toLowerCase().includes('nom d\'utilisateur')) {
+				delete newErrors.submit;
+			}
+			
+			return newErrors;
+		});
+	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -75,11 +92,11 @@ export default function SignUp() {
 			login_name: formData.loginName
 		};
 		
-		console.log('Payload:', payload);
-	
 		setIsLoading(true);
+		setErrors({}); // Réinitialiser toutes les erreurs
+	
 		try {
-			const response = await axios.post('http://localhost:8000/api/users/signup/', payload);
+			const response = await api.post('/users/signup/', payload);
 			
 			localStorage.setItem('token', response.data.token);
 			localStorage.setItem('refresh_token', response.data.refresh_token);
@@ -87,9 +104,72 @@ export default function SignUp() {
 			navigate('/');
 		} catch (error) {
 			console.error("Signup error:", error.response?.data);
-			setErrors(error.response?.data?.errors || { submit: 'Erreur d\'inscription' });
+			
+			// Gestion améliorée des erreurs du backend
+			if (error.response?.data) {
+				const backendErrors = error.response.data;
+				const fieldErrors = {};
+				
+				// Vérifier si la structure contient "errors"
+				if (backendErrors.errors) {
+					// Gestion spécifique pour le login
+					if (backendErrors.errors.login_name) {
+						const loginError = Array.isArray(backendErrors.errors.login_name) 
+							? backendErrors.errors.login_name[0] 
+							: backendErrors.errors.login_name;
+						
+						fieldErrors.loginName = loginError;
+						fieldErrors.submit = loginError;
+					}
+					
+					if (backendErrors.errors.email) {
+						fieldErrors.email = Array.isArray(backendErrors.errors.email) 
+							? backendErrors.errors.email[0] 
+							: backendErrors.errors.email;
+					}
+					
+					if (backendErrors.errors.password) {
+						fieldErrors.password = Array.isArray(backendErrors.errors.password) 
+							? backendErrors.errors.password[0] 
+							: backendErrors.errors.password;
+					}
+				} else {
+					// Format d'erreur alternatif
+					if (backendErrors.login_name) {
+						fieldErrors.loginName = Array.isArray(backendErrors.login_name) 
+							? backendErrors.login_name[0] 
+							: backendErrors.login_name;
+					}
+					
+					if (backendErrors.email) {
+						fieldErrors.email = Array.isArray(backendErrors.email) 
+							? backendErrors.email[0] 
+							: backendErrors.email;
+					}
+					
+					if (backendErrors.password) {
+						fieldErrors.password = Array.isArray(backendErrors.password) 
+							? backendErrors.password[0] 
+							: backendErrors.password;
+					}
+				}
+				
+				// Si aucune erreur spécifique n'est trouvée mais qu'il y a un message général
+				if (Object.keys(fieldErrors).length === 0 && backendErrors.message) {
+					fieldErrors.submit = backendErrors.message;
+				}
+				
+				if (Object.keys(fieldErrors).length === 0) {
+					fieldErrors.submit = "Une erreur s'est produite lors de l'inscription. Veuillez réessayer.";
+				}
+				
+				setErrors(fieldErrors);
+			} else {
+				// En cas d'erreur réseau ou autre
+				setErrors({ submit: "Erreur de connexion au serveur. Veuillez réessayer." });
+			}
 		} finally {
-			setIsLoading(false);
+			setIsLoading(false); // Toujours réinitialiser isLoading
 		}
 	};
 
@@ -154,10 +234,10 @@ export default function SignUp() {
                             value={formData.loginName}
                             onChange={handleChange}
                             placeholder="Choose your login name"
-                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-black text-white"
+                            className={`w-full p-2 border ${errors.loginName ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-black text-white`}
                         />
                         {errors.loginName && (
-                            <span className="text-red-500 text-sm">{errors.loginName}</span>
+                            <span className="text-red-500 text-sm font-medium">{errors.loginName}</span>
                         )}
                     </div>
 
@@ -192,9 +272,10 @@ export default function SignUp() {
                     </div>
 
                     {errors.submit && (
-                        <div className="text-red-500 text-sm text-center">{errors.submit}</div>
+                        <div className="text-red-500 text-sm text-center font-medium p-2 bg-red-50 rounded-md border border-red-200">
+                            {errors.submit}
+                        </div>
                     )}
-
                     <button
                         type="submit"
                         className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium mt-6 disabled:opacity-50"

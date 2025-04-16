@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import api from '../api/axios';
+
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -39,7 +41,7 @@ export default function ResetPassword() {
     }
 
     try {
-      await axios.post('http://localhost:8000/api/users/password-reset-confirm/', {
+      post('/users/password-reset-confirm/', {
         token: token,
         new_password: formData.password
       });

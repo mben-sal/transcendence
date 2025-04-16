@@ -5,10 +5,11 @@ import Player_ from '../assets/src/player_.svg';
 import axios from 'axios';
 import ConfirmationModal from '../component/settings/confirmationModel';
 import ActionButtons from '../component/settings/ActionButtons';
+import api from '../api/axios';
 
 
 
-axios.defaults.withCredentials = true;
+api.defaults.withCredentials = true;
 const ProfileSettings = () => {
   const { user, fetchUserProfile } = useUser();
   const [firstName, setFirstName] = useState('');
@@ -66,7 +67,7 @@ const ProfileSettings = () => {
 	setUploadLoading(true);
 	try {
 	  const token = localStorage.getItem('token');
-	  await axios.post('http://localhost:8000/api/users/avatar/', formData, {
+	  await api.post('/users/avatar/', formData, {
 		headers: { 
 		  Authorization: `Bearer ${token}`,
 		  'Content-Type': 'multipart/form-data'
@@ -89,7 +90,7 @@ const ProfileSettings = () => {
   
 	try {
 	  const token = localStorage.getItem('token');
-	  await axios.delete('http://localhost:8000/api/users/avatar/', {
+	  await api.delete('/users/avatar/', {
 		headers: { Authorization: `Bearer ${token}` }
 	  });
 	  
@@ -110,8 +111,8 @@ const ProfileSettings = () => {
 		  return;
 		}
   
-		const response = await axios.post(
-		  'http://localhost:8000/api/users/request-password-change/',
+		const response = await api.post(
+		  '/users/request-password-change/',
 		  {
 			old_password: currentPassword,
 			new_password: newPassword
@@ -131,8 +132,8 @@ const ProfileSettings = () => {
 		}
 	  } else {
 		// Pour les autres changements (nom, prénom, etc.)
-		const response = await axios.post(
-		  'http://localhost:8000/api/users/request-change/',
+		const response = await api.post(
+		  '/users/request-change/',
 		  {
 			first_name: firstName,
 			last_name: lastName,
@@ -170,8 +171,8 @@ const ProfileSettings = () => {
 	  let response;
   
 	  if (confirmationType === 'password') {
-		response = await axios.post(
-		  'http://localhost:8000/api/users/confirm-password-change/',
+		response = await api.post(
+		  '/users/confirm-password-change/',
 		  { confirmation_code: code },
 		  {
 			headers: { 
@@ -196,8 +197,8 @@ const ProfileSettings = () => {
 		}
 	  } else {
 		// Pour les changements de profil
-		response = await axios.post(
-		  'http://localhost:8000/api/users/confirm-profile-change/',
+		response = await api.post(
+		  '/users/confirm-profile-change/',
 		  { confirmation_code: code },
 		  {
 			headers: { 
@@ -222,8 +223,8 @@ const ProfileSettings = () => {
   const applyChanges = async (changes) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put(
-        'http://localhost:8000/api/users/profile/',
+      const response = await api.put(
+        '/users/profile/',
         changes,
         {
           headers: { 
@@ -251,7 +252,7 @@ const ProfileSettings = () => {
 // 	  const token = localStorage.getItem('token');
 	  
 // 	  // Appeler l'endpoint de confirmation de suppression
-// 	  await axios.post('http://localhost:8000/api/users/confirm-delete/', 
+// 	  await api.post('http://localhost:8000/api/users/confirm-delete/', 
 // 		{ password: password },
 // 		{
 // 		  headers: { Authorization: `Bearer ${token}` }

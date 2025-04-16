@@ -2,7 +2,7 @@ import axios from 'axios';
 import { AUTH_CONFIG } from '../config';
 
 // Création d'une instance axios avec la configuration de base
-const api = axios.create({
+const api = api.create({
     baseURL: AUTH_CONFIG.VITE_API_URL,
     headers: {
         'Content-Type': 'application/json'

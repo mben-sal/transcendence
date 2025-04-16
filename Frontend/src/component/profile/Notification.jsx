@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Bell, Check } from 'lucide-react';
 import axios from 'axios';
+import api from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
@@ -30,7 +31,7 @@ const NotificationComponent = () => {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8000/api/notifications/', {
+      const response = await api.get('/notifications/', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -45,8 +46,8 @@ const NotificationComponent = () => {
 
   const markAsRead = async (notificationId) => {
     try {
-      await axios.post(
-        `http://localhost:8000/api/notifications/${notificationId}/read/`,
+      await api.post(
+        `/notifications/${notificationId}/read/`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -65,8 +66,8 @@ const NotificationComponent = () => {
   // Fonction pour marquer toutes les notifications comme lues
   const markAllAsRead = async () => {
     try {
-      await axios.post(
-        'http://localhost:8000/api/notifications/mark-all-read/',
+      await api.post(
+        '/notifications/mark-all-read/',
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -85,8 +86,7 @@ const NotificationComponent = () => {
 	console.log("ID de l'expéditeur:", notification.sender_id);
 	console.log("Intra ID de l'expéditeur:", notification.sender_intra_id);
 	
-	// Essayez d'abord de vérifier si l'utilisateur existe
-	axios.get(`http://localhost:8000/api/users/${notification.sender_intra_id}/`, {
+	api.get(`/api/users/${notification.sender_intra_id}`, {
 	  headers: { Authorization: `Bearer ${token}` }
 	})
 	.then(response => {

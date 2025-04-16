@@ -80,7 +80,6 @@ class TwoFactorCode(models.Model):
     class Meta:
         db_table = 'two_factor_codes'
         
-# Dans models.py, ajoutez:
 
 class Notification(models.Model):
     NOTIFICATION_TYPES = [
@@ -100,7 +99,6 @@ class Notification(models.Model):
         ordering = ['-created_at']
         
 
-# Ajoutez ceci à votre models.py
 
 class Friendship(models.Model):
     STATUS_CHOICES = [

@@ -5,8 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
-    port: 5173,
-    hmr: false  // Désactivez temporairement HMR
+    port: 5173
   },
   optimizeDeps: {
     include: ['antd']

@@ -18,7 +18,7 @@ const SearchNavbar = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:8000/api/users/search/?q=${encodeURIComponent(searchQuery)}`, {
+        const response = await fetch(`https://localhost/api/users/search/?q=${encodeURIComponent(searchQuery)}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
@@ -70,15 +70,15 @@ const SearchNavbar = () => {
             >
               <img
                 src={result.avatar ? 
-                  (result.avatar.startsWith('./media') ? `http://localhost:8000${result.avatar.substring(1)}` :
-                   result.avatar.startsWith('/media') ? `http://localhost:8000${result.avatar}` : 
+                  (result.avatar.startsWith('./media') ? `https://localhost/api/${result.avatar.substring(1)}` :
+                   result.avatar.startsWith('/media') ? `https://localhost/api/${result.avatar}` : 
                    result.avatar) :
-                  'http://localhost:8000/media/avatars/defaultavatar.png'}
+                  'https://localhost/api/media/avatars/defaultavatar.png'}
                 alt={result.display_name}
                 className="w-8 h-8 rounded-full mr-3 bg-gray-200"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = 'http://localhost:8000/media/avatars/defaultavatar.png';
+                  e.target.src = 'https://localhost/api/media/avatars/defaultavatar.png';
                 }}
               />
               <div>

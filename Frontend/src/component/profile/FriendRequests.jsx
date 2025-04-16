@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useUser } from '../../contexts/UserContext'; // Utilisation de useUser à la place de useAuth
+import api from '../api/axios';
 
 const FriendRequests = ({ onUpdate }) => {
   const { user } = useUser(); // Obtenir l'utilisateur depuis le contexte
@@ -21,12 +22,12 @@ const FriendRequests = ({ onUpdate }) => {
       setLoading(true);
       
       // Récupérer les demandes reçues
-      const pendingResponse = await axios.get('http://localhost:8000/api/users/friends/requests/pending/', {
+      const pendingResponse = await api.get('/users/friends/requests/pending/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
       // Récupérer les demandes envoyées
-      const sentResponse = await axios.get('http://localhost:8000/api/users/friends/requests/sent/', {
+      const sentResponse = await api.get('/users/friends/requests/sent/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -42,8 +43,8 @@ const FriendRequests = ({ onUpdate }) => {
   
   const handleAction = async (friendshipId, action) => {
     try {
-      await axios.post(
-        `http://localhost:8000/api/users/friends/requests/${friendshipId}/`,
+      await api.post(
+        `users/friends/requests/${friendshipId}/`,
         { action },
         { headers: { Authorization: `Bearer ${token}` } }
       );

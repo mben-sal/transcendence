@@ -1,13 +1,16 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import api from '../api/axios';
+import { API_BASE_URL } from '../config';
+
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null); // Infos de l'utilisateur
+    const [loading, setLoading] = useState(true); // État de chargement
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        return !!localStorage.getItem('token');
+        return !!localStorage.getItem('token'); // Si l'utilisateur est connecté
     });
 
     // Fonction pour mettre à jour le statut
@@ -16,10 +19,10 @@ export const UserProvider = ({ children }) => {
             const token = localStorage.getItem('token');
             if (!token) return;
 
-            await axios.post('http://localhost:8000/api/users/status/', 
+            await api.post('/users/status/', 
                 { status },
                 {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: { Authorization: `Bearer ${token}` } //token JWT
                 }
             );
         } catch (error) {
@@ -33,16 +36,16 @@ export const UserProvider = ({ children }) => {
             const refreshToken = localStorage.getItem('refresh_token');
             
             // Mettre le statut à offline
-            await axios.post(
-                'http://localhost:8000/api/users/status/',
+            await api.post(
+                '/users/status/',
                 { status: 'offline' },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             
             // Faire le logout
             if (refreshToken) {
-                await axios.post(
-                    'http://localhost:8000/api/users/logout/',
+                await api.post(
+                    '/users/logout/',
                     { refresh_token: refreshToken },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
@@ -59,8 +62,8 @@ export const UserProvider = ({ children }) => {
 			// Mettre à jour le statut avant de supprimer le token
 			const token = localStorage.getItem('token');
 			if (token) {
-				await axios.post(
-					'http://localhost:8000/api/users/status/',
+				await api.post(
+					'/users/status/',
 					{ status: 'offline' },
 					{ headers: { Authorization: `Bearer ${token}` } }
 				);
@@ -78,20 +81,22 @@ export const UserProvider = ({ children }) => {
     const fetchUserProfile = async () => {
         setLoading(true);
         try {
+			// recuperer token authentification
             const token = localStorage.getItem('token');
+			// si non existe pas, deconnecter , free 
             if (!token) {
                 clearUserData();
                 setLoading(false);
                 return null;
             }
 
-            const response = await axios.get('http://localhost:8000/api/users/profile/', {
+            const response = await api.get('/users/profile/', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
             const userData = response.data;
             userData.avatar = userData.avatar && userData.avatar !== '/media/default-avatar.svg' ? 
-                (userData.avatar.startsWith('/media') ? `http://localhost:8000${userData.avatar}` : userData.avatar) :
+                (userData.avatar.startsWith('/media') ? `${API_BASE_URL}${userData.avatar}` : userData.avatar) :
                 defaultAvatar;
             
             // Mettre à jour le statut quand on récupère le profil
@@ -116,7 +121,7 @@ export const UserProvider = ({ children }) => {
     const updateUser = async (newData) => {
         try {
             if (newData.avatar && newData.avatar.startsWith('/media')) {
-                newData.avatar = `http://localhost:8000${newData.avatar}`;
+                newData.avatar = `${API_BASE_URL}${newData.avatar}`;
             }
             setUser(newData);
             await fetchUserProfile();
@@ -125,7 +130,7 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    // Effet pour gérer le ping périodique du statut
+    // garder le statut "online" actif côté serveur tant que l'utilisateur reste connecté.
 	useEffect(() => {
 		let pingInterval;
 		
@@ -153,7 +158,7 @@ export const UserProvider = ({ children }) => {
             if (isAuthenticated) {
                 // Synchrone pour s'assurer que c'est fait avant la fermeture
                 navigator.sendBeacon(
-                    'http://localhost:8000/api/users/status/',
+                    '${API_BASE_URL}/users/status/',
                     JSON.stringify({ status: 'offline' })
                 );
             }
@@ -163,6 +168,7 @@ export const UserProvider = ({ children }) => {
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
     }, [isAuthenticated]);
 
+	// Récupération du profil utilisateur
     useEffect(() => {
         if (isAuthenticated) {
             fetchUserProfile();
@@ -171,6 +177,7 @@ export const UserProvider = ({ children }) => {
         }
     }, [isAuthenticated]);
 
+	//Statut online/offline
 	useEffect(() => {
 		const handleVisibilityChange = () => {
 			if (document.visibilityState === 'hidden' && isAuthenticated) {

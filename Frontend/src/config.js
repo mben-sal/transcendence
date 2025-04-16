@@ -29,3 +29,6 @@ export const AUTH_CONFIG = {
 //   },
 //   assetsInclude: ['**/*.gif', '**/*.jpg', '**/*.png'],
 // });
+
+export const API_BASE_URL = 'https://localhost/api';
+export const WS_BASE_URL = 'wss://localhost/ws';
