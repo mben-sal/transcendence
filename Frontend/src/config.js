@@ -13,8 +13,9 @@ const getEnvVariable = (key) => {
 
 export const AUTH_CONFIG = {
 	CLIENT_ID: import.meta.env.VITE_42_CLIENT_ID,
-	REDIRECT_URI: import.meta.env.VITE_42_REDIRECT_URI,
-	VITE_API_URL: import.meta.env.VITE_API_URL
+    CLIENT_SECRET: import.meta.env.VITE_42_CLIENT_SECRET,
+    REDIRECT_URI: import.meta.env.VITE_42_REDIRECT_URI,
+    API_URL: import.meta.env.VITE_API_URL
 };
 // import { defineConfig } from 'vite';
 // import react from '@vitejs/plugin-react';
@@ -31,4 +32,6 @@ export const AUTH_CONFIG = {
 // });
 
 export const API_BASE_URL = 'https://localhost/api';
-export const WS_BASE_URL = 'wss://localhost/ws';
+// export const WS_BASE_URL = 'wss://localhost/ws';
+export const WS_BASE_URL = 'wss://localhost';
+

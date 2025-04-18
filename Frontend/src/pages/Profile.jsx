@@ -9,6 +9,7 @@ import { useUser } from '../contexts/UserContext';
 import cover from '../assets/src/cover_1.jpg';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
+import { chatService } from '../services/api_chat';
 
 
 const Profile = () => {
@@ -81,7 +82,7 @@ const Profile = () => {
       const formData = new FormData();
       formData.append('avatar', file);
 
-      const response = await fetch('${API_BASE_URL}/users/avatar/', {
+      const response = await fetch(`${API_BASE_URL}/users/avatar/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -126,6 +127,30 @@ const Profile = () => {
     }
   };
 
+  const handleStartConversation = async () => {
+    if (isOwnProfile || !profileData) return;
+    
+    try {
+      setIsMoreOpen(false);
+      
+      // Création ou récupération d'une conversation avec cet utilisateur
+      const conversation = await chatService.createConversation([profileData.id]);
+      
+      // Redirection vers la page de chat avec cette conversation
+      navigate('/chat', { state: { selectedConversation: conversation } });
+    } catch (error) {
+      console.error('Error starting conversation:', error);
+      alert('Impossible de démarrer la conversation. Veuillez réessayer.');
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -172,7 +197,9 @@ const Profile = () => {
                     >
                       🎮 Invite to Game 
                     </button>
-                    <button className="bg-[#CBDCEB] flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100">
+                    <button className="bg-[#CBDCEB] flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
+					onClick={handleStartConversation}>
+
                       <MessageCircle className="w-4 h-4 mr-2" />
                       Send Message
                     </button>

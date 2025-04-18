@@ -1,75 +1,90 @@
-import { AUTH_CONFIG } from '../config';
+import api from '../api/axios';
 
 export const chatService = {
+  // Get all conversations
   async getConversations() {
-    const response = await fetch(`${AUTH_CONFIG.VITE_API_URL}/conversations/`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    return response.json();
+    try {
+      const response = await api.get('/conversations/');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+      throw error;
+    }
   },
 
+  // Get messages for a specific conversation
   async getMessages(conversationId) {
-    const response = await fetch(`${AUTH_CONFIG.VITE_API_URL}/conversations/${conversationId}/messages/`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    return response.json();
+    try {
+      const response = await api.get(`/conversations/${conversationId}/messages/`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      throw error;
+    }
   },
 
+  // Send a message to a conversation - utiliser la fonction de message direct
   async sendMessage(conversationId, content) {
-    const response = await fetch(`${AUTH_CONFIG.VITE_API_URL}/conversations/${conversationId}/send_message/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({ content })
-    });
-    return response.json();
+    try {
+      console.log(`Envoi d'un message à la conversation ${conversationId}:`, content);
+      
+      // Essayer avec la fonction send_message_view directement
+      const response = await api.post(`/message/${conversationId}/`, {
+        content
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error sending message:', error);
+      throw error;
+    }
   },
-
-  async createPrivateChat(userId) {
-    const response = await fetch(`${AUTH_CONFIG.VITE_API_URL}/conversations/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({
-        type: 'private',
-        participants: [userId]
-      })
-    });
-    return response.json();
-  },
-
-  async createGroupChat(name, participants, description) {
-    const response = await fetch(`${AUTH_CONFIG.VITE_API_URL}/conversations/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({
-        type: 'group',
-        name,
-        participants,
-        description
-      })
-    });
-    return response.json();
-  },
-
+  
+  // Mark conversation as read
   async markAsRead(conversationId) {
-    const response = await fetch(`${AUTH_CONFIG.VITE_API_URL}/conversations/${conversationId}/mark_read/`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    return response.json();
+    try {
+      const response = await api.post(`/conversations/${conversationId}/mark_as_read/`);
+      return response.data;
+    } catch (error) {
+      console.error('Error marking as read:', error);
+      throw error;
+    }
+  },
+
+  // Create a new conversation
+  async createConversation(participants, type = 'private', name = '') {
+    try {
+      const response = await api.post('/conversations/', {
+        participants,
+        type,
+        name
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      throw error;
+    }
+  },
+
+  // Block a conversation
+  async blockConversation(conversationId) {
+    try {
+      const response = await api.post(`/conversations/${conversationId}/block/`);
+      return response.data;
+    } catch (error) {
+      console.error('Error blocking conversation:', error);
+      throw error;
+    }
+  },
+
+  // Unblock a conversation
+  async unblockConversation(conversationId) {
+    try {
+      const response = await api.post(`/conversations/${conversationId}/unblock/`);
+      return response.data;
+    } catch (error) {
+      console.error('Error unblocking conversation:', error);
+      throw error;
+    }
   }
 };

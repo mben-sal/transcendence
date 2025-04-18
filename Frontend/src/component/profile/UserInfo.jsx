@@ -56,7 +56,7 @@ const UserInfo = ({ userData, isOwnProfile }) => {
       }
       
       // Vérifier si déjà amis
-      const friendsResponse = await api.get('http://localhost:8000/api/users/friends/', {
+      const friendsResponse = await api.get('/users/friends/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
