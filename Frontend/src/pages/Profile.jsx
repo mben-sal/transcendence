@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import player_ from '../assets/src/player_.svg';
-import { MoreVertical, MessageCircle, UserPlus, UserMinus, Lock } from "lucide-react";
+import { MoreVertical, MessageCircle, } from "lucide-react";
 import Friends from '../component/profile/Friends';
 import UserInfo from '../component/profile/UserInfo';
-import Achievements from '../component/profile/Achievements';
+// import Achievements from '../component/profile/Achievements';
 import { useUser } from '../contexts/UserContext';
 import cover from '../assets/src/cover_1.jpg';
 import { useNavigate } from 'react-router-dom';
@@ -14,14 +14,14 @@ import { chatService } from '../services/api_chat';
 
 const Profile = () => {
   const { intraId } = useParams(); // Get userId from URL
-  const { user, updateUser, fetchUserProfile } = useUser();
+  const { user,  fetchUserProfile } = useUser();
   const [profileData, setProfileData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [profileImage, setProfileImage] = useState(player_);
   const [coverImage] = useState(user?.cover || '');
   const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [isBlocked, setIsBlocked] = useState(false);
+//   const [isFollowing, setIsFollowing] = useState(false);
+//   const [isBlocked, setIsBlocked] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
   const profileInputRef = useRef(null);

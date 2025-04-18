@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import GroupCard from "../component/chat/group-card";
+// import GroupCard from "../component/chat/group-card";
 import PrivateCard from "../component/chat/private-card"; 
 import SearchInput from "../component/chat/Search-input";
 import ChatConversation from "../component/chat/chat-convesation";

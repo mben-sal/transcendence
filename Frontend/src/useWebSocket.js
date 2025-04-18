@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
+import { chatService } from '../src/services/chat.service';
 
 const useWebSocket = (conversationId) => {
-  const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(null);
 
-  // Initialize WebSocket connection
+  // Initialize WebSocket connection through chatService
   useEffect(() => {
     if (!conversationId) return;
 
@@ -16,88 +16,91 @@ const useWebSocket = (conversationId) => {
       return;
     }
 
-    // Tester avec une URL absolue complète
-    // S'assurer que l'URL correspond exactement à ce que votre backend attend
-    const wsUrl = `wss://localhost/ws/chat/${conversationId}/?token=${token}`;
+    console.log('Initialisation de la connexion socket.io pour la conversation:', conversationId);
     
-    console.log('Tentative de connexion WebSocket:', wsUrl);
-    console.log('État actuel du WebSocket:', socket?.readyState);
-    
-    try {
-      const webSocket = new WebSocket(wsUrl);
+    // Connexion au socket
+    chatService.connect(token);
 
-      webSocket.onopen = () => {
-        console.log('WebSocket connecté avec succès');
-        setIsConnected(true);
-        setError(null);
-      };
+    // Écouter les événements de connexion
+    chatService.on('onConnected', () => {
+      console.log('Socket.io connecté avec succès');
+      setIsConnected(true);
+      setError(null);
+      
+      // Rejoindre la conversation spécifique
+      chatService.joinConversation(conversationId);
+    });
 
-      webSocket.onmessage = (event) => {
-        console.log('Message WebSocket reçu:', event.data);
-        try {
-          const data = JSON.parse(event.data);
-          if (data.message) {
-            setMessages((prevMessages) => [...prevMessages, data.message]);
-          }
-        } catch (err) {
-          console.error('Erreur de parsing du message WebSocket:', err);
+    chatService.on('onDisconnected', () => {
+      console.log('Socket.io déconnecté');
+      setIsConnected(false);
+    });
+
+    // Écouter les nouveaux messages
+    chatService.on('onMessage', (message) => {
+      console.log('Nouveau message reçu:', message);
+      setMessages((prevMessages) => {
+        // Éviter les doublons en vérifiant l'ID du message
+        if (!prevMessages.some(msg => msg.id === message.id)) {
+          return [...prevMessages, message];
         }
-      };
+        return prevMessages;
+      });
+    });
 
-      webSocket.onerror = (event) => {
-        console.error('Erreur WebSocket:', event);
-        // Ajout de plus de détails de l'erreur
-        console.error('Type d\'erreur:', event.type);
-        console.error('État de la connexion:', webSocket.readyState);
-        setError('Erreur de connexion WebSocket');
-        setIsConnected(false);
-      };
-
-      webSocket.onclose = (event) => {
-        console.log('WebSocket fermé. Code:', event.code, 'Raison:', event.reason || 'Non spécifiée');
-        setIsConnected(false);
-      };
-
-      setSocket(webSocket);
-
-      // Cleanup function
-      return () => {
-        if (webSocket && webSocket.readyState === WebSocket.OPEN) {
-          console.log('Fermeture de la connexion WebSocket');
-          webSocket.close();
-        }
-      };
-    } catch (err) {
-      console.error('Exception lors de la création du WebSocket:', err);
-      setError(`Erreur de création WebSocket: ${err.message}`);
-    }
+    // Nettoyer lors du démontage du composant
+    return () => {
+      console.log('Nettoyage de la connexion socket.io');
+      chatService.leaveConversation();
+      // Ne pas déconnecter complètement, car d'autres composants pourraient utiliser le socket
+      // chatService.disconnect();
+      
+      // Réinitialiser les callbacks
+      chatService.on('onMessage', null);
+      chatService.on('onConnected', null);
+      chatService.on('onDisconnected', null);
+    };
   }, [conversationId]);
 
-  // Function to send messages
+  // Configurer les messages initiaux
+  const setInitialMessages = useCallback((initialMessages) => {
+    console.log('Configuration des messages initiaux:', initialMessages.length);
+    setMessages(initialMessages);
+  }, []);
+
+  // Fonction pour envoyer des messages
   const sendMessage = useCallback((message) => {
-    if (socket && socket.readyState === WebSocket.OPEN) {
+    if (isConnected) {
       try {
-        console.log('Envoi de message via WebSocket:', message);
-        socket.send(JSON.stringify({
-          message: message
-        }));
+        console.log('Envoi de message via socket.io:', message);
+        chatService.sendMessage(message);
         return true;
       } catch (err) {
-        console.error('Erreur d\'envoi via WebSocket:', err);
+        console.error('Erreur d\'envoi via socket.io:', err);
         return false;
       }
     } else {
-      console.warn(`WebSocket non connecté (état: ${socket?.readyState}), impossible d'envoyer le message`);
+      console.warn('Socket.io non connecté, impossible d\'envoyer le message');
       return false;
     }
-  }, [socket]);
+  }, [isConnected]);
+
+  // Marquer la conversation comme lue
+  const markAsRead = useCallback(() => {
+    if (isConnected) {
+      chatService.markAsRead();
+    } else {
+      console.warn('Socket.io non connecté, impossible de marquer comme lu');
+    }
+  }, [isConnected]);
 
   return {
     isConnected,
     messages,
     sendMessage,
-    error,
-    socketState: socket?.readyState
+    markAsRead,
+    setInitialMessages,
+    error
   };
 };
 

@@ -11,6 +11,7 @@ COPY . .
 # # Ensure init script is executable
 RUN chmod +x ./init.sh
 
+
 # # Expose port
 EXPOSE 5173
 
